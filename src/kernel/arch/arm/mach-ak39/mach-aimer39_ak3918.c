@@ -476,6 +476,19 @@ static struct ak_led_data leds[] = {
 		.int_pol	= -1,
 		}
 	},
+	
+	{
+	.name		= "vedio_led",
+	.def_trigger	= "none",
+	.gpio		= {
+		.pin		= AK_GPIO_53,
+		.pulldown	= -1,
+		.pullup 	= AK_PULLUP_DISABLE,
+		.value		= AK_GPIO_OUT_HIGH,
+		.dir		= AK_GPIO_DIR_OUTPUT,
+		.int_pol	= -1,
+		}
+	},
 };
 
 static struct ak_led_pdata led_pdata = {
