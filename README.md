@@ -2,7 +2,7 @@
 
 ## The Latest Build
 
-https://drone.io/github.com/tohax/Lamobo-D1/status.png
+[![Build Status](https://drone.io/github.com/tohax/Lamobo-D1/status.png)](https://drone.io/github.com/tohax/Lamobo-D1/latest)
 
 ## Firmware Build Steps
 
