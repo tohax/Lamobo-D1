@@ -31,12 +31,12 @@ usage()
 	exit 3
 }
 
-light_on_led()
+light_off_led()
 {
 	echo 0 > ${led}/brightness
 }
 
-light_off_led()
+light_on_led()
 {
 	echo 0 > ${led}/brightness
 	echo 1 > ${led}/brightness
