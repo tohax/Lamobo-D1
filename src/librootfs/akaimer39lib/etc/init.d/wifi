@@ -10,8 +10,8 @@ rmmod 8188eu
 insmod /root/8188eu.ko
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/jffs2/wpa_supplicant.conf
 
-SSID=\"myoffice\"
-PSK=\"Y6PADNV2\"
+SSID=\"TP\"
+PSK=\"acurarsx\"
 
 wpa_cli -iwlan0 add_network
 wpa_cli -iwlan0 set_network 0 ssid $SSID
