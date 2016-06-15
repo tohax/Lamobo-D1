@@ -648,6 +648,9 @@ static int __devinit ds1307_probe(struct i2c_client *client,
 		ds1307->write_block_data = ds1307_write_block_data;
 	}
 
+ds1307->read_block_data = ds1307_read_block_data;
+ds1307->write_block_data = ds1307_write_block_data;
+
 	switch (ds1307->type) {
 	case ds_1337:
 	case ds_1339:
