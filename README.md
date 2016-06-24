@@ -15,7 +15,7 @@
 
     ```
     cd ~
-    git clone https://github.com/Lamobo/Lamobo-D1.git
+    git clone https://github.com/tohax/Lamobo-D1.git
     ```
 
 2. Build
