@@ -3,7 +3,7 @@
 build_tools()
 {
     echo Updating package list...
-    $APT_GET update
+ #   $APT_GET update
 
     echo Installing tools...
     $APT_GET install lzop zip
@@ -275,11 +275,11 @@ build_all()
     config_busybox
     build_busybox
     build_rootfs
-    build_samples
-    build_node
-    build_updater
+#    build_samples
+#    build_node
+#    build_updater
     pack_basic
-    pack_extra
+#    pack_extra
 }
 
 clean_all()
