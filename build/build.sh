@@ -58,7 +58,7 @@ clean_kernel()
     echo Cleaning kernel...
     $RM $DEV_ROOT/output/kernel
     cd $DEV_ROOT/src/kernel
-    # restore kernel/lib/libakaec.a and kernel/lib/libfha.a
+   # restore kernel/lib/libakaec.a and kernel/lib/libfha.a
     git checkout lib
 
     cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188eu
