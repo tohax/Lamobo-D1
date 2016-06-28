@@ -47,7 +47,7 @@ build_kernel()
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules_prepare
 
-    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188EUS_rtl8189ES
+    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188eu
     $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel modules
     $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel strip
     $CP 8188eu.ko $DEV_ROOT/src/librootfs/akwifilib/root
@@ -61,7 +61,7 @@ clean_kernel()
     # restore kernel/lib/libakaec.a and kernel/lib/libfha.a
     git checkout lib
 
-    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188EUS_rtl8189ES
+    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188eu
     $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel clean
 }
 
