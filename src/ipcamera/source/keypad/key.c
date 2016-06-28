@@ -299,8 +299,7 @@ static inline __s32 i2c_smbus_write_byte_data(int file, __u8 command,
 static int __do_gpio_key_0(double period)
 {
     char cmd[128];
-    int fd,ret;
-    int start;
+    int ret;
 
     if (period < 0)
     {
@@ -429,7 +428,7 @@ static int do_gpio_key_0(struct input_event *event)
     if (event->value == 1)
     {
         start_time.tv_sec = event->time.tv_sec;
-        start_time.tv_usec = event->time.tv_usec;			
+        start_time.tv_usec = event->time.tv_usec;
     }
     else if (event->value == 0)
     {
