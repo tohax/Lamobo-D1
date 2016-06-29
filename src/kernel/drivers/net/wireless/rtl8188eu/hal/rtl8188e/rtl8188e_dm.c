@@ -99,14 +99,14 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 
 #ifdef CONFIG_USB_HCI
 	tmp1byte = rtw_read8(padapter, GPIO_IO_SEL);
-	tmp1byte |= (HAL_8188E_HW_GPIO_WPS_BIT);
+	tmp1byte |= (HAL_8192C_HW_GPIO_WPS_BIT);
 	rtw_write8(padapter, GPIO_IO_SEL, tmp1byte);	//enable GPIO[2] as output mode
 
-	tmp1byte &= ~(HAL_8188E_HW_GPIO_WPS_BIT);
+	tmp1byte &= ~(HAL_8192C_HW_GPIO_WPS_BIT);
 	rtw_write8(padapter,  GPIO_IN, tmp1byte);		//reset the floating voltage level
 
 	tmp1byte = rtw_read8(padapter, GPIO_IO_SEL);
-	tmp1byte &= ~(HAL_8188E_HW_GPIO_WPS_BIT);
+	tmp1byte &= ~(HAL_8192C_HW_GPIO_WPS_BIT);
 	rtw_write8(padapter, GPIO_IO_SEL, tmp1byte);	//enable GPIO[2] as input mode
 
 	tmp1byte =rtw_read8(padapter, GPIO_IN);
@@ -114,7 +114,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 	if (tmp1byte == 0xff)
 		return ;
 
-	if (tmp1byte&HAL_8188E_HW_GPIO_WPS_BIT)
+	if (tmp1byte&HAL_8192C_HW_GPIO_WPS_BIT)
 	{
 		bPbcPressed = _TRUE;
 	}
@@ -125,7 +125,7 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
 	if (tmp1byte == 0xff || padapter->init_adpt_in_progress)
 		return ;
 
-	if((tmp1byte&HAL_8188E_HW_GPIO_WPS_BIT)==0)
+	if((tmp1byte&HAL_8192C_HW_GPIO_WPS_BIT)==0)
 	{
 		bPbcPressed = _TRUE;
 	}
@@ -347,49 +347,40 @@ static void Update_ODM_ComInfo_88E(PADAPTER	Adapter)
 {
 	struct mlme_ext_priv	*pmlmeext = &Adapter->mlmeextpriv;
 	struct mlme_priv	*pmlmepriv = &Adapter->mlmepriv;
-	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(Adapter);
+	struct pwrctrl_priv *pwrctrlpriv = &Adapter->pwrctrlpriv;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;	
 	int i;	
-
-	pdmpriv->InitODMFlag = 0
-		| ODM_BB_DIG
-#ifdef CONFIG_ODM_REFRESH_RAMASK
-		| ODM_BB_RA_MASK
-#endif
-		| ODM_BB_DYNAMIC_TXPWR
-		| ODM_BB_FA_CNT
-		| ODM_BB_RSSI_MONITOR
-		| ODM_BB_CCK_PD
-		| ODM_BB_PWR_SAVE
-		| ODM_RF_CALIBRATION
-		| ODM_RF_TX_PWR_TRACK
-#ifdef CONFIG_ODM_ADAPTIVITY
-		| ODM_BB_ADAPTIVITY
-#endif
-		;
-
-	if (!Adapter->registrypriv.qos_opt_enable) {
-		pdmpriv->InitODMFlag |= ODM_MAC_EDCA_TURBO;
-	}
-
+	#ifdef CONFIG_DISABLE_ODM
+	pdmpriv->InitODMFlag = 0;
+	#else //CONFIG_DISABLE_ODM
+	
+	pdmpriv->InitODMFlag =	ODM_BB_DIG				|
+#ifdef	CONFIG_ODM_REFRESH_RAMASK
+							ODM_BB_RA_MASK		|
+#endif							
+							ODM_BB_DYNAMIC_TXPWR	|
+							ODM_BB_FA_CNT			|
+							ODM_BB_RSSI_MONITOR	|
+							ODM_BB_CCK_PD			|							
+							ODM_BB_PWR_SAVE		|							
+							ODM_MAC_EDCA_TURBO	|
+							ODM_RF_CALIBRATION		|
+							ODM_RF_TX_PWR_TRACK	
+							;	
 	if(pHalData->AntDivCfg)
 		pdmpriv->InitODMFlag |= ODM_BB_ANT_DIV;
 
-#if (MP_DRIVER==1)
-	if (Adapter->registrypriv.mp_mode == 1) {
-		pdmpriv->InitODMFlag = 0
-			| ODM_RF_CALIBRATION
-			| ODM_RF_TX_PWR_TRACK
-			;
-	}
-#endif//(MP_DRIVER==1)
-
-#ifdef CONFIG_DISABLE_ODM
-	pdmpriv->InitODMFlag = 0;
-#endif//CONFIG_DISABLE_ODM
-
+	#if (MP_DRIVER==1)
+		if (Adapter->registrypriv.mp_mode == 1)
+		{
+		pdmpriv->InitODMFlag = 	ODM_RF_CALIBRATION	|
+								ODM_RF_TX_PWR_TRACK;	
+		}
+	#endif//(MP_DRIVER==1)
+	
+	#endif//CONFIG_DISABLE_ODM	
 	ODM_CmnInfoUpdate(pDM_Odm,ODM_CMNINFO_ABILITY,pdmpriv->InitODMFlag);
 	
 	ODM_CmnInfoHook(pDM_Odm,ODM_CMNINFO_TX_UNI,&(Adapter->xmitpriv.tx_bytes));
@@ -401,8 +392,6 @@ static void Update_ODM_ComInfo_88E(PADAPTER	Adapter)
 	ODM_CmnInfoHook(pDM_Odm,ODM_CMNINFO_CHNL,&( pHalData->CurrentChannel));	
 	ODM_CmnInfoHook(pDM_Odm,ODM_CMNINFO_NET_CLOSED,&( Adapter->net_closed));
 	ODM_CmnInfoHook(pDM_Odm,ODM_CMNINFO_MP_MODE,&(Adapter->registrypriv.mp_mode));
-
-	ODM_CmnInfoHook(pDM_Odm,ODM_CMNINFO_BAND,&(pDM_Odm->u1Byte_temp));
 	//================= only for 8192D   =================
 	/*
 	//pHalData->CurrentBandType92D
@@ -475,8 +464,16 @@ rtl8188e_HalDmWatchDog(
 		goto skip_dm;
 
 #ifdef CONFIG_LPS
-	bFwCurrentInPSMode = adapter_to_pwrctl(Adapter)->bFwCurrentInPSMode;
-	rtw_hal_get_hwreg(Adapter, HW_VAR_FWLPS_RF_ON, (u8 *)(&bFwPSAwake));
+	#ifdef CONFIG_CONCURRENT_MODE
+	if (Adapter->iface_type != IFACE_PORT0 && pbuddy_adapter) {
+		bFwCurrentInPSMode = pbuddy_adapter->pwrctrlpriv.bFwCurrentInPSMode;
+		rtw_hal_get_hwreg(pbuddy_adapter, HW_VAR_FWLPS_RF_ON, (u8 *)(&bFwPSAwake));
+	} else
+	#endif //CONFIG_CONCURRENT_MODE
+	{
+		bFwCurrentInPSMode = Adapter->pwrctrlpriv.bFwCurrentInPSMode;
+		rtw_hal_get_hwreg(Adapter, HW_VAR_FWLPS_RF_ON, (u8 *)(&bFwPSAwake));
+	}
 #endif
 
 #ifdef CONFIG_P2P_PS
@@ -515,7 +512,6 @@ rtl8188e_HalDmWatchDog(
 	if (hw_init_completed == _TRUE)
 	{
 		u8	bLinked=_FALSE;
-		u8   bsta_state = _FALSE;
 
 		#ifdef CONFIG_DISABLE_ODM
 		pHalData->odmpriv.SupportAbility = 0;
@@ -528,17 +524,8 @@ rtl8188e_HalDmWatchDog(
 		if(pbuddy_adapter && rtw_linked_check(pbuddy_adapter))
 			bLinked = _TRUE;
 #endif //CONFIG_CONCURRENT_MODE
+
 		ODM_CmnInfoUpdate(&pHalData->odmpriv ,ODM_CMNINFO_LINK, bLinked);
-
-
-		if (check_fwstate(&Adapter->mlmepriv, WIFI_STATION_STATE))
-			bsta_state = _TRUE;
-#ifdef CONFIG_CONCURRENT_MODE
-		if(pbuddy_adapter && check_fwstate(&pbuddy_adapter->mlmepriv, WIFI_STATION_STATE))
-			bsta_state = _TRUE;
-#endif //CONFIG_CONCURRENT_MODE	
-		ODM_CmnInfoUpdate(&pHalData->odmpriv ,ODM_CMNINFO_STATION_STATE, bsta_state);
-		
 		ODM_DMWatchdog(&pHalData->odmpriv);
 			
 	}

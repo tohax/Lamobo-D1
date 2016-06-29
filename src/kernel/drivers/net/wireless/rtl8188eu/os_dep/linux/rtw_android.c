@@ -27,11 +27,6 @@
 #include <ioctl_cfg80211.h>
 #include <rtw_ioctl_set.h>
 
-#ifdef CONFIG_GPIO_WAKEUP
-#include <linux/gpio.h>
-#endif
-
-#include <drv_types.h>
 
 #if defined(RTW_ENABLE_WIFI_CONTROL_FUNC)
 #include <linux/platform_device.h>
@@ -41,11 +36,6 @@
 #include <linux/wifi_tiwlan.h>
 #endif
 #endif /* defined(RTW_ENABLE_WIFI_CONTROL_FUNC) */
-
-#ifdef CONFIG_GPIO_WAKEUP
-#include <linux/interrupt.h>
-#include <linux/irq.h>
-#endif
 
 const char *android_wifi_cmd_str[ANDROID_WIFI_CMD_MAX] = {
 	"START",
@@ -128,7 +118,6 @@ typedef struct android_wifi_priv_cmd {
  */
 static int g_wifi_on = _TRUE;
 
-unsigned int oob_irq;
 
 #ifdef PNO_SUPPORT
 static int wl_android_set_pno_setup(struct net_device *dev, char *command, int total_len)
@@ -242,7 +231,7 @@ int rtw_android_cmdstr_to_num(char *cmdstr)
 {
 	int cmd_num;
 	for(cmd_num=0 ; cmd_num<ANDROID_WIFI_CMD_MAX; cmd_num++)
-		if(0 == strncasecmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
+		if(0 == strnicmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
 			break;
 		
 	return cmd_num;
@@ -290,7 +279,7 @@ int rtw_android_set_country(struct net_device *net, char *command, int total_len
 {
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(net);
 	char *country_code = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_COUNTRY]) + 1;
-	int ret = _FAIL;
+	int ret;
 	
 	ret = rtw_set_country(adapter, country_code);
 
@@ -299,6 +288,7 @@ int rtw_android_set_country(struct net_device *net, char *command, int total_len
 
 int rtw_android_get_p2p_dev_addr(struct net_device *net, char *command, int total_len)
 {
+	int ret;
 	int bytes_written = 0;
 
 	//We use the same address as our HW MAC address
@@ -310,6 +300,7 @@ int rtw_android_get_p2p_dev_addr(struct net_device *net, char *command, int tota
 
 int rtw_android_set_block(struct net_device *net, char *command, int total_len)
 {
+	int ret;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(net);
 	char *block_value = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_BLOCK]) + 1;
 
@@ -343,10 +334,6 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 	int cmd_num;
 	int bytes_written = 0;
 	android_wifi_priv_cmd priv_cmd;
-	_adapter*	padapter = ( _adapter * ) rtw_netdev_priv(net);
-#ifdef CONFIG_WFD
-	struct wifi_display_info		*pwfd_info;
-#endif
 
 	rtw_lock_suspend();
 
@@ -406,11 +393,11 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		
 	case ANDROID_WIFI_CMD_SCAN_ACTIVE:
 		//rtw_set_scan_mode((_adapter *)rtw_netdev_priv(net), SCAN_ACTIVE);
-#ifdef CONFIG_PLATFORM_MSTAR		
+#ifdef CONFIG_PLATFORM_MSTAR_TITANIA12		
 #ifdef CONFIG_IOCTL_CFG80211
 		(wdev_to_priv(net->ieee80211_ptr))->bandroid_scan = _TRUE;	
 #endif //CONFIG_IOCTL_CFG80211
-#endif //CONFIG_PLATFORM_MSTAR
+#endif //CONFIG_PLATFORM_MSTAR_TITANIA12
 		break;
 	case ANDROID_WIFI_CMD_SCAN_PASSIVE:
 		//rtw_set_scan_mode((_adapter *)rtw_netdev_priv(net), SCAN_PASSIVE);
@@ -530,7 +517,10 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		//	Commented by Albert 2012/07/24
 		//	We can enable the WFD function by using the following command:
 		//	wpa_cli driver wfd-enable
-
+		
+		struct wifi_display_info		*pwfd_info;
+		_adapter*	padapter = ( _adapter * ) rtw_netdev_priv(net);
+	
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 			pwfd_info->wfd_enable = _TRUE;
@@ -542,7 +532,10 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		//	Commented by Albert 2012/07/24
 		//	We can disable the WFD function by using the following command:
 		//	wpa_cli driver wfd-disable
-
+				
+		struct wifi_display_info		*pwfd_info;
+		_adapter*	padapter = ( _adapter * ) rtw_netdev_priv(net);
+	
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 			pwfd_info->wfd_enable = _FALSE;
@@ -553,7 +546,10 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 		//	Commented by Albert 2012/07/24
 		//	We can set the tcp port number by using the following command:
 		//	wpa_cli driver wfd-set-tcpport = 554
-
+		
+		struct wifi_display_info		*pwfd_info;
+		_adapter*	padapter = ( _adapter * ) rtw_netdev_priv(net);
+	
 		pwfd_info = &padapter->wfd_info;
 		if( padapter->wdinfo.driver_interface == DRIVER_CFG80211 )
 			pwfd_info->rtsp_ctrlport = ( u16 ) get_int_from_command( priv_cmd.buf );
@@ -561,6 +557,8 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 	}
 	case ANDROID_WIFI_CMD_WFD_SET_MAX_TPUT:
 	{
+		
+		
 		break;
 	}
 	case ANDROID_WIFI_CMD_WFD_SET_DEVTYPE:
@@ -610,7 +608,7 @@ response:
 exit:
 	rtw_unlock_suspend();
 	if (command) {
-		rtw_mfree(command, priv_cmd.total_len);
+		kfree(command);
 	}
 
 	return ret;
@@ -740,28 +738,12 @@ static int wifi_probe(struct platform_device *pdev)
 {
 	struct wifi_platform_data *wifi_ctrl =
 		(struct wifi_platform_data *)(pdev->dev.platform_data);
-	int wifi_wake_gpio = 0;
 
 	DBG_871X("## %s\n", __FUNCTION__);
 	wifi_irqres = platform_get_resource_byname(pdev, IORESOURCE_IRQ, "bcmdhd_wlan_irq");
-
 	if (wifi_irqres == NULL)
 		wifi_irqres = platform_get_resource_byname(pdev,
 			IORESOURCE_IRQ, "bcm4329_wlan_irq");
-	else
-		wifi_wake_gpio = wifi_irqres->start;
-
-#ifdef CONFIG_GPIO_WAKEUP
-	printk("%s: gpio:%d wifi_wake_gpio:%d\n", __func__,
-			wifi_irqres->start, wifi_wake_gpio);
-
-	if (wifi_wake_gpio > 0) {
-		gpio_request(wifi_wake_gpio, "oob_irq");
-		gpio_direction_input(wifi_wake_gpio);
-		oob_irq = gpio_to_irq(wifi_wake_gpio);
-		printk("%s oob_irq:%d\n", __func__, oob_irq);
-	}
-#endif
 	wifi_control_data = wifi_ctrl;
 
 	wifi_set_power(1, 0);	/* Power On */

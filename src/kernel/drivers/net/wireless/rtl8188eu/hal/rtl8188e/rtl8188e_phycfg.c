@@ -449,7 +449,7 @@ rtl8188e_PHY_SetBBReg(
 	if(BitMask!= bMaskDWord){//if not "double word" write
 		OriginalValue = rtw_read32(Adapter, RegAddr);
 		BitShift = phy_CalculateBitShift(BitMask);
-		Data = ((OriginalValue & (~BitMask)) | ((Data << BitShift) & BitMask));
+		Data = ((OriginalValue & (~BitMask)) | (Data << BitShift));
 	}
 
 	rtw_write32(Adapter, RegAddr, Data);
@@ -926,7 +926,7 @@ s32 PHY_MACConfig8188E(PADAPTER Adapter)
 
 
 	// 2010.07.13 AMPDU aggregation number B
-	rtw_write8(Adapter, REG_MAX_AGGR_NUM, MAX_AGGR_NUM);
+	rtw_write16(Adapter, REG_MAX_AGGR_NUM, MAX_AGGR_NUM);
 	//rtw_write8(Adapter, REG_MAX_AGGR_NUM, 0x0B); 
 
 	return rtStatus;
@@ -2964,25 +2964,7 @@ static void _PHY_SwChnl8192C(PADAPTER Adapter, u8 channel)
 	//s3. post common command - CmdID_End, None
 
 }
-// <20130708, James> A workaround to eliminate the 2480MHz spur for 8188E I-Cut
-void 
-phy_SpurCalibration_8188E(
-	IN	PADAPTER			Adapter
-	)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	
-	//DbgPrint("===> phy_SpurCalibration_8188E  CurrentChannelBW = %d, CurrentChannel = %d\n", pHalData->CurrentChannelBW, pHalData->CurrentChannel);
-	if(pHalData->CurrentChannelBW == 0 && pHalData->CurrentChannel == 13){
-		PHY_SetBBReg(Adapter, rOFDM1_CFOTracking, BIT(28), 0x1); //enable CSI Mask
-		PHY_SetBBReg(Adapter, rOFDM1_csi_fix_mask, BIT(26)|BIT(25), 0x3); //Fix CSI Mask Tone
-	}
-	else{
-		PHY_SetBBReg(Adapter, rOFDM1_CFOTracking, BIT(28), 0x0); //disable CSI Mask
-		PHY_SetBBReg(Adapter, rOFDM1_csi_fix_mask, BIT(26)|BIT(25), 0x0); 
-	}
 
-}
 VOID
 PHY_SwChnl8188E(	// Call after initialization
 	IN	PADAPTER	Adapter,
@@ -3045,8 +3027,7 @@ PHY_SwChnl8188E(	// Call after initialization
 		#else
 		_PHY_SwChnl8192C(Adapter, channel);
 		#endif
-		if (IS_VENDOR_8188E_I_CUT_SERIES(Adapter))
-			phy_SpurCalibration_8188E( Adapter);
+
 		if(bResult)
 		{
 			//RT_TRACE(COMP_SCAN, DBG_LOUD, ("PHY_SwChnl8192C SwChnlInProgress TRUE schdule workitem done\n"));

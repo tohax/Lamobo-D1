@@ -32,14 +32,7 @@ HAL_STATUS
 ODM_ReadAndConfig_RadioA_1T_8188E(
 	IN   PDM_ODM_T  pDM_Odm
 );
-/******************************************************************************
-*                           RadioA_1T_ICUT.TXT
-******************************************************************************/
 
-void
-ODM_ReadAndConfig_RadioA_1T_ICUT_8188E( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
 #endif
 #endif // end of HWIMG_SUPPORT
 

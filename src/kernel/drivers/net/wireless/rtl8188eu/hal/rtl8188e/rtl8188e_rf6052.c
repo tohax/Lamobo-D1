@@ -280,23 +280,6 @@ rtl8188e_PHY_RF6052SetCckTxPower(
 		}
 	}
 
-	
-	ODM_TxPwrTrackAdjust88E(&pHalData->odmpriv, 1, &direction, &pwrtrac_value);
-	//printk("ODM_TxPwrTrackAdjust88E => direction:%02x, pwrtrac_value:%d \n", direction, pwrtrac_value);
-	//printk(" ==> TxAGC:0x%08x \n",TxAGC[0] );
-	
-	if (direction == 1)			// Increase TX pwoer
-	{
-		TxAGC[0] += pwrtrac_value;
-		TxAGC[1] += pwrtrac_value;
-		
-	}
-	else if (direction == 2)	// Decrease TX pwoer
-	{
-		TxAGC[0] -=  pwrtrac_value;
-		TxAGC[1] -=  pwrtrac_value;
-	}
-
 	for(idx1=RF_PATH_A; idx1<=RF_PATH_B; idx1++)
 	{
 		ptr = (u8*)(&(TxAGC[idx1]));
@@ -307,27 +290,37 @@ rtl8188e_PHY_RF6052SetCckTxPower(
 			ptr++;
 		}
 	}
-	//printk(" ==> TxAGC:0x%08x \n",TxAGC[0] );
+	ODM_TxPwrTrackAdjust88E(&pHalData->odmpriv, 1, &direction, &pwrtrac_value);
+
+	if (direction == 1)			// Increase TX pwoer
+	{
+		TxAGC[0] += pwrtrac_value;
+		TxAGC[1] += pwrtrac_value;
+	}
+	else if (direction == 2)	// Decrease TX pwoer
+	{
+		TxAGC[0] -=  pwrtrac_value;
+		TxAGC[1] -=  pwrtrac_value;
+	}
+
 
 	// rf-A cck tx power
 	tmpval = TxAGC[RF_PATH_A]&0xff;
 	PHY_SetBBReg(Adapter, rTxAGC_A_CCK1_Mcs32, bMaskByte1, tmpval);
-	//printk("CCK PWR 1M (rf-A) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_A_CCK1_Mcs32);
-
-	
+	//RTPRINT(FPHY, PHY_TXPWR, ("CCK PWR 1M (rf-A) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_A_CCK1_Mcs32));
 	tmpval = TxAGC[RF_PATH_A]>>8;
 	PHY_SetBBReg(Adapter, rTxAGC_B_CCK11_A_CCK2_11, 0xffffff00, tmpval);
-	//printk("CCK PWR 2~11M (rf-A) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_B_CCK11_A_CCK2_11);
+	//RTPRINT(FPHY, PHY_TXPWR, ("CCK PWR 2~11M (rf-A) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_B_CCK11_A_CCK2_11));
 
-/*
 	// rf-B cck tx power
 	tmpval = TxAGC[RF_PATH_B]>>24;
 	PHY_SetBBReg(Adapter, rTxAGC_B_CCK11_A_CCK2_11, bMaskByte0, tmpval);
-	//printk("CCK PWR 11M (rf-B) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_B_CCK11_A_CCK2_11);
+	//RTPRINT(FPHY, PHY_TXPWR, ("CCK PWR 11M (rf-B) = 0x%x (reg 0x%x)\n", tmpval, rTxAGC_B_CCK11_A_CCK2_11));
 	tmpval = TxAGC[RF_PATH_B]&0x00ffffff;
 	PHY_SetBBReg(Adapter, rTxAGC_B_CCK1_55_Mcs32, 0xffffff00, tmpval);
-	//printk("CCK PWR 1~5.5M (rf-B) = 0x%x (reg 0x%x)\n",tmpval, rTxAGC_B_CCK1_55_Mcs32);
-*/
+	//RTPRINT(FPHY, PHY_TXPWR, ("CCK PWR 1~5.5M (rf-B) = 0x%x (reg 0x%x)\n",
+	//	tmpval, rTxAGC_B_CCK1_55_Mcs32));
+
 }	/* PHY_RF6052SetCckTxPower */
 
 #if 0
@@ -767,7 +760,7 @@ static void writeOFDMPowerReg88E(
 			RegOffset = RegOffset_B[index];
 
 		PHY_SetBBReg(Adapter, RegOffset, bMaskDWord, writeVal);
-		//printk("Set OFDM tx pwr- 0x%x = %08x\n", RegOffset, writeVal);
+		//RTPRINT(FPHY, PHY_TXPWR, ("Set 0x%x = %08x\n", RegOffset, writeVal));
 
 		// 201005115 Joseph: Set Tx Power diff for Tx power training mechanism.
 		if(((pHalData->rf_type == RF_2T2R) &&

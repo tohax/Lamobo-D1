@@ -113,16 +113,6 @@ void _rtw_set_scan_deny_timer_hdl(void *FunctionContext)
 }
 #endif
 
-#ifdef CONFIG_DETECT_C2H_BY_POLLING
-void _rtw_event_polling_timer_hdl(void *FunctionContext)
-{
-	_adapter *adapter = (_adapter *)FunctionContext;
-
-	rtw_event_polling_timer_hdl(adapter);
-	
-	_set_timer(&adapter->mlmepriv.event_polling_timer, 200);
-}
-#endif
 
 void rtw_init_mlme_timer(_adapter *padapter)
 {
@@ -137,10 +127,6 @@ void rtw_init_mlme_timer(_adapter *padapter)
 	#ifdef CONFIG_SET_SCAN_DENY_TIMER
 	_init_timer(&(pmlmepriv->set_scan_deny_timer), padapter->pnetdev, _rtw_set_scan_deny_timer_hdl, padapter);
 	#endif
-
-#ifdef CONFIG_DETECT_C2H_BY_POLLING
-	_init_timer(&(pmlmepriv->event_polling_timer), padapter->pnetdev, _rtw_event_polling_timer_hdl, padapter);
-#endif
 
 #ifdef RTK_DMP_PLATFORM
 	_init_workitem(&(pmlmepriv->Linkup_workitem), Linkup_workitem_callback, padapter);
@@ -157,17 +143,11 @@ extern void rtw_indicate_wx_disassoc_event(_adapter *padapter);
 
 void rtw_os_indicate_connect(_adapter *adapter)
 {
-	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
+
 _func_enter_;	
 
 #ifdef CONFIG_IOCTL_CFG80211
-	if ( (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE)==_TRUE ) || 
-		(check_fwstate(pmlmepriv, WIFI_ADHOC_STATE)==_TRUE ) )
-	{
-		rtw_cfg80211_ibss_indicate_connect(adapter);
-	}
-	else
-		rtw_cfg80211_indicate_connect(adapter);
+	rtw_cfg80211_indicate_connect(adapter);
 #endif //CONFIG_IOCTL_CFG80211
 
 	rtw_indicate_wx_assoc_event(adapter);
@@ -199,12 +179,7 @@ void rtw_reset_securitypriv( _adapter *adapter )
 	u8	backupPMKIDIndex = 0;
 	u8	backupTKIPCountermeasure = 0x00;
 	u32	backupTKIPcountermeasure_time = 0;
-	// add for CONFIG_IEEE80211W, none 11w also can use
-	_irqL irqL;
-	struct mlme_ext_priv	*pmlmeext = &adapter->mlmeextpriv;
-	
-	_enter_critical_bh(&adapter->security_key_mutex, &irqL);
-	
+
 	if(adapter->securitypriv.dot11AuthAlgrthm == dot11AuthAlgrthm_8021X)//802.1x
 	{		 
 		// Added by Albert 2009/02/18
@@ -219,10 +194,7 @@ void rtw_reset_securitypriv( _adapter *adapter )
 		backupPMKIDIndex = adapter->securitypriv.PMKIDIndex;
 		backupTKIPCountermeasure = adapter->securitypriv.btkip_countermeasure;
 		backupTKIPcountermeasure_time = adapter->securitypriv.btkip_countermeasure_time;		
-#ifdef CONFIG_IEEE80211W
-		//reset RX BIP packet number
-		pmlmeext->mgnt_80211w_IPN_rx = 0;
-#endif //CONFIG_IEEE80211W
+
 		_rtw_memset((unsigned char *)&adapter->securitypriv, 0, sizeof (struct security_priv));
 		//_init_timer(&(adapter->securitypriv.tkip_timer),adapter->pnetdev, rtw_use_tkipkey_handler, adapter);
 
@@ -254,14 +226,12 @@ void rtw_reset_securitypriv( _adapter *adapter )
 		psec_priv->ndisencryptstatus = Ndis802_11WEPDisabled;
 		//}
 	}
-	// add for CONFIG_IEEE80211W, none 11w also can use
-	_exit_critical_bh(&adapter->security_key_mutex, &irqL);
 }
 
 void rtw_os_indicate_disconnect( _adapter *adapter )
 {
-	//RT_PMKID_LIST   backupPMKIDList[ NUM_PMKID_CACHE ];
-
+   //RT_PMKID_LIST   backupPMKIDList[ NUM_PMKID_CACHE ];
+  
 _func_enter_;
 
 	netif_carrier_off(adapter->pnetdev); // Do it first for tx broadcast pkt after disconnection issue!
@@ -275,8 +245,7 @@ _func_enter_;
 #ifdef RTK_DMP_PLATFORM
 	_set_workitem(&adapter->mlmepriv.Linkdown_workitem);
 #endif
-	 //modify for CONFIG_IEEE80211W, none 11w also can use the same command
-	 rtw_reset_securitypriv_cmd(adapter);
+	 rtw_reset_securitypriv( adapter );
 
 _func_exit_;
 
@@ -352,14 +321,6 @@ void _addba_timer_hdl(void *FunctionContext)
 	addba_timer_hdl(psta);
 }
 
-#ifdef CONFIG_IEEE80211W
-void _sa_query_timer_hdl (void *FunctionContext)
-{
-	_adapter *padapter = (_adapter *)FunctionContext;
-	sa_query_timer_hdl(padapter);
-}
-#endif //CONFIG_IEEE80211W
-
 void init_addba_retry_timer(_adapter *padapter, struct sta_info *psta)
 {
 
@@ -386,9 +347,6 @@ void init_mlme_ext_timer(_adapter *padapter)
 
 	_init_timer(&pmlmeext->survey_timer, padapter->pnetdev, _survey_timer_hdl, padapter);
 	_init_timer(&pmlmeext->link_timer, padapter->pnetdev, _link_timer_hdl, padapter);
-#ifdef CONFIG_IEEE80211W
-	_init_timer(&pmlmeext->sa_query_timer, padapter->pnetdev, _sa_query_timer_hdl, padapter);
-#endif //CONFIG_IEEE80211W
 	//_init_timer(&pmlmeext->ADDBA_timer, padapter->pnetdev, _addba_timer_hdl, padapter);
 
 	//_init_timer(&pmlmeext->reauth_timer, padapter->pnetdev, _reauth_timer_hdl, padapter);

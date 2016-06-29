@@ -32,28 +32,13 @@ HAL_STATUS
 ODM_ReadAndConfig_AGC_TAB_1T_8188E(
 	IN   PDM_ODM_T  pDM_Odm
 );
-/******************************************************************************
-*                           AGC_TAB_1T_ICUT.TXT
-******************************************************************************/
 
-void
-ODM_ReadAndConfig_AGC_TAB_1T_ICUT_8188E( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
 /******************************************************************************
 *                           PHY_REG_1T.TXT
 ******************************************************************************/
 
 HAL_STATUS
 ODM_ReadAndConfig_PHY_REG_1T_8188E(
-	IN   PDM_ODM_T  pDM_Odm
-);
-/******************************************************************************
-*                           PHY_REG_1T_ICUT.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_PHY_REG_1T_ICUT_8188E( // TC: Test Chip, MP: MP Chip
 	IN   PDM_ODM_T  pDM_Odm
 );
 

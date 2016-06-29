@@ -269,6 +269,11 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 	struct wifidirect_info*	pwdinfo = &padapter->wdinfo;
 #endif //CONFIG_P2P
 
+#ifdef CONFIG_CONCURRENT_MODE
+	if(rtw_buddy_adapter_up(padapter) && padapter->adapter_type > PRIMARY_ADAPTER)	
+		pHalData = GET_HAL_DATA(padapter->pbuddy_adapter);				
+#endif //CONFIG_CONCURRENT_MODE
+
 #ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX 
 if (padapter->registrypriv.mp_mode == 0)
 {
@@ -387,18 +392,15 @@ if (padapter->registrypriv.mp_mode == 0)
 					ptxdesc->txdw5 |= cpu_to_le32(SGI);//SGI
 			}
 				
-			data_rate =ODM_RA_GetDecisionRate_8188E(&pHalData->odmpriv,pattrib->mac_id);		
-			//for debug
-               	#if 1
+			data_rate =ODM_RA_GetDecisionRate_8188E(&pHalData->odmpriv,pattrib->mac_id);			
+			ptxdesc->txdw5 |= cpu_to_le32(data_rate & 0x3F);
+
+               	//for debug
+               	#if 0
 			if(padapter->fix_rate!= 0xFF){
-				
-				data_rate = padapter->fix_rate;
-				ptxdesc->txdw4 |= cpu_to_le32(DISDATAFB);
-				//printk("==> fix data_rate:0x%02x\n",data_rate);
+				ptxdesc->datarate = padapter->fix_rate;
 			}
 			#endif
-			
-			ptxdesc->txdw5 |= cpu_to_le32(data_rate & 0x3F);               	
 
 			#if (POWER_TRAINING_ACTIVE==1)
 			pwr_status = ODM_RA_GetHwPwrStatus_8188E(&pHalData->odmpriv,pattrib->mac_id);
@@ -411,8 +413,7 @@ if (padapter->registrypriv.mp_mode == 0)
 
 			data_rate = 0x13; //default rate: MCS7									
 			 if(padapter->fix_rate!= 0xFF){//rate control by iwpriv
-				data_rate = padapter->fix_rate;		
-				ptxdesc->txdw4 | cpu_to_le32(DISDATAFB);
+				data_rate = padapter->fix_rate;				
 			}
 			ptxdesc->txdw5 |= cpu_to_le32(data_rate & 0x3F); 
 
@@ -1245,7 +1246,7 @@ static void rtl8188eu_hostap_mgnt_xmit_cb(struct urb *urb)
 
 	//DBG_8192C("%s\n", __FUNCTION__);
 
-	rtw_skb_free(skb);
+	dev_kfree_skb_any(skb);
 #endif	
 }
 
@@ -1278,7 +1279,11 @@ s32 rtl8188eu_hostap_mgnt_xmit_entry(_adapter *padapter, _pkt *pkt)
 	if ((fc & RTW_IEEE80211_FCTL_FTYPE) != RTW_IEEE80211_FTYPE_MGMT)
 		goto _exit;
 
-	pxmit_skb = rtw_skb_alloc(len + TXDESC_SIZE);
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)) // http://www.mail-archive.com/netdev@vger.kernel.org/msg17214.html
+	pxmit_skb = dev_alloc_skb(len + TXDESC_SIZE);			
+#else			
+	pxmit_skb = netdev_alloc_skb(pnetdev, len + TXDESC_SIZE);
+#endif		
 
 	if(!pxmit_skb)
 		goto _exit;
@@ -1359,7 +1364,7 @@ s32 rtl8188eu_hostap_mgnt_xmit_entry(_adapter *padapter, _pkt *pkt)
 	
 _exit:	
 	
-	rtw_skb_free(skb);
+	dev_kfree_skb_any(skb);
 
 #endif
 

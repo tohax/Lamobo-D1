@@ -21,16 +21,10 @@
 #ifndef __HAL_PHY_RF_8188E_H__
 #define __HAL_PHY_RF_8188E_H__
 
-
 /*--------------------------Define Parameters-------------------------------*/
 #define	IQK_DELAY_TIME_88E		10		//ms
 #define	index_mapping_NUM_88E	15
 #define AVG_THERMAL_NUM_88E	4
-
-typedef enum _PWRTRACK_CONTROL_METHOD {
-	BBSWING,
-	TXAGC
-} PWRTRACK_METHOD;
 
 
 VOID

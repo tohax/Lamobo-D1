@@ -45,13 +45,13 @@
 #elif defined (CONFIG_USB_HCI)
 
 #ifdef CONFIG_USB_TX_AGGREGATION
-	#if defined(CONFIG_PLATFORM_ARM_SUNxI) || defined(CONFIG_PLATFORM_ARM_SUN6I) || defined(CONFIG_PLATFORM_ARM_SUN7I)
-		#define MAX_XMITBUF_SZ (12288)  //12k 1536*8
-	#elif defined (CONFIG_PLATFORM_MSTAR)
+#ifdef CONFIG_PLATFORM_ARM_SUNxI
+#define MAX_XMITBUF_SZ (12288)  //12k 1536*8
+	#elif defined (CONFIG_PLATFORM_MSTAR_TITANIA12)
 		#define MAX_XMITBUF_SZ	7680	// 7.5k
-	#else
-		#define MAX_XMITBUF_SZ	(20480)	// 20k
-	#endif
+#else
+#define MAX_XMITBUF_SZ	(20480)	// 20k
+#endif
 #else
 #define MAX_XMITBUF_SZ	(2048)
 #endif
@@ -644,15 +644,11 @@ struct	xmit_priv	{
 
 #ifdef CONFIG_SDIO_HCI
 #ifdef CONFIG_SDIO_TX_TASKLET
-	#ifdef PLATFORM_LINUX
+#ifdef PLATFORM_LINUX
 	struct tasklet_struct xmit_tasklet;
-	#endif /* PLATFORM_LINUX */
-#else
-	_thread_hdl_	SdioXmitThread;
-	_sema		SdioXmitSema;
-	_sema		SdioXmitTerminateSema;
-#endif /* CONFIG_SDIO_TX_TASKLET */
-#endif /* CONFIG_SDIO_HCI */
+#endif
+#endif
+#endif
 
 	_queue free_xmitbuf_queue;
 	_queue pending_xmitbuf_queue;
@@ -709,9 +705,6 @@ extern s32 rtw_xmit_classifier(_adapter *padapter, struct xmit_frame *pxmitframe
 extern u32 rtw_calculate_wlan_pkt_size_by_attribue(struct pkt_attrib *pattrib);
 #define rtw_wlan_pkt_size(f) rtw_calculate_wlan_pkt_size_by_attribue(&f->attrib)
 extern s32 rtw_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe);
-#ifdef CONFIG_IEEE80211W
-extern s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe);
-#endif //CONFIG_IEEE80211W
 #ifdef CONFIG_TDLS
 s32 rtw_xmit_tdls_coalesce(_adapter *padapter, struct xmit_frame *pxmitframe, u8 action);
 #endif

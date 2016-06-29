@@ -37,6 +37,12 @@
 
 //#define CONFIG_IOCTL_CFG80211
 
+#ifdef CONFIG_PLATFORM_ARM_SUNxI
+	#ifndef CONFIG_IOCTL_CFG80211 
+		#define CONFIG_IOCTL_CFG80211 
+	#endif
+#endif
+
 #ifdef CONFIG_IOCTL_CFG80211
 	//#define RTW_USE_CFG80211_STA_EVENT /* Indecate new sta asoc through cfg80211_new_sta */
 	#define CONFIG_CFG80211_FORCE_COMPATIBLE_2_6_37_UNDER
@@ -57,7 +63,6 @@
 #ifdef CONFIG_CONCURRENT_MODE
 	#define CONFIG_TSF_RESET_OFFLOAD		// For 2 PORT TSF SYNC.
 	//#define CONFIG_HWPORT_SWAP				//Port0->Sec , Port1 -> Pri
-	//#define CONFIG_STA_MODE_SCAN_UNDER_AP_MODE
 #endif
 
 #define CONFIG_AP_MODE
@@ -81,7 +86,7 @@
 #endif
 
 #define CONFIG_TX_MCAST2UNI		// Support IP multicast->unicast
-//#define CONFIG_CHECK_AC_LIFETIME 	// Check packet lifetime of 4 ACs.
+#define CONFIG_CHECK_AC_LIFETIME 	// Check packet lifetime of 4 ACs.
 
 #define CONFIG_P2P
 #ifdef CONFIG_P2P
@@ -95,7 +100,6 @@
 
 	#define CONFIG_P2P_PS
 	//#define CONFIG_P2P_IPS
-	#define P2P_OP_CHECK_SOCIAL_CH
 #endif
 
 //	Added by Kurt 20110511
@@ -116,9 +120,6 @@
 #define CONFIG_LONG_DELAY_ISSUE
 #define CONFIG_NEW_SIGNAL_STAT_PROCESS
 #define RTW_NOTCH_FILTER 0 /* 0:Disable, 1:Enable, */
-#define CONFIG_DEAUTH_BEFORE_CONNECT
-
-//#define CONFIG_ARP_KEEP_ALIVE
 
 /*
  * Hardware Related Config
@@ -152,25 +153,10 @@
 #endif
 
 #define CONFIG_IPS
-
 #define CONFIG_LPS
 #if defined(CONFIG_LPS) && defined(CONFIG_SDIO_HCI)
 #define CONFIG_LPS_LCLK
-
-	#define CONFIG_LPS_RPWM_TIMER
-	#ifdef CONFIG_LPS_RPWM_TIMER
-	#define LPS_RPWM_WAIT_MS 300
-	#endif
 #endif
-
-#ifdef CONFIG_LPS_LCLK
-//#define CONFIG_DETECT_CPWM_BY_POLLING
-#endif
-
-#ifdef CONFIG_DETECT_CPWM_BY_POLLING
-#define CONFIG_USING_CMD52_READ_INT /*for cmd53 I/O fail issue,read 0x18 only*/
-#endif
-
 
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 #undef CONFIG_AP_MODE
@@ -209,6 +195,10 @@
 
 
 #define 	CONFIG_TX_AGGREGATION
+
+#ifdef CONFIG_PLATFORM_ARM_SUNxI
+//#define CONFIG_WITS_EVB_V13
+#endif
 
 #ifdef CONFIG_PLATFORM_ACTIONS_ATV5201
 #define CONFIG_SDIO_DISABLE_RXFIFO_POLLING_LOOP 
@@ -269,8 +259,6 @@
 #endif
 
 #define CONFIG_80211D
-
-
 
 /*
  * Debug Related Config

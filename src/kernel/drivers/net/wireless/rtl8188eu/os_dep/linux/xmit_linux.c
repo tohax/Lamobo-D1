@@ -229,13 +229,19 @@ void rtw_os_pkt_complete(_adapter *padapter, _pkt *pkt)
 		netif_wake_queue(padapter->pnetdev);
 #endif
 
-	rtw_skb_free(pkt);
+	dev_kfree_skb_any(pkt);
 }
 
 void rtw_os_xmit_complete(_adapter *padapter, struct xmit_frame *pxframe)
 {
 	if(pxframe->pkt)
+	{
+		//RT_TRACE(_module_xmit_osdep_c_,_drv_err_,("linux : rtw_os_xmit_complete, dev_kfree_skb()\n"));	
+
+		//dev_kfree_skb_any(pxframe->pkt);	
 		rtw_os_pkt_complete(padapter, pxframe->pkt);
+		
+	}	
 
 	pxframe->pkt = NULL;
 }
@@ -351,7 +357,7 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 		)
 			continue;
 
-		newskb = rtw_skb_copy(skb);
+		newskb = skb_copy(skb, GFP_ATOMIC);
 
 		if (newskb) {
 			_rtw_memcpy(newskb->data, psta->hwaddr, 6);
@@ -359,24 +365,24 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 			if (res < 0) {
 				DBG_871X("%s()-%d: rtw_xmit() return error!\n", __FUNCTION__, __LINE__);
 				pxmitpriv->tx_drop++;
-				rtw_skb_free(newskb);
+				dev_kfree_skb_any(newskb);			
 			} else
 				pxmitpriv->tx_pkts++;
 		} else {
-			DBG_871X("%s-%d: rtw_skb_copy() failed!\n", __FUNCTION__, __LINE__);
+			DBG_871X("%s-%d: skb_copy() failed!\n", __FUNCTION__, __LINE__);
 			pxmitpriv->tx_drop++;
-			//rtw_skb_free(skb);
+			//dev_kfree_skb_any(skb);
 			return _FALSE;	// Caller shall tx this multicast frame via normal way.
 		}
 	}
 
-	rtw_skb_free(skb);
+	dev_kfree_skb_any(skb);
 	return _TRUE;
 }
 #endif	// CONFIG_TX_MCAST2UNI
 
 
-int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
+int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -437,7 +443,7 @@ _func_enter_;
 
 drop_packet:
 	pxmitpriv->tx_drop++;
-	rtw_skb_free(pkt);
+	dev_kfree_skb_any(pkt);
 	RT_TRACE(_module_xmit_osdep_c_, _drv_notice_, ("rtw_xmit_entry: drop, tx_drop=%d\n", (u32)pxmitpriv->tx_drop));
 
 exit:
@@ -445,12 +451,5 @@ exit:
 _func_exit_;
 
 	return 0;
-}
-
-int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
-{
-	if (pkt)
-		rtw_mstat_update(MSTAT_TYPE_SKB, MSTAT_ALLOC_SUCCESS, pkt->truesize);
-	return _rtw_xmit_entry(pkt, pnetdev);
 }
 

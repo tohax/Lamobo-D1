@@ -24,9 +24,6 @@
 #include <drv_types.h>
 #include <wifi.h>
 
-#ifdef CONFIG_WOWLAN
-#include <linux/inetdevice.h>
-#endif
 
 unsigned char ARTHEROS_OUI1[] = {0x00, 0x03, 0x7f};
 unsigned char ARTHEROS_OUI2[] = {0x00, 0x13, 0x74};
@@ -364,21 +361,66 @@ void UpdateBrateTblForSoftAP(u8 *bssrateset, u32 bssratelen)
 void Save_DM_Func_Flag(_adapter *padapter)
 {
 	u8	bSaveFlag = _TRUE;
+
+#ifdef CONFIG_CONCURRENT_MODE	
+	_adapter *pbuddy_adapter = padapter->pbuddy_adapter;
+	if(pbuddy_adapter)
+	rtw_hal_set_hwreg(pbuddy_adapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
+#endif
+
 	rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
+
 }
 
 void Restore_DM_Func_Flag(_adapter *padapter)
 {
 	u8	bSaveFlag = _FALSE;
+#ifdef CONFIG_CONCURRENT_MODE	
+	_adapter *pbuddy_adapter = padapter->pbuddy_adapter;
+	if(pbuddy_adapter)
+	rtw_hal_set_hwreg(pbuddy_adapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
+#endif
 	rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_OP, (u8 *)(&bSaveFlag));
 }
 
 void Switch_DM_Func(_adapter *padapter, u32 mode, u8 enable)
 {
+#ifdef CONFIG_CONCURRENT_MODE	
+	_adapter *pbuddy_adapter = padapter->pbuddy_adapter;
+#endif
+
 	if(enable == _TRUE)
+	{
+#ifdef CONFIG_CONCURRENT_MODE
+		if(pbuddy_adapter)
+		rtw_hal_set_hwreg(pbuddy_adapter, HW_VAR_DM_FUNC_SET, (u8 *)(&mode));
+#endif
 		rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_SET, (u8 *)(&mode));
+	}
 	else
+	{
+#ifdef CONFIG_CONCURRENT_MODE
+		if(pbuddy_adapter)
+		rtw_hal_set_hwreg(pbuddy_adapter, HW_VAR_DM_FUNC_CLR, (u8 *)(&mode));
+#endif
 		rtw_hal_set_hwreg(padapter, HW_VAR_DM_FUNC_CLR, (u8 *)(&mode));
+	}
+
+#if 0
+	u8 val8;
+
+	val8 = rtw_read8(padapter, FW_DYNAMIC_FUN_SWITCH);
+
+	if(enable == _TRUE)
+	{
+		rtw_write8(padapter, FW_DYNAMIC_FUN_SWITCH, (val8 | mode));
+	}
+	else
+	{
+		rtw_write8(padapter, FW_DYNAMIC_FUN_SWITCH, (val8 & mode));
+	}
+#endif
+
 }
 
 static void Set_NETYPE1_MSR(_adapter *padapter, u8 type)
@@ -681,25 +723,20 @@ static u32 _ReadCAM(_adapter *padapter ,u32 addr)
 
 	return rtw_read32(padapter,REG_CAMREAD);	
 }
-#endif
 void read_cam(_adapter *padapter ,u8 entry)
 {
-	u32	j,count = 0, addr;
-	u32	cam_val[2];  //cam_val[0] is read_val, cam_val[1] is the address
+	u32	j,count = 0, addr, cmd;
 	addr = entry << 3;
 
 	DBG_8192C("********* DUMP CAM Entry_#%02d***************\n",entry);
 	for (j = 0; j < 6; j++)
 	{	
-		//cmd = _ReadCAM(padapter ,addr+j);
-		//HW_VAR_CAM_READ
-		cam_val[1]=addr+j;
-		rtw_hal_get_hwreg(padapter, HW_VAR_CAM_READ, (u8 *)cam_val);
-		DBG_8192C("offset:0x%02x => 0x%08x \n",addr+j,cam_val[0]);
+		cmd = _ReadCAM(padapter ,addr+j);
+		DBG_8192C("offset:0x%02x => 0x%08x \n",addr+j,cmd);
 	}
 	DBG_8192C("*********************************\n");
 }
-
+#endif
 
 void write_cam(_adapter *padapter, u8 entry, u16 ctrl, u8 *mac, u8 *key)
 {
@@ -1079,7 +1116,6 @@ static void bwmode_update_check(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pI
 				break;
 				
 			default:
-				new_bwmode = HT_CHANNEL_WIDTH_20;
 				new_ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 				break;
 		}
@@ -1487,11 +1523,13 @@ int rtw_check_bcn_info(ADAPTER *Adapter, u8 *pframe, u32 packet_len)
 	}
 	if (ht_cap_info != cur_network->BcnInfo.ht_cap_info ||
 		((ht_info_infos_0&0x03) != (cur_network->BcnInfo.ht_info_infos_0&0x03))) {
+#if 0
 			DBG_871X("%s bcn now: ht_cap_info:%x ht_info_infos_0:%x\n", __func__,
 						   	ht_cap_info, ht_info_infos_0);
 			DBG_871X("%s bcn link: ht_cap_info:%x ht_info_infos_0:%x\n", __func__,
 						   	cur_network->BcnInfo.ht_cap_info, cur_network->BcnInfo.ht_info_infos_0);
 			DBG_871X("%s bw mode change, disconnect\n", __func__);
+#endif
 			{	
 				//bcn_info_update
 				cur_network->BcnInfo.ht_cap_info = ht_cap_info;
@@ -2592,72 +2630,4 @@ int rtw_handle_dualmac(_adapter *adapter, bool init)
 exit:
 	return status;
 }
-#ifdef CONFIG_WOWLAN
-void rtw_get_current_ip_address(PADAPTER padapter, u8 *pcurrentip)
-{
-	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
-	struct mlme_ext_info *pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct in_device *my_ip_ptr = padapter->pnetdev->ip_ptr;
-	u8 ipaddress[4];
-	
-	if ( (pmlmeinfo->state & WIFI_FW_LINKING_STATE) ) {
-		if ( my_ip_ptr != NULL ) {
-			struct in_ifaddr *my_ifa_list  = my_ip_ptr->ifa_list ;
-			if ( my_ifa_list != NULL ) {
-				ipaddress[0] = my_ifa_list->ifa_address & 0xFF;
-				ipaddress[1] = (my_ifa_list->ifa_address >> 8) & 0xFF;
-				ipaddress[2] = (my_ifa_list->ifa_address >> 16) & 0xFF;
-				ipaddress[3] = my_ifa_list->ifa_address >> 24;
-				DBG_871X("%s: %d.%d.%d.%d ==========\n", __func__, 
-						ipaddress[0], ipaddress[1], ipaddress[2], ipaddress[3]);
-				_rtw_memcpy(pcurrentip, ipaddress, 4);
-			}
-		}
-	}
-}
-void rtw_get_sec_iv(PADAPTER padapter, u8*pcur_dot11txpn, u8 *StaAddr)
-{
-	struct sta_info		*psta;
-	struct security_priv *psecpriv = &padapter->securitypriv;
 
-	_rtw_memset(pcur_dot11txpn, 0, 8);
-	if(NULL == StaAddr)
-		return; 
-	psta = rtw_get_stainfo(&padapter->stapriv, StaAddr);
-	DBG_871X("%s(): StaAddr: %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", 
-		__func__, StaAddr[0], StaAddr[1], StaAddr[2], StaAddr[3], StaAddr[4], StaAddr[5]);
-
-	if(psta)
-	{
-		if (psecpriv->dot11PrivacyAlgrthm != _NO_PRIVACY_ && psta->dot11txpn.val > 0)
-			psta->dot11txpn.val--;
-
-		_rtw_memcpy(pcur_dot11txpn, (u8*)&psta->dot11txpn, 8);
-
-		DBG_871X("%s(): CurrentIV: 0x%016llx\n", __func__, psta->dot11txpn.val);
-	}
-}
-void rtw_set_sec_iv(PADAPTER padapter)
-{
-	struct sta_info         *psta;
-	struct mlme_ext_priv    *pmlmeext = &(padapter->mlmeextpriv);
-	struct mlme_ext_info    *pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct pwrctrl_priv *pwrpriv = adapter_to_pwrctl(padapter);
-	struct security_priv *psecpriv = &padapter->securitypriv;
-
-	psta = rtw_get_stainfo(&padapter->stapriv, get_my_bssid(&pmlmeinfo->network));
-
-	if(psta)
-	{
-		if (pwrpriv->wowlan_fw_iv > psta->dot11txpn.val)
-		{
-			if (psecpriv->dot11PrivacyAlgrthm != _NO_PRIVACY_)
-				psta->dot11txpn.val = pwrpriv->wowlan_fw_iv + 2;
-			} else {
-				DBG_871X("%s(): FW IV is smaller than driver\n", __func__);
-				psta->dot11txpn.val += 2;
-			}
-			DBG_871X("%s: dot11txpn: 0x%016llx\n", __func__ ,psta->dot11txpn.val);
-		}
-}
-#endif //CONFIG_WOWLAN

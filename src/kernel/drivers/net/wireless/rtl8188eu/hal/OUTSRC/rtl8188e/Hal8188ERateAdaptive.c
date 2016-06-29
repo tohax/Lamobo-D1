@@ -723,7 +723,6 @@ ODM_RAInfo_Init(
 	pRaInfo->Active=1;	//Active is not used at present. by page, 110819
 	pRaInfo->RptTime = 0x927c;
 	pRaInfo->DROP=0;
-	pRaInfo->DROP1=0;
 	pRaInfo->RTY[0]=0;
 	pRaInfo->RTY[1]=0;
 	pRaInfo->RTY[2]=0;
@@ -903,7 +902,6 @@ ODM_RA_TxRPT2Handle_8188E(
 			pRAInfo->RTY[3] = (u2Byte)GET_TX_REPORT_TYPE1_RERTY_3(pBuffer);
 			pRAInfo->RTY[4] = (u2Byte)GET_TX_REPORT_TYPE1_RERTY_4(pBuffer);
 			pRAInfo->DROP =   (u2Byte)GET_TX_REPORT_TYPE1_DROP_0(pBuffer);
-			pRAInfo->DROP1=   (u2Byte)GET_TX_REPORT_TYPE1_DROP_1(pBuffer);
 #else
 			pRAInfo->RTY[0] = (unsigned short)(pBuffer[1] << 8 | pBuffer[0]);
 			pRAInfo->RTY[1] = pBuffer[2];
@@ -911,7 +909,6 @@ ODM_RA_TxRPT2Handle_8188E(
 			pRAInfo->RTY[3] = pBuffer[4];
 			pRAInfo->RTY[4] = pBuffer[5];
 			pRAInfo->DROP  =  pBuffer[6];
-			pRAInfo->DROP1=  pBuffer[7];
 #endif
 			pRAInfo->TOTAL = pRAInfo->RTY[0] + \
 							  pRAInfo->RTY[1] + \

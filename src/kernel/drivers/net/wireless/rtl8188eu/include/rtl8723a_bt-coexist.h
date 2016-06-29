@@ -1482,11 +1482,7 @@ void BTDM_SetFwDecBtPwr(PADAPTER padapter, u8 bDecBtPwr);
 u8 BTDM_BtProfileSupport(PADAPTER padapter);
 void BTDM_LpsLeave(PADAPTER padapter);
 u8 BTDM_1Ant8723A(PADAPTER padapter);
-u8 BTDM_GetBtState8723A(PADAPTER padapter);
-u8 BTDM_IsBtInquiryPage8723A(PADAPTER padapter);
 #define BT_1Ant BTDM_1Ant8723A
-#define BT_GetBtState BTDM_GetBtState8723A
-#define BT_IsBtInquiryPage BTDM_IsBtInquiryPage8723A
 
 // ===== End of sync from SD7 driver HAL/BTCoexist/HalBtc8723.h =====
 #endif // __HALBTC8723_C__
@@ -1542,7 +1538,6 @@ void BTDM_DiminishWiFi(PADAPTER Adapter, u8 bDACOn, u8 bInterruptOn, u8 DACSwing
 
 // HEADER/TypeDef.h
 #define MAX_FW_SUPPORT_MACID_NUM			64
-#define WIFI_BUSY_TRAFFIC_TH			25
 
 // ===== Below this line is sync from SD7 driver HAL/BTCoexist/HalBtCoexist.h =====
 
@@ -1776,7 +1771,6 @@ u8 BTDM_IsActionHIDPAN(PADAPTER padapter);
 u8 BTDM_IsActionPANA2DP(PADAPTER padapter);
 u8 BTDM_IsBtDisabled(PADAPTER padapter);
 #define BT_IsBtDisabled BTDM_IsBtDisabled
-sint BTDM_CheckFWState(PADAPTER padapter, sint state);
 u32 BTDM_BtTxRxCounterH(PADAPTER padapter);
 u32 BTDM_BtTxRxCounterL(PADAPTER padapter);
 

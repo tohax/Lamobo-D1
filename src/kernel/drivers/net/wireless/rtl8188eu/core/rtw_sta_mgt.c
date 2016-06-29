@@ -87,18 +87,7 @@ _func_enter_;
 	psta->keep_alive_trycnt = 0;
 
 #endif	// CONFIG_AP_MODE	
-
-#ifdef DBG_TRX_STA_PKTS	
-	psta->tx_be_cnt = 0;
-	psta->tx_bk_cnt = 0;
-	psta->tx_vi_cnt = 0;
-	psta->tx_vo_cnt = 0;
 	
-	psta->rx_be_cnt = 0;
-	psta->rx_bk_cnt = 0;
-	psta->rx_vi_cnt = 0;
-	psta->rx_vo_cnt = 0;
-#endif	
 _func_exit_;	
 
 }
@@ -163,9 +152,6 @@ _func_enter_;
 	pstapriv->expire_to = 3; // 3*2 = 6 sec
 #else
 	pstapriv->expire_to = 60;// 60*2 = 120 sec = 2 min, expire after no any traffic.
-#endif	
-#ifdef CONFIG_ATMEL_RC_PATCH
-	_rtw_memset(  pstapriv->atmel_rc_pattern, 0, ETH_ALEN);
 #endif	
 	pstapriv->max_num_sta = NUM_STA;
 		
@@ -447,9 +433,7 @@ _func_enter_;
 		//init for DM
 		psta->rssi_stat.UndecoratedSmoothedPWDB = (-1);
 		psta->rssi_stat.UndecoratedSmoothedCCK = (-1);
-#ifdef CONFIG_ATMEL_RC_PATCH
-		psta->flag_atmel_rc = 0;
-#endif
+		
 		/* init for the sequence number of received management frame */
 		psta->RxMgmtFrameSeqNum = 0xffff;
 	}
@@ -615,9 +599,7 @@ _func_enter_;
 	_exit_critical_bh(&pstapriv->auth_list_lock, &irqL0);
 	
 	psta->expire_to = 0;
-#ifdef CONFIG_ATMEL_RC_PATCH
-	psta->flag_atmel_rc = 0;
-#endif
+	
 	psta->sleepq_ac_len = 0;
 	psta->qos_info = 0;
 

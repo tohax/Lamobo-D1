@@ -1,14 +1,8 @@
 #!/bin/sh
 
 2>/dev/null killall -9 wpa_supplicant
-2>/dev/null killall -9 udhcpc
-2>/dev/null killall -9 finish_station.sh
-2>/dev/null killall -9 udhcpd
-2>/dev/null killall -9 hostapd
-rmmod 8188eu
 
-insmod /root/8188eu.ko
-wpa_supplicant -B -iwlan0 -Dwext -c /etc/jffs2/wpa_supplicant.conf
+wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 
 SSID=\"TP\"
 PSK=\"acurarsx\"
@@ -21,6 +15,7 @@ wpa_cli -iwlan0 set_network 0 psk $PSK
 wpa_cli -iwlan0 set_network 0 scan_ssid 1
 wpa_cli -iwlan0 enable_network 0
 wpa_cli -iwlan0 select_network 0
-                
-2>/dev/null killall -9 udhcpc
-udhcpc -i wlan0
+
+ifconfig wlan0 192.168.1.88 netmask 255.255.255.0
+route add default gw 192.168.1.1
+echo nameserver 192.168.1.1 > /etc/resolv.conf

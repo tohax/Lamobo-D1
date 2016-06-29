@@ -57,10 +57,6 @@ typedef enum tag_HAL_Cut_Version_Definition
 	E_CUT_VERSION 		=	4,
 	F_CUT_VERSION 		=	5,
 	G_CUT_VERSION 		=	6,
-	H_CUT_VERSION 		=	7,	
-	I_CUT_VERSION 		=	8,
-	J_CUT_VERSION 		=	9,
-	K_CUT_VERSION 		=	10,
 }HAL_CUT_VERSION_E;
 
 // HAL_Manufacturer
@@ -124,11 +120,7 @@ typedef	struct tag_HAL_VERSION
 #define IS_C_CUT(version)				((GET_CVID_CUT_VERSION(version) == C_CUT_VERSION) ? TRUE : FALSE)
 #define IS_D_CUT(version)				((GET_CVID_CUT_VERSION(version) == D_CUT_VERSION) ? TRUE : FALSE)
 #define IS_E_CUT(version)					((GET_CVID_CUT_VERSION(version) == E_CUT_VERSION) ? TRUE : FALSE)
-#define IS_I_CUT(version)					((GET_CVID_CUT_VERSION(version) == I_CUT_VERSION) ? TRUE : FALSE)
-#define IS_J_CUT(version)					((GET_CVID_CUT_VERSION(version) == J_CUT_VERSION) ? TRUE : FALSE)
-#define IS_K_CUT(version)					((GET_CVID_CUT_VERSION(version) == K_CUT_VERSION) ? TRUE : FALSE)
 
-#define IS_VENDOR_8188E_I_CUT_SERIES(_Adapter)		((IS_8188E(GET_HAL_DATA(_Adapter)->VersionID)) ? ((GET_CVID_CUT_VERSION(GET_HAL_DATA(_Adapter)->VersionID) >= I_CUT_VERSION) ? TRUE : FALSE) : FALSE)
 
 //HAL_VENDOR_E
 #define IS_CHIP_VENDOR_TSMC(version)	((GET_CVID_MANUFACTUER(version) == CHIP_VENDOR_TSMC)? TRUE: FALSE)

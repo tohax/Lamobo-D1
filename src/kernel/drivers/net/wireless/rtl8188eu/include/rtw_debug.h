@@ -182,7 +182,7 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 	#endif
 
 #elif defined PLATFORM_LINUX
-	#define _dbgdump	printk
+//	#define _dbgdump	printk
 #elif defined PLATFORM_FREEBSD
 	#define _dbgdump	printf
 #endif
@@ -282,17 +282,9 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 
 #ifdef CONFIG_PROC_DEBUG
 
-#if(LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
-
 	int proc_get_drv_version(char *page, char **start,
 			  off_t offset, int count,
 			  int *eof, void *data);
-
-#ifdef DBG_MEM_ALLOC
-	int proc_get_mstat(char *page, char **start,
-			  off_t offset, int count,
-			  int *eof, void *data);
-#endif /* DBG_MEM_ALLOC */
 
 	int proc_get_write_reg(char *page, char **start,
 			  off_t offset, int count,
@@ -403,8 +395,6 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 	int proc_get_best_channel(char *page, char **start,
 			  off_t offset, int count,
 			  int *eof, void *data);
-	int proc_set_best_channel(struct file *file, const char *buffer,
-		unsigned long count, void *data);
 #endif
 
 	int proc_get_rx_signal(char *page, char **start,
@@ -469,149 +459,6 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 int proc_get_sreset(char *page, char **start, off_t offset, int count, int *eof, void *data);
 int proc_set_sreset(struct file *file, const char *buffer, unsigned long count, void *data);
 #endif /* DBG_CONFIG_ERROR_DETECT */
-
-int proc_get_odm_dbg_comp(char *page, char **start, off_t offset, int count, int *eof, void *data);
-int proc_set_odm_dbg_comp(struct file *file, const char *buffer, unsigned long count, void *data);
-int proc_get_odm_dbg_level(char *page, char **start, off_t offset, int count, int *eof, void *data);
-int proc_set_odm_dbg_level(struct file *file, const char *buffer, unsigned long count, void *data);
-
-int proc_get_odm_adaptivity(char *page, char **start, off_t offset, int count, int *eof, void *data);
-int proc_set_odm_adaptivity(struct file *file, const char *buffer, unsigned long count, void *data);
-
-#else /* kernel version < 3.10 */
-
-	int proc_get_drv_version(struct seq_file *m, void *data);
-
-#ifdef DBG_MEM_ALLOC
-	int proc_get_mstat(struct seq_file *m, void *data);
-#endif /* DBG_MEM_ALLOC */
-
-	int proc_get_write_reg(struct seq_file *m, void *data);
-
- 	int proc_set_write_reg(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-	int proc_get_read_reg(struct seq_file *m, void *data);
-
-	ssize_t proc_set_read_reg(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-	int proc_get_fwstate(struct seq_file *m, void *data);
-
-	int proc_get_sec_info(struct seq_file *m, void *data);
-
-	int proc_get_mlmext_state(struct seq_file *m, void *data);
-
-	int proc_get_qos_option(struct seq_file *m, void *data);
-
-	int proc_get_ht_option(struct seq_file *m, void *data);
-
-	int proc_get_rf_info(struct seq_file *m, void *data);
-
-	int proc_get_ap_info(struct seq_file *m, void *data);
-
-	int proc_get_adapter_state(struct seq_file *m, void *data);
-
-	int proc_get_trx_info(struct seq_file *m, void *data);
-
-	int proc_get_mac_reg_dump1(struct seq_file *m, void *data);
-
-	int proc_get_mac_reg_dump2(struct seq_file *m, void *data);
-
-	int proc_get_mac_reg_dump3(struct seq_file *m, void *data);
-
-	int proc_get_bb_reg_dump1(struct seq_file *m, void *data);
-
-	int proc_get_bb_reg_dump2(struct seq_file *m, void *data);
-
-	int proc_get_bb_reg_dump3(struct seq_file *m, void *data);
-
-	int proc_get_rf_reg_dump1(struct seq_file *m, void *data);
-
-	int proc_get_rf_reg_dump2(struct seq_file *m, void *data);
-
-	int proc_get_rf_reg_dump3(struct seq_file *m, void *data);
-
-	int proc_get_rf_reg_dump4(struct seq_file *m, void *data);
-
-#ifdef CONFIG_AP_MODE
-	int proc_get_all_sta_info(struct seq_file *m, void *data);
-#endif
-
-#ifdef DBG_MEMORY_LEAK
-	int proc_get_malloc_cnt(struct seq_file *m, void *data);
-#endif
-
-#ifdef CONFIG_FIND_BEST_CHANNEL
-	int proc_get_best_channel(struct seq_file *m, void *data);
-
-	ssize_t proc_set_best_channel(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-#endif
-
-	int proc_get_rx_signal(struct seq_file *m, void *data);
-
-	ssize_t proc_set_rx_signal(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-#ifdef CONFIG_80211N_HT
-	int proc_get_ht_enable(struct seq_file *m, void *data);
-
-	ssize_t proc_set_ht_enable(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-	int proc_get_cbw40_enable(struct seq_file *m, void *data);
-
-	ssize_t proc_set_cbw40_enable(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-	
-	int proc_get_ampdu_enable(struct seq_file *m, void *data);
-			  
-	ssize_t proc_set_ampdu_enable(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-	
-	int proc_get_rx_stbc(struct seq_file *m, void *data);
-		
-	ssize_t proc_set_rx_stbc(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-#endif //CONFIG_80211N_HT
-
-	int proc_get_two_path_rssi(struct seq_file *m, void *data);
-
-	int proc_get_rssi_disp(struct seq_file *m, void *data);
-
-	ssize_t proc_set_rssi_disp(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-#ifdef CONFIG_BT_COEXIST
-	int proc_get_btcoex_dbg(struct seq_file *m, void *data);
-
-	ssize_t proc_set_btcoex_dbg(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-#endif //CONFIG_BT_COEXIST
-
-#if defined(DBG_CONFIG_ERROR_DETECT)
-	int proc_get_sreset(struct seq_file *m, void *data);
-
-	ssize_t proc_set_sreset(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-#endif /* DBG_CONFIG_ERROR_DETECT */
-
-	int proc_get_odm_dbg_comp(struct seq_file *m, void *data);
-
-	ssize_t proc_set_odm_dbg_comp(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-	int proc_get_odm_dbg_level(struct seq_file *m, void *data);
-
-	ssize_t proc_set_odm_dbg_level(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-
-	int proc_get_odm_adaptivity(struct seq_file *m, void *data);
-
-	ssize_t proc_set_odm_adaptivity(struct file *file, const char *buffer,
-			size_t count, loff_t *pos);
-#endif /* kernel version < 3.10 */
 
 #endif //CONFIG_PROC_DEBUG
 

@@ -48,7 +48,7 @@ get_ini_value_and_connect()
 	else
 		security=wpa
 	fi
-	
+
 	echo "security=$security ssid=$ssid password=$password"
 	/etc/init.d/wifi_connect.sh $security "$ssid" "$password"
 }
@@ -66,14 +66,14 @@ start_station ()
 
 case "$MODE" in
 	start)
-		start_station	
+		start_station
 		;;
 	stop)
 		stop_station
 		;;
 	restart)
 		stop_station
-		start_station	
+		start_station
 		;;
 	*)
 		usage

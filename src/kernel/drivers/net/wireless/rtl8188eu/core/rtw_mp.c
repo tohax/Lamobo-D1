@@ -570,7 +570,7 @@ static void disable_dm(PADAPTER padapter)
 #endif
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
+
 
 	//3 1. disable firmware dynamic mechanism
 	// disable Power Training, Rate Adaptive
@@ -590,7 +590,7 @@ static void disable_dm(PADAPTER padapter)
 
 	// enable APK, LCK and IQK but disable power tracking
 #ifndef CONFIG_RTL8188E
-	pDM_Odm->RFCalibrateInfo.TxPowerTrackControl = _FALSE;
+	pdmpriv->TxPowerTrackControl = _FALSE;
 #endif
 	Switch_DM_Func(padapter, DYNAMIC_RF_CALIBRATION, _TRUE);
 }
@@ -600,7 +600,7 @@ void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct dm_priv	*pdmpriv = &pHalData->dmpriv;
-	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
+
 	//Switch_DM_Func(padapter, DYNAMIC_RF_CALIBRATION, bstart);
 	if (bstart==1){
 		DBG_871X("in MPT_PwrCtlDM start \n");		
@@ -608,16 +608,10 @@ void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart)
 		pdmpriv->InitODMFlag |= ODM_RF_TX_PWR_TRACK ;
 		pdmpriv->InitODMFlag |= ODM_RF_CALIBRATION ;
 		pdmpriv->TxPowerTrackControl = _TRUE;
-#ifndef CONFIG_RTL8188E
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl =  _TRUE;
-#endif
 	}else{
 		DBG_871X("in MPT_PwrCtlDM stop \n");
 		disable_dm(padapter);
 		pdmpriv->TxPowerTrackControl = _FALSE;
-		#ifndef CONFIG_RTL8188E
-		pDM_Odm->RFCalibrateInfo.TxPowerTrackControl =  _FALSE;
-		#endif
 
 	}
 		

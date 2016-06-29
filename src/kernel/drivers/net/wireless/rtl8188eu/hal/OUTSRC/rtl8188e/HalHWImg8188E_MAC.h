@@ -33,15 +33,6 @@ ODM_ReadAndConfig_MAC_REG_8188E(
 	IN   PDM_ODM_T  pDM_Odm
 );
 
-/******************************************************************************
-*                           MAC_REG_ICUT.TXT
-******************************************************************************/
-
-void
-ODM_ReadAndConfig_MAC_REG_ICUT_8188E( // TC: Test Chip, MP: MP Chip
-	IN   PDM_ODM_T  pDM_Odm
-);
-
 #endif
 #endif // end of HWIMG_SUPPORT
 

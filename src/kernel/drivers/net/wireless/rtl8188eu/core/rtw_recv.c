@@ -31,10 +31,6 @@
 #include <usb_ops.h>
 #endif
 
-#ifdef CONFIG_BT_COEXIST
-#include <rtl8723a_hal.h>
-#endif
-
 #if defined (PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 
 #error "Shall be Linux or Windows, but not both!\n"
@@ -283,7 +279,7 @@ _func_enter_;
 #ifdef CONFIG_BSD_RX_USE_MBUF
 		m_freem(precvframe->u.hdr.pkt);
 #else	// CONFIG_BSD_RX_USE_MBUF
-		rtw_skb_free(precvframe->u.hdr.pkt);//free skb by driver
+		dev_kfree_skb_any(precvframe->u.hdr.pkt);//free skb by driver
 #endif	// CONFIG_BSD_RX_USE_MBUF
 		precvframe->u.hdr.pkt = NULL;
 	}
@@ -404,11 +400,9 @@ u32 rtw_free_uc_swdec_pending_queue(_adapter *adapter)
 	union recv_frame *pending_frame;
 	while((pending_frame=rtw_alloc_recvframe(&adapter->recvpriv.uc_swdec_pending_queue))) {
 		rtw_free_recvframe(pending_frame, &adapter->recvpriv.free_recv_queue);
+		DBG_871X("%s: dequeue uc_swdec_pending_queue\n", __func__);
 		cnt++;
 	}
-
-	if (cnt)
-		DBG_871X(FUNC_ADPT_FMT" dequeue %d\n", FUNC_ADPT_ARG(adapter), cnt);
 
 	return cnt;
 }
@@ -743,9 +737,6 @@ _func_enter_;
 		return_packet = NULL;
 		
 	}
-	else{
-		prxattrib->bdecrypted = _TRUE;
-	}
 	//recvframe_chkmic(adapter, precv_frame);   //move to recvframme_defrag function
 
 _func_exit_;
@@ -770,6 +761,7 @@ union recv_frame * portctrl(_adapter *adapter,union recv_frame * precv_frame)
 _func_enter_;
 
 	pstapriv = &adapter->stapriv;
+	psta = rtw_get_stainfo(pstapriv, psta_addr);
 
 	auth_alg = adapter->securitypriv.dot11AuthAlgrthm;
 
@@ -779,8 +771,6 @@ _func_enter_;
 	psta_addr = pattrib->ta;
 
 	prtnframe = NULL;
-
-	psta = rtw_get_stainfo(pstapriv, psta_addr);
 
 	RT_TRACE(_module_rtl871x_recv_c_,_drv_info_,("########portctrl:adapter->securitypriv.dot11AuthAlgrthm=%d\n",adapter->securitypriv.dot11AuthAlgrthm));
 
@@ -1749,7 +1739,7 @@ union recv_frame* recvframe_chk_defrag(PADAPTER padapter, union recv_frame *prec
 sint validate_recv_mgnt_frame(PADAPTER padapter, union recv_frame *precv_frame);
 sint validate_recv_mgnt_frame(PADAPTER padapter, union recv_frame *precv_frame)
 {
-	//struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+	//struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 
 	RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("+validate_recv_mgnt_frame\n"));
 
@@ -2022,127 +2012,6 @@ _func_exit_;
 	return ret;
 }
 
-#ifdef CONFIG_IEEE80211W
-static sint validate_80211w_mgmt(_adapter *adapter, union recv_frame *precv_frame)
-{
-	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
-	struct rx_pkt_attrib *pattrib = & precv_frame->u.hdr.attrib;
-	u8 *ptr = precv_frame->u.hdr.rx_data;
-	u8 type;
-	u8 subtype;
-			
-	type =  GetFrameType(ptr);
-	subtype = GetFrameSubType(ptr); //bit(7)~bit(2)
-			
-	//only support station mode
-	if(check_fwstate(pmlmepriv, WIFI_STATION_STATE) && check_fwstate(pmlmepriv, _FW_LINKED) 
-		&& adapter->securitypriv.binstallBIPkey == _TRUE)
-	{
-		//unicast management frame decrypt
-		if(pattrib->privacy && !(IS_MCAST(GetAddr1Ptr(ptr))) && 
-			(subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC || subtype == WIFI_ACTION))
-		{
-			u8 *ppp, *mgmt_DATA;
-			u32 data_len=0;
-			ppp = GetAddr2Ptr(ptr);
-			
-			pattrib->bdecrypted = 0;
-			pattrib->encrypt = _AES_;
-			pattrib->hdrlen = sizeof(struct rtw_ieee80211_hdr_3addr);
-			//set iv and icv length
-			SET_ICE_IV_LEN(pattrib->iv_len, pattrib->icv_len, pattrib->encrypt);
-			_rtw_memcpy(pattrib->ra, GetAddr1Ptr(ptr), ETH_ALEN);
-			_rtw_memcpy(pattrib->ta, GetAddr2Ptr(ptr), ETH_ALEN);
-			//actual management data frame body
-			data_len = pattrib->pkt_len - pattrib->hdrlen - pattrib->iv_len - pattrib->icv_len;
-			mgmt_DATA = rtw_zmalloc(data_len);
-			if(mgmt_DATA == NULL)
-			{
-				DBG_871X("%s mgmt allocate fail  !!!!!!!!!\n", __FUNCTION__);
-				goto validate_80211w_fail;
-			}
-			/*//dump the packet content before decrypt
-			{
-				int pp;
-				printk("pattrib->pktlen = %d =>", pattrib->pkt_len);
-				for(pp=0;pp< pattrib->pkt_len; pp++)
-					printk(" %02x ", ptr[pp]);
-				printk("\n");
-			}*/
-			
-			precv_frame = decryptor(adapter, precv_frame);
-			//save actual management data frame body
-			_rtw_memcpy(mgmt_DATA, ptr+pattrib->hdrlen+pattrib->iv_len, data_len);
-			//overwrite the iv field
-			_rtw_memcpy(ptr+pattrib->hdrlen, mgmt_DATA, data_len);
-			//remove the iv and icv length
-			pattrib->pkt_len = pattrib->pkt_len - pattrib->iv_len - pattrib->icv_len;
-			rtw_mfree(mgmt_DATA, data_len);
-			/*//print packet content after decryption
-			{
-				int pp;
-				printk("after decryption pattrib->pktlen = %d @@=>", pattrib->pkt_len);
-				for(pp=0;pp< pattrib->pkt_len; pp++)
-					printk(" %02x ", ptr[pp]);
-				printk("\n");
-			}*/
-			if(!precv_frame)
-			{
-				DBG_871X("%s mgmt descrypt fail  !!!!!!!!!\n", __FUNCTION__);
-				goto validate_80211w_fail;
-			}
-		}
-		else if(IS_MCAST(GetAddr1Ptr(ptr)) &&
-			(subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC))
-		{
-			sint BIP_ret = _SUCCESS;
-			//verify BIP MME IE of broadcast/multicast de-auth/disassoc packet
-			BIP_ret = rtw_BIP_verify(adapter, (u8 * )precv_frame);
-			if(BIP_ret == _FAIL)
-			{
-				//DBG_871X("802.11w BIP verify fail\n");
-				goto validate_80211w_fail;
-			}
-			else if(BIP_ret == RTW_RX_HANDLED)
-			{
-				//DBG_871X("802.11w recv none protected packet\n");
-				//issue sa query request
-				issue_action_SA_Query(adapter, NULL, 0, 0);
-				goto validate_80211w_fail;
-			}
-		}//802.11w protect
-		else
-		{
-			if(subtype == WIFI_ACTION)
-			{
-				//according 802.11-2012 standard, these five types are not robust types
-				if( ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_PUBLIC          &&
-					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_HT              &&
-					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_UNPROTECTED_WNM &&
-					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_SELF_PROTECTED  &&
-					ptr[WLAN_HDR_A3_LEN] != RTW_WLAN_CATEGORY_P2P)
-				{
-					DBG_871X("action frame category=%d should robust\n", ptr[WLAN_HDR_A3_LEN]);
-					goto validate_80211w_fail;
-				}
-			}
-			else if(subtype == WIFI_DEAUTH || subtype == WIFI_DISASSOC)
-			{
-				DBG_871X("802.11w recv none protected packet\n");
-				//issue sa query request
-				issue_action_SA_Query(adapter, NULL, 0, 0);
-				goto validate_80211w_fail;
-			}
-		}
-	}
-	return _SUCCESS;
-			
-validate_80211w_fail:
-	return _FAIL;
-	
-}
-#endif //CONFIG_IEEE80211W
-
 sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame);
 sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 {
@@ -2153,6 +2022,7 @@ sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 	u8 type;
 	u8 subtype;
 	sint retval = _SUCCESS;
+
 	struct rx_pkt_attrib *pattrib = & precv_frame->u.hdr.attrib;
 
 	u8 *ptr = precv_frame->u.hdr.rx_data;
@@ -2268,14 +2138,6 @@ _func_enter_;
 	switch (type)
 	{
 		case WIFI_MGT_TYPE: //mgnt
-#ifdef CONFIG_IEEE80211W
-			if(validate_80211w_mgmt(adapter, precv_frame) == _FAIL)
-			{
-				retval = _FAIL;
-				break;
-			}
-#endif //CONFIG_IEEE80211W
-			
 			retval = validate_recv_mgnt_frame(adapter, precv_frame);
 			if (retval == _FAIL)
 			{
@@ -2592,8 +2454,12 @@ static void recvframe_expand_pkt(
 
 	//3 1. alloc new skb
 	// prepare extra space for 4 bytes alignment
-	ppkt = rtw_skb_alloc(alloc_sz);
-
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)) // http://www.mail-archive.com/netdev@vger.kernel.org/msg17214.html
+	ppkt = dev_alloc_skb(alloc_sz);
+	if (ppkt) ppkt->dev = padapter->pnetdev;
+#else
+	ppkt = netdev_alloc_skb(padapter->pnetdev, alloc_sz);
+#endif
 	if (!ppkt) return; // no way to expand
 
 	//3 2. Prepare new skb to replace & release old skb
@@ -2605,7 +2471,7 @@ static void recvframe_expand_pkt(
 	// copy data to new pkt
 	_rtw_memcpy(skb_put(ppkt, pfhdr->len), pfhdr->rx_data, pfhdr->len);
 
-	rtw_skb_free(pfhdr->pkt);
+	dev_kfree_skb_any(pfhdr->pkt);
 
 	// attach new pkt to recvframe
 	pfhdr->pkt = ppkt;
@@ -2904,7 +2770,7 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 
 		/* Allocate new skb for releasing to upper layer */
 #ifdef CONFIG_SKB_COPY
-		sub_skb = rtw_skb_alloc(nSubframe_Length + 12);
+		sub_skb = dev_alloc_skb(nSubframe_Length + 12);
 		if(sub_skb)
 		{
 			skb_reserve(sub_skb, 12);
@@ -2914,7 +2780,7 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 		else
 #endif // CONFIG_SKB_COPY
 		{
-			sub_skb = rtw_skb_clone(prframe->u.hdr.pkt);
+			sub_skb = skb_clone(prframe->u.hdr.pkt, GFP_ATOMIC);
 			if(sub_skb)
 			{
 				sub_skb->data = pdata;
@@ -2923,7 +2789,7 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 			}
 			else
 			{
-				DBG_871X("rtw_skb_clone() Fail!!! , nr_subframes = %d\n",nr_subframes);
+				DBG_871X("skb_clone() Fail!!! , nr_subframes = %d\n",nr_subframes);
 				break;
 			}
 		}
@@ -3024,7 +2890,7 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 #if 1
 					// bypass this frame to upper layer!!
 #else
-					rtw_skb_free(sub_skb);
+					dev_kfree_skb_any(sub_skb);
 					continue;
 #endif
 				}							
@@ -3044,7 +2910,7 @@ int amsdu_to_msdu(_adapter *padapter, union recv_frame *prframe)
 			sub_skb->ip_summed = CHECKSUM_NONE;
 #endif //CONFIG_TCP_CSUM_OFFLOAD_RX
 
-			rtw_netif_rx(padapter->pnetdev, sub_skb);
+			netif_rx(sub_skb);
 		}
 #else //PLATFORM_FREEBSD
 
@@ -3285,8 +3151,11 @@ exit:
 
 			_rtw_init_listhead(&pnrframe_new->u.hdr.list);
 
-			pskb_copy = rtw_skb_alloc(copy_len+64);
-
+	#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)) // http://www.mail-archive.com/netdev@vger.kernel.org/msg17214.html
+			pskb_copy = dev_alloc_skb(copy_len+64);
+	#else
+			pskb_copy = netdev_alloc_skb(padapter->pnetdev, copy_len + 64);
+	#endif
 			if(pskb_copy==NULL)
 			{
 				DBG_871X("amsdu_to_msdu:can not all(ocate memory for skb copy\n");
@@ -3361,7 +3230,7 @@ exit:
 #ifdef PLATFORM_LINUX
 						if(pskb)
 						{
-							pnrframe_new->u.hdr.pkt = rtw_skb_clone(pskb);
+							pnrframe_new->u.hdr.pkt = skb_clone(pskb, GFP_ATOMIC);
 						}
 #endif //PLATFORM_LINUX
 
@@ -3728,9 +3597,8 @@ int recv_indicatepkt_reorder(_adapter *padapter, union recv_frame *prframe)
 		//s1.
 		wlanhdr_to_ethhdr(prframe);
 
-		//if ((pattrib->qos!=1) /*|| pattrib->priority!=0 || IS_MCAST(pattrib->ra)*/
-		//	|| (pattrib->eth_type==0x0806) || (pattrib->ack_policy!=0))
-		if (pattrib->qos!=1)
+		if ((pattrib->qos!=1) /*|| pattrib->priority!=0 || IS_MCAST(pattrib->ra)*/
+			|| (pattrib->eth_type==0x0806) || (pattrib->ack_policy!=0))
 		{
 			if ((padapter->bDriverStopped == _FALSE) &&
 			    (padapter->bSurpriseRemoved == _FALSE))
@@ -4217,16 +4085,12 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 	if (check_fwstate(mlmepriv, WIFI_STATION_STATE) && psecuritypriv->busetkipkey)
 	{
 		union recv_frame *pending_frame;
-		int cnt = 0;
+		_irqL irqL;
 
 		while((pending_frame=rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
-			cnt++;
-			recv_func_posthandle(padapter, pending_frame);
+			if (recv_func_posthandle(padapter, pending_frame) == _SUCCESS)
+				DBG_871X("%s: dequeue uc_swdec_pending_queue\n", __func__);
 		}
-
-		if (cnt)
-			DBG_871X(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
-				FUNC_ADPT_ARG(padapter), cnt);
 	}
 
 	ret = recv_func_prehandle(padapter, rframe);
@@ -4237,22 +4101,13 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 		if (check_fwstate(mlmepriv, WIFI_STATION_STATE) &&
 			!IS_MCAST(prxattrib->ra) && prxattrib->encrypt>0 &&
 			(prxattrib->bdecrypted == 0 ||psecuritypriv->sw_decrypt == _TRUE) &&
-			psecuritypriv->ndisauthtype == Ndis802_11AuthModeWPAPSK &&
-			!psecuritypriv->busetkipkey)
-		{
+			!is_wep_enc(psecuritypriv->dot11PrivacyAlgrthm) &&
+			!psecuritypriv->busetkipkey) {
 			rtw_enqueue_recvframe(rframe, &padapter->recvpriv.uc_swdec_pending_queue);
-			//DBG_871X("%s: no key, enqueue uc_swdec_pending_queue\n", __func__);
-
-			if (recvpriv->free_recvframe_cnt < NR_RECVFRAME/4) {
-				/* to prevent from recvframe starvation, get recvframe from uc_swdec_pending_queue to free_recvframe_cnt  */
-				rframe = rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue);
-				if (rframe)
-					goto do_posthandle;
-			}
+			DBG_871X("%s: no key, enqueue uc_swdec_pending_queue\n", __func__);
 			goto exit;
 		}
-
-do_posthandle:
+		
 		ret = recv_func_posthandle(padapter, rframe);
 	}
 
@@ -4338,9 +4193,6 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS){
 		if (num_signal_strength == 0) {
 			if (rtw_get_on_cur_ch_time(adapter) == 0
 				|| rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
-#ifdef CONFIG_BT_COEXIST
-				|| ((BTDM_IsBtDisabled(adapter) == _FALSE) && (BT_IsBtInquiryPage(adapter) == _TRUE))
-#endif
 			) {
 				goto set_timer;
 			}
