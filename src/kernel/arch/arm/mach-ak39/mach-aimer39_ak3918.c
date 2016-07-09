@@ -466,7 +466,7 @@ static struct platform_device soc_camera_interface = {
 static struct ak_led_data leds[] = {
 	{
 	.name		= "g_led",
-	.def_trigger	= "default_on",
+	.def_trigger	= "default-on",
 	.gpio		= {
 		.pin		= AK_GPIO_57,
 		.pulldown	= -1,
