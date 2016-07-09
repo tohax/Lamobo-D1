@@ -18,4 +18,4 @@ wpa_cli -iwlan0 select_network 0
 
 ifconfig wlan0 192.168.1.88 netmask 255.255.255.0
 route add default gw 192.168.1.1
-echo nameserver 192.168.1.1 > /etc/resolv.conf
+#echo nameserver 192.168.1.1 > /etc/resolv.conf
