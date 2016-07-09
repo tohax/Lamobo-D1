@@ -444,7 +444,7 @@ static struct aksensor_camera_info ak_soc_camera_info = {
 		.board_info = &ak_camara_devices[0],
 		.i2c_adapter_id = 0,
 		.priv = &ak_soc_camera_info,
-	}	
+	}
 };
 
 /* fake device for soc_camera subsystem */
@@ -459,13 +459,13 @@ static struct platform_device soc_camera_interface = {
 
 /**
  * @brief: LED platform data and initialis status
- * 
+ *
  * @author: caolianming
  * @date: 2014-01-09
  */
 static struct ak_led_data leds[] = {
 	{
-	.name		= "wps_led",
+	.name		= "g_led",
 	.def_trigger	= "none",
 	.gpio		= {
 		.pin		= AK_GPIO_57,
@@ -476,9 +476,9 @@ static struct ak_led_data leds[] = {
 		.int_pol	= -1,
 		}
 	},
-	
+
 	{
-	.name		= "vedio_led",
+	.name		= "r_led",
 	.def_trigger	= "none",
 	.gpio		= {
 		.pin		= AK_GPIO_53,
