@@ -1,2 +1,2 @@
 #!/bin/sh
-/etc/init.d/connect.sh
+/etc/init.d/wifi
