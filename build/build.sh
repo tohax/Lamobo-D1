@@ -33,7 +33,7 @@ config_kernel()
     cd $DEV_ROOT/src/kernel
     $MKDIR $DEV_ROOT/output/kernel
     $MAKE O=$DEV_ROOT/output/kernel aimer39_ak3918_D1_defconfig
-    #$MAKE O=$DEV_ROOT/output/kernel menuconfig
+    $MAKE O=$DEV_ROOT/output/kernel menuconfig
 }
 
 build_kernel()
@@ -275,11 +275,11 @@ build_all()
     config_busybox
     build_busybox
     build_rootfs
-#    build_samples
+    build_samples
 #    build_node
 #    build_updater
     pack_basic
-#    pack_extra
+    pack_extra
 }
 
 clean_all()

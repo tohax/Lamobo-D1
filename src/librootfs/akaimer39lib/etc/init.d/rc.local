@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Adding usb devices to /dev at boot time
 for i in /sys/class/net/*/uevent; do printf 'add' > "$i"; done 2>/dev/null; unset i
 for i in /sys/bus/usb/devices/*; do
                 case "${i##*/}" in
@@ -9,18 +10,19 @@ for i in /sys/bus/usb/devices/*; do
 esac
 done; unset i
 
-#mount /dev/mmcblk0 /mnt
+# Mount sd card to /mnt folder
+mount /dev/mmcblk0 /mnt
 #mount /mnt/local /usr/local
 
+# Adding Hwclock to the system
 echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
 hwclock -s
 
 ifconfig lo up
 
-#/etc/init.d/wifi
-
 #/usr/bin/tcpsvd 0 21 ftpd -w /mnt &
 
+# Serial console
 /usr/bin/telnetd
 
 #mkdir -p /etc/dropbear
@@ -31,6 +33,3 @@ ifconfig lo up
 #dropbear -B
 
 #ntpd -q -p time.windows.com
-
-#/etc/init.d/monitor.sh &
-#/etc/jffs2/service.sh &
