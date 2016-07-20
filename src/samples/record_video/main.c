@@ -355,7 +355,7 @@ int main( int argc, char **argv )
 #endif	
 	if (access("/dev/mmcblk0", R_OK) < 0)
 	{
-		//no sd card
+	//no sd card
 		printf("no SDsard exit \n");
 		free(ext_gSettings);
 		return -1;
@@ -431,7 +431,7 @@ int main( int argc, char **argv )
 		camera_close();
 		akuio_pmem_fini();
 		encode_destroy();	
-		CloseListenSD();
+		//CloseListenSD();
 
 		return -1;
 	}
@@ -519,7 +519,7 @@ int main( int argc, char **argv )
 
 	encode_destroy();
 	akuio_pmem_fini();
-	CloseListenSD();
+	//CloseListenSD();
 
 	printf("Recorder Process Exit\n");
 

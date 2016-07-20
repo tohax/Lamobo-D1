@@ -140,8 +140,8 @@ static void * ListenSD( void * this )
 		}
 		
 		temp_buf[i] = 0;
-		//if ((!strcmp(p, "/mmcblk")) && (!strcmp(temp_buf, "remove")))
-		if(strstr(buf, "remove") != NULL)
+		if ((!strcmp(p, "/mmcblk")) && (!strcmp(temp_buf, "remove")))
+		//if(strstr(buf, "remove") != NULL)
 		{
 			printf(" the sd remove \n");
 			g_exit = 1;
