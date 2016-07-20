@@ -12,24 +12,9 @@ done; unset i
 
 # Mount sd card to /mnt folder
 mount /dev/mmcblk0 /mnt
-#mount /mnt/local /usr/local
 
 # Adding Hwclock to the system
 echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
 hwclock -s
 
 ifconfig lo up
-
-#/usr/bin/tcpsvd 0 21 ftpd -w /mnt &
-
-# Serial console
-/usr/bin/telnetd
-
-#mkdir -p /etc/dropbear
-#if [ ! -f /etc/dropbear/dropbear_rsa_host_key ]; then
-#    dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-#fi
-
-#dropbear -B
-
-#ntpd -q -p time.windows.com

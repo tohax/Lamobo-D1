@@ -1,8 +1,8 @@
 #!/bin/sh
 
-2>/dev/null killall -9 wpa_supplicant
+#2>/dev/null killall -9 wpa_supplicant
 
-wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
+#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 
 SSID=\"TP\"
 PSK=\"acurarsx\"
