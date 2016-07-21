@@ -15,6 +15,7 @@ mount /dev/mmcblk0 /mnt
 
 # Adding Hwclock to the system
 echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
-hwclock -s
+#hwclock -s
 
 ifconfig lo up
+if [ -f /mnt/setup.txt ]; then /etc/init.d/setup.sh; fi

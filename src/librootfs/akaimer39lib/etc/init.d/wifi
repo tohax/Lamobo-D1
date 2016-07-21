@@ -1,11 +1,14 @@
 #!/bin/sh
 
-#2>/dev/null killall -9 wpa_supplicant
+AP=TP
+PASS=acurarsx
+IP=192.168.1.88
+GW=192.168.1.1
 
-#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
+wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 
-SSID=\"TP\"
-PSK=\"acurarsx\"
+SSID=\"$AP\"
+PSK=\"$PASS\"
 
 wpa_cli -iwlan0 add_network
 wpa_cli -iwlan0 set_network 0 ssid $SSID
@@ -16,5 +19,5 @@ wpa_cli -iwlan0 set_network 0 scan_ssid 1
 wpa_cli -iwlan0 enable_network 0
 wpa_cli -iwlan0 select_network 0
 
-ifconfig wlan0 192.168.1.88 netmask 255.255.255.0
-route add default gw 192.168.1.1
+ifconfig wlan0 $IP netmask 255.255.255.0
+route add default gw $GW
