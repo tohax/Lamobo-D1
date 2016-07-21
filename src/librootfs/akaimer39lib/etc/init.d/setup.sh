@@ -41,10 +41,10 @@ echo "Applying new configuration from /mnt/setup.txt"
         chmod 755 /mnt/`hostname`
         fi
 mkdir -p /etc/dropbear
- if [ ! -f /etc/dropbear/dropbear_rsa_host_key ]; then
-  dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-  dropbearkey -t ecdsa -f /etc/dropbear/dropbear_ecdsa_host_key
-  dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key
+ if [ ! -f /etc/dropbear/rsa_key ]; then
+  dropbearkey -t rsa -f /etc/dropbear/rsa_key
+  dropbearkey -t ecdsa -f /etc/dropbear/ecdsa_key
+  dropbearkey -t dss -f /etc/dropbear/dss_key
  fi
 if [ -d /sys/class/net/wlan0 ]; then /etc/init.d/power_on.sh; fi
 rm -f /mnt/setup.txt
