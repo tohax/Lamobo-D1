@@ -49,7 +49,7 @@ print_mtime() {
 	if [ -e "$argv1" ]; then
 		mymtime=$(find "$argv1" -printf "%T@\n" | sort -r | head -n 1)
 	fi
-	
+
 	echo "# Last modified: $mymtime"
 	echo
 }
@@ -139,7 +139,7 @@ build_list() {
 		# If $dirlist is only one line, then the directory is empty
 		if [  "$(echo "$dirlist" | wc -l)" -gt 1 ]; then
 			print_mtime "$cpio_source"
-		
+
 			echo "$dirlist" | \
 			while read x; do
 				parse $x

@@ -47,4 +47,4 @@ mkdir -p /etc/dropbear
   dropbearkey -t dss -f /etc/dropbear/dss_key
  fi
 if [ -d /sys/class/net/wlan0 ]; then /etc/init.d/power_on.sh; fi
-rm -f /mnt/setup.txt
+#rm -f /mnt/setup.txt

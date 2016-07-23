@@ -1,5 +1,5 @@
 #!/bin/sh
-
+echo 1 > /sys/class/leds/g_led/brightness
 # Adding usb devices to /dev at boot time
 for i in /sys/class/net/*/uevent; do printf 'add' > "$i"; done 2>/dev/null; unset i
 for i in /sys/bus/usb/devices/*; do
