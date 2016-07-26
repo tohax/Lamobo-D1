@@ -46,5 +46,11 @@ mkdir -p /etc/dropbear
   dropbearkey -t ecdsa -f /etc/dropbear/ecdsa_key
   dropbearkey -t dss -f /etc/dropbear/dss_key
  fi
-if [ -d /sys/class/net/wlan0 ]; then /etc/init.d/power_on.sh; fi
+#if [ -d /sys/class/net/wlan0 ]; then
+monitor.sh # спит пока не появится wlan0 (подключится внешнее питание)
+#/etc/init.d/wifi
+#dropbearkey -y -f /etc/dropbear/rsa_key | grep ssh | DROPBEAR_PASSWORD='root' dbclient -y root@192.168.1.109 'cat >> .ssh/authorized_keys && echo "Key copied"'
+#echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
+#echo "$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh" >>  /etc/mdev.conf
+fi
 #rm -f /mnt/setup.txt
