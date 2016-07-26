@@ -29,7 +29,7 @@ echo "Applying new configuration from /mnt/setup.txt"
         fi
 #Server
         if cat /mnt/setup.txt | grep Server | cut -d "=" -f 2 1>/dev/null; then
-        echo
+        Server=$(cat /mnt/setup.txt | grep Server= | cut -d "=" -f 2)
         fi
 #Host
         if cat /mnt/setup.txt | grep HOST | cut -d "=" -f 2 1>/dev/null; then
