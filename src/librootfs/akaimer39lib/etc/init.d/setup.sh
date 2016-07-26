@@ -37,17 +37,19 @@ echo "Applying new configuration from /mnt/setup.txt"
         hostname -F /etc/sysconfig/HOSTNAME
         mkdir -p /mnt/`hostname`
         chmod 755 /mnt/`hostname`
-        fi
+	touch /mnt/`hostname`/test
+	fi
 
 
 mkdir /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-
+echo 1 > /sys/class/leds/r_led/brightness
 while [ ! -d /sys/class/net/wlan0 ]
 do
 echo "Connect power adapter"
 sleep 5
 done
+echo 0 > /sys/class/leds/r_led/brightness
 
 /etc/init.d/wifi
 sleep 3
@@ -57,3 +59,4 @@ echo '$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 rm -f /mnt/setup.txt
 sync
 echo default-on > /sys/class/leds/g_led/trigger
+reboot

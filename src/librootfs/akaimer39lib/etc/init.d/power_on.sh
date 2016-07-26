@@ -10,7 +10,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
         if [ $Signal -ge 30 ]; then
          dropbear -B
          ntpd -q -p time.windows.com
-         sleep 3
+         sleep 5
          #здесь запуск rsync
         echo heartbeat > /sys/class/leds/r_led/trigger
         sleep 0.5
@@ -18,7 +18,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 
 if [ -d /mnt/`hostname` ]; then rsync -avz --log-file=/etc/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/`hostname` root@$Server:/mnt/hdd/oneday; fi
 echo default-on > /sys/class/leds/r_led/trigger
-echo default-on > /sys/class/leds/g_led/trigger
+echo 0 > /sys/class/leds/g_led/brightness
 # конец rsync
         fi
 else
