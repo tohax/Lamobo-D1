@@ -1,7 +1,5 @@
 #!/bin/sh
-sleep 5
-if pgrep dropbear; then killall -9 dropbear; fi
-if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
+echo heartbeat > /sys/class/leds/g_led/trigger
 echo
 echo "Applying new configuration from /mnt/setup.txt"
 
@@ -40,17 +38,22 @@ echo "Applying new configuration from /mnt/setup.txt"
         mkdir -p /mnt/`hostname`
         chmod 755 /mnt/`hostname`
         fi
-mkdir -p /etc/dropbear
- if [ ! -f /etc/dropbear/rsa_key ]; then
-  dropbearkey -t rsa -f /etc/dropbear/rsa_key
-  dropbearkey -t ecdsa -f /etc/dropbear/ecdsa_key
-  dropbearkey -t dss -f /etc/dropbear/dss_key
- fi
-#if [ -d /sys/class/net/wlan0 ]; then
-monitor.sh # спит пока не появится wlan0 (подключится внешнее питание)
-#/etc/init.d/wifi
-#dropbearkey -y -f /etc/dropbear/rsa_key | grep ssh | DROPBEAR_PASSWORD='root' dbclient -y root@192.168.1.109 'cat >> .ssh/authorized_keys && echo "Key copied"'
-#echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
-#echo "$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh" >>  /etc/mdev.conf
-fi
-#rm -f /mnt/setup.txt
+
+
+mkdir /etc/dropbear
+dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+
+while [ ! -d /sys/class/net/wlan0 ]
+do
+echo "Connect power adapter"
+sleep 5
+done
+
+/etc/init.d/wifi
+sleep 3
+dropbearkey -y -f /etc/dropbear/dropbear_rsa_host_key | grep ssh | DROPBEAR_PASSWORD='dietpi' ssh -y root@$Server 'cat >> .ssh/authorized_keys'
+echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
+echo '$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
+rm -f /mnt/setup.txt
+sync
+echo default-on > /sys/class/leds/g_led/trigger
