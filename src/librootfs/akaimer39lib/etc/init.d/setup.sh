@@ -44,6 +44,7 @@ echo "Applying new configuration from /mnt/setup.txt"
 mkdir /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
 echo 1 > /sys/class/leds/r_led/brightness
+
 while [ ! -d /sys/class/net/wlan0 ]
 do
 echo "Connect power adapter"
@@ -51,8 +52,9 @@ sleep 5
 done
 echo 0 > /sys/class/leds/r_led/brightness
 
+wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi
-sleep 3
+#sleep 5
 dropbearkey -y -f /etc/dropbear/dropbear_rsa_host_key | grep ssh | DROPBEAR_PASSWORD='dietpi' ssh -y root@$Server 'cat >> .ssh/authorized_keys'
 echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
