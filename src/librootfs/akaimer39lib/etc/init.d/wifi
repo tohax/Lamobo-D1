@@ -21,3 +21,4 @@ wpa_cli -iwlan0 select_network 0
 
 ifconfig wlan0 $IP netmask 255.255.255.0
 route add default gw $GW
+exit

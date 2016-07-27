@@ -43,6 +43,7 @@ $AP
 
 mkdir /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+
 echo 1 > /sys/class/leds/r_led/brightness
 while [ ! -d /sys/class/net/wlan0 ]
 do
@@ -56,5 +57,6 @@ dropbearkey -y -f /etc/dropbear/dropbear_rsa_host_key | grep ssh | DROPBEAR_PASS
 echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 rm -f /mnt/setup.txt
-echo default-on > /sys/class/leds/g_led/trigger
+#echo default-on > /sys/class/leds/g_led/trigger
 reboot
+exit
