@@ -18,4 +18,4 @@ echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
 #hwclock -s
 
 ifconfig lo up
-if [ -f /mnt/setup.txt ]; then /etc/init.d/setup.sh; fi
+if [ -f /mnt/setup.txt ]; then sed -e "s/^M//" /mnt/setup.txt; /etc/init.d/setup.sh; fi

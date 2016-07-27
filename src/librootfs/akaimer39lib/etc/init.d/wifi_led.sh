@@ -1,10 +1,10 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# File:				wifi_led.sh	
+# File:				wifi_led.sh
 # Provides:         control wifi status led
 # Required-Start:   $
 # Required-Stop:
-# Default-Start:     
+# Default-Start:
 # Default-Stop:
 # Short-Description:control wifi status led
 # Author:			gao_wangsheng
