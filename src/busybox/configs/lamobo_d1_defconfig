@@ -12,7 +12,7 @@ CONFIG_HAVE_DOT_CONFIG=y
 #
 # General Configuration
 #
-CONFIG_DESKTOP=y
+# CONFIG_DESKTOP is not set
 # CONFIG_EXTRA_COMPAT is not set
 # CONFIG_INCLUDE_SUSv2 is not set
 # CONFIG_USE_PORTABLE_CODE is not set
