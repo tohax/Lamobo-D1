@@ -5,7 +5,7 @@ PASS=acurarsx
 IP=10.10.10.10
 GW=10.10.10.1
 
-wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
+#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 
 SSID=\"$AP\"
 PSK=\"$PASS\"
@@ -21,4 +21,3 @@ wpa_cli -iwlan0 select_network 0
 
 ifconfig wlan0 $IP netmask 255.255.255.0
 route add default gw $GW
-exit

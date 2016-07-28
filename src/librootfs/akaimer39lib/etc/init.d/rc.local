@@ -21,4 +21,3 @@ ifconfig lo up
 rm -f /etc/hostapd.conf
 rm -f /etc/udhcpd.conf
 if [ -f /mnt/setup.txt ]; then sed -i 's/\r$//g' /mnt/setup.txt; /etc/init.d/setup.sh; fi
-exit
