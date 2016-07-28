@@ -14,7 +14,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
       echo heartbeat > /sys/class/leds/r_led/trigger
       sleep 0.5
       echo heartbeat > /sys/class/leds/g_led/trigger
-      rsync -avz --log-file=/mnt/rsync.txt -e "ssh -y -i /etc/.ssh/id_dropbear" /mnt/`hostname` root@$Server:/mnt/hdd/oneday
+      rsync -avz --log-file=/mnt/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/`hostname` root@$Server:/mnt/hdd/oneday
       echo default-on > /sys/class/leds/r_led/trigger
       echo 0 > /sys/class/leds/g_led/brightness
       # конец rsync
