@@ -1,4 +1,5 @@
 #!/bin/sh
+export HOME=/etc PWD=/etc
 echo 1 > /sys/class/leds/g_led/brightness
 # Adding usb devices to /dev at boot time
 for i in /sys/class/net/*/uevent; do printf 'add' > "$i"; done 2>/dev/null; unset i
@@ -18,6 +19,4 @@ echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
 #hwclock -s
 
 ifconfig lo up
-rm -f /etc/hostapd.conf
-rm -f /etc/udhcpd.conf
 if [ -f /mnt/setup.txt ]; then sed -i 's/\r$//g' /mnt/setup.txt; /etc/init.d/setup.sh; fi

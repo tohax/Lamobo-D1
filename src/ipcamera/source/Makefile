@@ -2,10 +2,10 @@
 #Makefile
 #
 
-dir_y += cgic
-dir_y += keypad
+#dir_y += cgic
+#dir_y += keypad
 dir_y += MediaServer
-dir_y += httpup
+#dir_y += httpup
 all:
 	@for i in $(dir_y); \
 	do \

@@ -54,8 +54,9 @@ echo
         fi
 
 
-mkdir /etc/dropbear
-dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+mkdir /etc/.ssh
+chmod 755 /etc/.ssh
+dropbearkey -t rsa -f /etc/.ssh/id_dropbear
 
 echo 1 > /sys/class/leds/r_led/brightness
 while [ ! -d /sys/class/net/wlan0 ]
@@ -66,8 +67,7 @@ done
 echo 0 > /sys/class/leds/r_led/brightness
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi
-dropbearkey -y -f /etc/dropbear/dropbear_rsa_host_key | grep ssh | DROPBEAR_PASSWORD='dietpi' ssh -y root@10.10.10.2 'cat >> .ssh/authorized_keys'
-echo $DROPBEAR_PASSWORD
+dropbearkey -y -f /etc/.ssh/id_dropbear | grep ssh | DROPBEAR_PASSWORD='dietpi' ssh -y root@10.10.10.2 'cat >> .ssh/authorized_keys'
 echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb 0:0 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 rm -f /mnt/setup.txt

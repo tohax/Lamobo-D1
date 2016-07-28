@@ -1,11 +1,8 @@
 #!/bin/sh
-
 AP=bus
 PASS=acurarsx
 IP=10.10.10.10
 GW=10.10.10.1
-
-#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 
 SSID=\"$AP\"
 PSK=\"$PASS\"

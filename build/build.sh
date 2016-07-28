@@ -74,8 +74,8 @@ config_busybox()
         ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- \
         lamobo_d1_defconfig
 
-#    $MAKE O=$DEV_ROOT/output/busybox \
-#        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
+    $MAKE O=$DEV_ROOT/output/busybox \
+        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
 }
 
 build_busybox()
@@ -319,6 +319,7 @@ REV_ID=${REV_ID:0:7}
 NCPU=$((`grep '^processor' /proc/cpuinfo | wc -l` * 2))
 
 export PATH=$DEV_ROOT/compiler/arm-2009q3/bin:$PATH
+#export PATH=/root/arm-2014.05/bin:$PATH
 
 #
 # Parse command line

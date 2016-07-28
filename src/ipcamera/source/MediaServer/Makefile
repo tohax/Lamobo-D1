@@ -1,8 +1,6 @@
 #
 #Makefile
 #
-
-
 dir_y += akipcserver
 
 all:

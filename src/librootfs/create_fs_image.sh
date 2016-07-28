@@ -10,7 +10,7 @@ NUM=$#
 #echo "num = ${NUM}"
 
 case ${NUM} in
-	0) 
+	0)
 	echo "build initramfs, please remove gloss if you need."
 #	[ -f "rootfs.initramfs" ] && rm rootfs.initramfs -f
 
@@ -59,7 +59,7 @@ case ${NUM} in
 				*)
 				echo "Error, page_size must be [2048 or 4096 or 8192]"
 			esac
-		elif [ $3 -le 1024 ]; then 	
+		elif [ $3 -le 1024 ]; then
 			[ -f "root.yaffs" ] && rm root.yaffs -f
 			case $3 in
 				512|1024)

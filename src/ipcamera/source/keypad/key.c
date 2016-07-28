@@ -47,7 +47,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #define KEY_GPIO_DEV		"/dev/input/event0"
-#define KEY_AD_DEV			"/dev/input/event1"
+#define KEY_AD_DEV		"/dev/input/event1"
 #define SELECT_WIFI_MODE	"/etc/init.d/select_wifi_mode.sh"
 #define WIRELESS_SWITCH		"/etc/init.d/select_wifi_mode.sh"
 #define WIRENET_SWITCH 		"/etc/init.d/select_wire_mode.sh"
