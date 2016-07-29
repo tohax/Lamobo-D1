@@ -12,15 +12,15 @@
 #include "muxer.h"
 #include "photograph.h"
 
-#define THRESHOLD_MIN   		10
-#define THRESHOLD_MAX   		40
+#define THRESHOLD_MIN  	10
+#define THRESHOLD_MAX  	40
 
-#define WIDTH_720		1280
-#define HEIGHT_720		720
-#define WIDTH_VGA		640
-#define HEIGHT_VGA		480
-#define WIDTH_SVGA		800
-#define HEIGHT_SVGA		600
+#define WIDTH_720	1280
+#define HEIGHT_720	720
+#define WIDTH_VGA	640
+#define HEIGHT_VGA	480
+#define WIDTH_SVGA	800
+#define HEIGHT_SVGA	600
 
 #define THRESHOLD	35
 #define DIM_HORNUM	8
@@ -47,7 +47,7 @@ void* thread_MotinDetec(void *usr);
 * @date 2012-07-05
 * @param none
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio)
 {
@@ -56,34 +56,33 @@ T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio)
 
 	if (hMdetector)
 	{
-		//T_MOTION_DETECTOR_DIMENSION dim;		
-		
+		//T_MOTION_DETECTOR_DIMENSION dim;
+
 		logi( "motion detect already open!\n" );
-		
+
 		//dim.m_uHoriNum = DIM_HORNUM;
 		//dim.m_uVeriNum = DIM_VERNUM;
-		
+
 		Motion_Detector_SetRatio(hMdetector, ratio);
 		//Motion_Detector_SetDimension(hMdetector, width, height,	&dim);
 		return 0;
 	}
-	
+
 	for (int i = 0; i< BUFFER_NUM; i++)
 	{
 		MDData.Data[i].pData = malloc(width*height);
 	}
-	
+
 	MDData.rpos = 0;
 	MDData.wpos = 0;
-	
+
 	//bzero( CompareData, sizeof( CompareData ) );
 	bzero( &openParam, sizeof( T_MOTION_DETECTOR_OPEN_PARA ) );
-	
-	
+
 	printf("width = %d, height = %d \n", width, height);
 	openParam.m_uWidth 		= (T_U16)width;	//any
 	openParam.m_uHeight 	= (T_U16)height;	//any
-		
+
 	if (width > WIDTH_SVGA)
 		openParam.m_uIntervalHoriNum = 1;
 	else
@@ -97,27 +96,24 @@ T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio)
 	openParam.m_uThreshold	= (T_U16)THRESHOLD;	//10
 	openParam.m_Dimension.m_uHoriNum = DIM_HORNUM;
 	openParam.m_Dimension.m_uVeriNum = DIM_VERNUM;
-	
+
 	openParam.m_CBFunc.m_FunPrintf = (MEDIALIB_CALLBACK_FUN_PRINTF)printf;
 	openParam.m_CBFunc.m_FunMalloc = (MEDIALIB_CALLBACK_FUN_MALLOC)md_malloc;
 	openParam.m_CBFunc.m_FunFree   = (MEDIALIB_CALLBACK_FUN_FREE)md_free;
 
 	//open the detector
 	hMdetector = Motion_Detector_Open( &openParam );
-	if (!hMdetector) 
+	if (!hMdetector)
 	{
 		printf( "motion detector open failed!\n" );
 		if (LatestData != NULL)
 			free(LatestData);
-		
 		return -1;
 	}
-	
 	Motion_Detector_SetRatio(hMdetector, ratio);
-
 	motiondetect_exit = 0;
 	pthread_create(&TID, NULL, thread_MotinDetec, NULL);
-	
+
 	return 0;
 }
 
@@ -127,7 +123,7 @@ T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio)
 * @date 2012-07-05
 * @param none
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 CloseMotionDetect()
 {
@@ -155,7 +151,6 @@ T_S32 CloseMotionDetect()
 	{
 		free(MDData.Data[i].pData);
 	}
-	
 	return 0;
 }
 
@@ -165,7 +160,7 @@ T_S32 CloseMotionDetect()
 * @date 2012-07-05
 * @param[int] nVideoWidth, nVideoHeight
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 #if 0
 T_S32 SetVideoResolution( T_U32 nVideoWidth, T_U32 nVideoHeight, T_MOTION_DETECTOR_DIMENSION	*pDimension )
@@ -210,19 +205,19 @@ T_S32 SetVideoResolution( T_U32 nVideoWidth, T_U32 nVideoHeight, T_MOTION_DETECT
 T_S32 UpdateCompareData( T_U8 * pData, int size )
 {
 	T_BOOL MotionHappen = AK_FALSE;
-	
+
 	if ( !hMdetector ) {
 		loge( "open motion detect first!\n" );
 		return -1;
 	}
 
 //	printf("i = %d \n", ++i);
-	
+
 	if (!LatestData)
 	{
 
 		LatestData = (T_U8 *)malloc(size);
-		
+
 		if (!LatestData)
 		{
 			printf("malloc buff err \n");
@@ -230,21 +225,19 @@ T_S32 UpdateCompareData( T_U8 * pData, int size )
 		}
 		else
 		{
-			
+
 			memcpy(LatestData, pData, size);
 			return 0;
 		}
 	}
 
 	MotionHappen = Motion_Detector_Handle(hMdetector, LatestData, pData);
-	
-	if (MotionHappen) 
+
+	if (MotionHappen)
 	{
-#if 0	
+#if 0
 		long fd = -1;
 		char fileName[20];
-		
-		
 		sprintf(fileName, "/mnt/motion_%da", i);
 		fd = open(fileName, O_RDWR | O_CREAT | O_TRUNC);
 		if (fd > 0)
@@ -260,13 +253,11 @@ T_S32 UpdateCompareData( T_U8 * pData, int size )
 			write(fd, pData, size);
 			close(fd);
 		}
-#endif		
+#endif
 		//printf("@@@ Motion @@@: %d\n", size);
-				
 		memcpy(LatestData, pData, size);
 		return 3;
 	}
-	
 	memcpy(LatestData, pData, size);
 	return 2;
 }
@@ -295,7 +286,7 @@ static T_pVOID md_free(T_pVOID mem)
 }
 
 T_S32 MotionDetect_writedata(T_pVOID pdata, T_U32 size)
-{	
+{
 	if (((MDData.wpos+1)%BUFFER_NUM) == MDData.rpos)
 	{
 		return -1;
@@ -313,7 +304,7 @@ T_S32 MotionDetect_writedata(T_pVOID pdata, T_U32 size)
 
 
 T_S32 MotionDetect_getpdata(T_pDATA *pdata, T_U32 *size)
-{	
+{
 	if (MDData.wpos == MDData.rpos)
 	{
 		return -1;
@@ -325,14 +316,12 @@ T_S32 MotionDetect_getpdata(T_pDATA *pdata, T_U32 *size)
 }
 
 T_S32 audio_process_useok()
-{	
+{
 	MDData.rpos++;
-	
 	if (MDData.rpos >= BUFFER_NUM)
 	{
 		MDData.rpos = 0;
 	}
-	
 	return 0;
 }
 
@@ -341,7 +330,6 @@ void* thread_MotinDetec(void *usr)
 	T_pDATA pbuf = NULL;
 	T_U32  size;
 	//struct timeval tv, tv1;
-	
 	while(1)
 	{
 		if( 1 == motiondetect_exit )
@@ -354,7 +342,6 @@ void* thread_MotinDetec(void *usr)
 			usleep(10000);
 			continue;
 		}
-		
 		//printf("pbuf = %p, size is = %d\n", pbuf, size);
 		//gettimeofday(&tv, NULL);
 		if (3== UpdateCompareData(pbuf, size))
@@ -363,7 +350,6 @@ void* thread_MotinDetec(void *usr)
 			//printf("Motin \n");
 			//photograph(pbuf, offset);
 		}
-		
 		//gettimeofday(&tv1, NULL);
 		//printf("T: %d\n", (tv1.tv_sec-tv.tv_sec)*1000 + (tv1.tv_usec-tv.tv_usec)/1000);
 		audio_process_useok();

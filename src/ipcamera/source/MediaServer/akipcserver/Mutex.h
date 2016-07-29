@@ -66,7 +66,7 @@
 /* ------------------------------------------------------------------- *
 class Mutex {
 public:*/
-    
+
     // initialize mutex
 #if   defined( HAVE_POSIX_THREAD )
     #define Mutex_Initialize( MutexPtr ) pthread_mutex_init( MutexPtr, NULL )
@@ -75,8 +75,8 @@ public:*/
 #else
     #define Mutex_Initialize( MutexPtr )
 #endif
-    
-    // lock the mutex variable
+
+   // lock the mutex variable
 #if   defined( HAVE_POSIX_THREAD )
     #define Mutex_Lock( MutexPtr ) pthread_mutex_lock( MutexPtr )
 #elif defined( HAVE_WIN32_THREAD )

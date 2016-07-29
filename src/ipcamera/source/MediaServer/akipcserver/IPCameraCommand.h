@@ -39,7 +39,7 @@
 #define MOTION_DETECT_AREA_ROWS		8
 #define MOTION_DETECT_AREA_LINES	8
 
-//uint64_t aMDRowsBegin[8] = {0x01, 0x1 << 8, 0x01 << 16, 0x01 << 24, 0x01 << 32, 0x01 << 40, 
+//uint64_t aMDRowsBegin[8] = {0x01, 0x1 << 8, 0x01 << 16, 0x01 << 24, 0x01 << 32, 0x01 << 40,
 							//0x01 << 48, 0x01 << 56};
 
 //uint64_t aMDLinesIndex[8] = {1, 2, 4, 8, 16, 32, 64, 128};
@@ -120,7 +120,6 @@ typedef struct ServerInfo_t
 	char		strDeviceID[DEVICE_ID_LEN];
 	uint16_t	nRtspPort;
 	uint16_t	nCommandPort;
-	
 	char		strMainAddr[STREAM_ADDR_LEN];
 	char		strSubAddr[STREAM_ADDR_LEN];
 	VIDEO_MODE	enMainStream;

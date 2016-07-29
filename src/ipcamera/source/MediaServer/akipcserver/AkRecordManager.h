@@ -16,8 +16,7 @@ typedef enum
 
 T_S32 SetMinRecordLimit( T_U32 nMinLimitSize );
 
-T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate, 
-							   T_U32 nRecordDuration, T_BOOL bIsCyc );
+T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate, T_U32 nRecordDuration, T_BOOL bIsCyc );
 
 T_S32 GetRecordFile( T_pSTR filename );
 

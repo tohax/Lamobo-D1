@@ -13,33 +13,33 @@
 #include "Tool.h"
 #include "log.h"
 
-#define SIGN_FILE_NAME							".LMR_RecordManger_Sign"
-#define FILE_SUFFIZ								".avi"
-#define FILE_NAME_DIF							"(New)"
-#define DIR_SEPARATOR							'/'
-#define OUR_FILE_PREFIX							"REC_DV_"
-#define INI_RECORDER                            "/etc/jffs2/camera.ini"
+#define SIGN_FILE_NAME		".LMR_RecordManger_Sign"
+#define FILE_SUFFIZ		".avi"
+#define FILE_NAME_DIF		"(New)"
+#define DIR_SEPARATOR		'/'
+#define OUR_FILE_PREFIX		"REC_DV_"
+#define INI_RECORDER		"/etc/camera.ini"
 
 static const T_U32 MAX_FILE_PATH_LEN			= 1024UL;
 static const T_U32 DISK_SET_ASIDE_SIZE			= 10485760UL;		// 10M
-static const T_U32 MAX_FILE_SIZE				= 4190109696UL;	// 4G - 100M
-static const T_U32 MAX_DURATION					= 14400000UL;		// 4hour
-static const T_U32 MIN_DISK_SIZE_FOR_WRITE		= 67108864UL;		// 64M 
+static const T_U32 MAX_FILE_SIZE			= 4190109696UL;		// 4G - 100M
+static const T_U32 MAX_DURATION				= 14400000UL;		// 4hour
+static const T_U32 MIN_DISK_SIZE_FOR_WRITE		= 67108864UL;		// 64M
 
-static T_pSTR			g_RecPath = NULL;
-static T_BOOL 			g_bIsCyc = AK_TRUE;
-static T_BOOL			g_bIsStop = AK_FALSE;
-static T_BOOL			g_bIsOpen = AK_FALSE;
+static T_pSTR	g_RecPath = NULL;
+static T_BOOL	g_bIsCyc = AK_TRUE;
+static T_BOOL	g_bIsStop = AK_FALSE;
+static T_BOOL	g_bIsOpen = AK_FALSE;
 
-static nthread_t		g_ManagerCycTID;
+static nthread_t	g_ManagerCycTID;
 
-static T_U32			g_nMinLimitSize = 0;
-static T_U32			g_EstimateFSize = 0;
-static T_U32			g_MaxDuration = 0;
-static T_U32			g_MaxFileSize = 0;
+static T_U32		g_nMinLimitSize = 0;
+static T_U32		g_EstimateFSize = 0;
+static T_U32		g_MaxDuration = 0;
+static T_U32		g_MaxFileSize = 0;
 
-static Condition		g_condition;
-static Condition		g_conMangerRun;
+static Condition	g_condition;
+static Condition	g_conMangerRun;
 
 static T_pSTR MakeFileName();
 
@@ -70,18 +70,15 @@ static T_pVOID recmgr_thread_entry( T_pVOID user )
 {
 	while (AK_TRUE) {
 		Condition_Wait(&g_conMangerRun);
-		Condition_Unlock(g_conMangerRun);		
+		Condition_Unlock(g_conMangerRun);
 		Condition_Lock(g_condition);
-		
 		if (g_bIsStop) {
 			Condition_Unlock(g_condition);
 			break;
 		}
-		
 		Condition_Unlock(g_condition);
 		recmgr_del_file(AK_TRUE, 1);
 	}
-	
 	return NULL;
 }
 
@@ -97,15 +94,12 @@ T_S32 SetMinRecordLimit( T_U32 nMinLimitSize )
 	return 0;
 }
 
-T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate, 
-								T_U32 nRecordDuration, T_BOOL bIsCyc )
+T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate,T_U32 nRecordDuration, T_BOOL bIsCyc )
 {
 	T_S32 ret = 0;
-
 	//the record manager already open!
 	if (g_bIsOpen)
 		return 1;
-
 	g_bIsStop = AK_FALSE;
 	g_MaxDuration = 0;
 	g_MaxFileSize = 0;
@@ -116,19 +110,15 @@ T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate,
 
 	if ( g_nMinLimitSize == 0 )
 		g_nMinLimitSize = MIN_DISK_SIZE_FOR_WRITE;
-		
-	if (!IsExists(pstrRecPath) 
+	if (!IsExists(pstrRecPath)
 		&& CompleteCreateDirectory(pstrRecPath) < 0 )
 		return -1;
-	
 	g_bIsCyc = bIsCyc;
-	
 	//Estimate the media file size
 	if (bIsCyc)
 		g_EstimateFSize = ( nRecordDuration / 1000 ) * ( nFileBitRate / 8 );
 
 //		printf(" the media file size = %d \n", g_EstimateFSize);
-	
 	ret = InitManager(pstrRecPath, nRecordDuration);
 	if ( ret < 0 ) {
 		loge( "can't init Manager, the recorder file path = %s \n", pstrRecPath );
@@ -139,27 +129,20 @@ T_S32 recmgr_open( T_pSTR pstrRecPath, T_U32 nFileBitRate,
 	{
 		pthread_attr_t SchedAttr;
 		struct sched_param	SchedParam;
-		
 		memset(&SchedAttr, 0, sizeof(pthread_attr_t));
 		memset(&SchedParam, 0, sizeof(SchedParam));
-				
-		pthread_attr_init( &SchedAttr );				
-		SchedParam.sched_priority = 10;	
+		pthread_attr_init( &SchedAttr );
+		SchedParam.sched_priority = 10;
 		pthread_attr_setschedparam( &SchedAttr, &SchedParam );
-						
 		pthread_attr_setschedpolicy( &SchedAttr, SCHED_RR );
-		
 		if ( pthread_create( &g_ManagerCycTID, &SchedAttr, recmgr_thread_entry, NULL ) != 0 ) {
 			loge( "unable to create a thread for manager cyc record file!\n" );
 			pthread_attr_destroy(&SchedAttr);
 			return -1;
 		}
-		
 		pthread_attr_destroy(&SchedAttr);
 	}
-
 	g_bIsOpen = AK_TRUE;
-	
 	return 1;
 }
 
@@ -178,13 +161,11 @@ T_S32 GetRecordFile(T_pSTR filename)
 		loge( "GetRecordFile::Free Disk Not Enough.\r\n", g_nMinLimitSize );
         return -1;
     }
-#endif 
+#endif
 	pstrFileName = MakeFileName();
 	if ( NULL == pstrFileName ) {
 		return -1;
 	}
-    
-    
 	if ( ( fd = FileOpen( pstrFileName ) ) < 0 ) {
 		loge( "GetRecordFile::FileOpen error! fd = %d\n", fd );
 		free( pstrFileName );
@@ -196,10 +177,8 @@ T_S32 GetRecordFile(T_pSTR filename)
 	}
 
 //	printf("AddNewFile:%s\r\n", pstrFileName);
-    
 	if ( filename != NULL )
 		strcpy( filename, pstrFileName );
-	
 	free( pstrFileName );
 
 	return fd;
@@ -212,7 +191,6 @@ T_BOOL ReachLimit( T_U32 nFileLen, T_U32 nFileDuration )
 			return AK_TRUE;
 		}
 	}
-		
 	return (nFileLen >= g_MaxFileSize) ? AK_TRUE : AK_FALSE;
 }
 
@@ -235,7 +213,6 @@ T_VOID CloseRecordManager()
 
 		logi( "Cyc record manager thread stop!\n" );
 	}
-	
 	if ( g_RecPath != NULL ) {
 		free( g_RecPath );
 		g_RecPath = NULL;
@@ -250,7 +227,6 @@ T_VOID CloseRecordManager()
 static T_S64 GetDiskFreeSize( T_pSTR pstrRecPath, T_S32 *bavail, T_S32 *bsize )
 {
 	struct statfs disk_statfs;
-	
 	assert( pstrRecPath );
 
 	bzero( &disk_statfs, sizeof( struct statfs ) );
@@ -276,7 +252,6 @@ T_BOOL IsOurCycFile( T_pSTR pstrFileName )
 	//名字固定长度为25不包括结束符.
 	if ( len != 17 )
 		return AK_FALSE;
-	
 	if ( ( strPrefix = strstr( pstrFileName, OUR_FILE_PREFIX ) ) == NULL ) {
 		return AK_FALSE;
 	}
@@ -299,14 +274,13 @@ T_BOOL IsOurCycFile( T_pSTR pstrFileName )
 static T_S64 GetOldFilesSize( T_pSTR pstrRecPath )
 {
 	DIR 			*dirp = NULL;
-    struct dirent 	*direntp = NULL; 
+    struct dirent 	*direntp = NULL;
 	struct stat 	statbuf;
 	T_CHR			astrFile[MAX_PATH];
     T_S64 totalSize = 0;
 
 	bzero( astrFile, sizeof( astrFile ) );
-	
-	if( ( dirp = opendir( pstrRecPath ) ) == NULL ) {  
+	if( ( dirp = opendir( pstrRecPath ) ) == NULL ) {
 		loge( "Open Directory %s Error: %s\n", pstrRecPath, strerror(errno) );
 		return -1;
 	}
@@ -315,8 +289,8 @@ static T_S64 GetOldFilesSize( T_pSTR pstrRecPath )
 		if ( direntp->d_name == NULL ) {
 			continue;
 		}
-		
-		if ( !( strcmp( direntp->d_name, "." ) ) || 
+
+		if ( !( strcmp( direntp->d_name, "." ) ) ||
 			 !( strcmp( direntp->d_name, ".." ) ) ||
 			 !( strcmp( direntp->d_name, SIGN_FILE_NAME ) ) ) {
 			continue;
@@ -328,10 +302,10 @@ static T_S64 GetOldFilesSize( T_pSTR pstrRecPath )
 
 		bzero( astrFile, sizeof( astrFile ) );
 		sprintf( astrFile, "%s%s", pstrRecPath, direntp->d_name );
-		
+
 		if ( stat( astrFile, &statbuf ) == -1 ) {
-			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );  
-			continue; 
+			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );
+			continue;
 		}
 
 		if ( !S_ISREG( statbuf.st_mode ) ) {
@@ -355,7 +329,7 @@ static T_S64 GetOldFilesSize( T_pSTR pstrRecPath )
 static T_S32 RemoveOldestFile( T_BOOL bNeedLast )
 {
 	DIR 			*dirp = NULL;
-    struct dirent 	*direntp = NULL; 
+    struct dirent 	*direntp = NULL;
 	struct stat 	statbuf;
 	T_CHR			astrFile[MAX_PATH], astrTemp[MAX_PATH];
 	time_t			stFirstTime = 0x7FFFFFFF;
@@ -363,8 +337,7 @@ static T_S32 RemoveOldestFile( T_BOOL bNeedLast )
 
 	bzero( astrFile, sizeof( astrFile ) );
 	bzero( astrTemp, sizeof( astrTemp ) );
-	
-	if( ( dirp = opendir( g_RecPath ) ) == NULL ) {  
+	if( ( dirp = opendir( g_RecPath ) ) == NULL ) {
 		loge( "Open Directory %s Error: %s\n", g_RecPath, strerror(errno) );
 		return -1;
 	}
@@ -373,8 +346,7 @@ static T_S32 RemoveOldestFile( T_BOOL bNeedLast )
 		if ( direntp->d_name == NULL ) {
 			continue;
 		}
-		
-		if ( !( strcmp( direntp->d_name, "." ) ) || 
+		if ( !( strcmp( direntp->d_name, "." ) ) ||
 			 !( strcmp( direntp->d_name, ".." ) ) ||
 			 !( strcmp( direntp->d_name, SIGN_FILE_NAME ) ) ) {
 			continue;
@@ -386,10 +358,9 @@ static T_S32 RemoveOldestFile( T_BOOL bNeedLast )
 
 		bzero( astrFile, sizeof( astrFile ) );
 		sprintf( astrFile, "%s/%s", g_RecPath, direntp->d_name );
-		
 		if ( stat( astrFile, &statbuf ) == -1 ) {
-			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );  
-			continue; 
+			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );
+			continue;
 		}
 
 		if ( !S_ISREG( statbuf.st_mode ) ) {
@@ -397,7 +368,6 @@ static T_S32 RemoveOldestFile( T_BOOL bNeedLast )
 		}
 
 		++nFileCnt;
-		
 		if ( stFirstTime >= statbuf.st_mtime ) {
 			stFirstTime = statbuf.st_mtime;
 			memcpy( astrTemp, astrFile, MAX_PATH );
@@ -429,7 +399,6 @@ static T_S32 recmgr_del_file( T_BOOL bNeedLast, T_U16 needRecNum )
 	T_S64 iDiskFreeSize = 0, iNeedSize;
 	T_S32 ret = 0;
 	T_S32 avial, bsize;
-	
 	GetDiskFreeSize( g_RecPath, &avial, &bsize );
 	iDiskFreeSize = (T_S64)(T_U32)(avial) * (T_S64)(T_U32)(bsize);
 	if ( iDiskFreeSize < 0 ) {
@@ -444,7 +413,6 @@ static T_S32 recmgr_del_file( T_BOOL bNeedLast, T_U16 needRecNum )
 		if ( ret < 0 )
 			loge( "ManageCycRecordFile::RemoveOldestFile error!\n" );
 			return -1;
-		
 		if ( 0 == ret )
 			return 0;
 
@@ -456,7 +424,6 @@ static T_S32 recmgr_del_file( T_BOOL bNeedLast, T_U16 needRecNum )
 
 //        printf("FreeSpace:%lld/%lld,(Need:%d X %X,%X)\r\n", iDiskFreeSize, iNeedSize, needRecNum, g_EstimateFSize, g_nMinLimitSize);
 	}
-	
 	return 0;
 }
 
@@ -516,10 +483,10 @@ static T_pSTR MakeFileName()
         iniparser_freedict(ini);
     }
 
-    /*      
+    /*
 	if ( g_bIsCyc ) {
 		sprintf( astrFileName,"%s%4d%02d%02d%02d%02d%02d%s%s", OUR_FILE_PREFIX,
-			1900 + tnow->tm_year, tnow->tm_mon + 1, tnow->tm_mday, tnow->tm_hour, 
+			1900 + tnow->tm_year, tnow->tm_mon + 1, tnow->tm_mday, tnow->tm_hour,
 			tnow->tm_min, tnow->tm_sec, FILE_SUFFIZ, FILE_NAME_DIF );
 	}else {
 		sprintf( astrFileName,"%s%02d%02d%02d%s", "DV_", tnow->tm_hour, tnow->tm_min,
@@ -545,13 +512,11 @@ static T_pSTR MakeFileName()
 		bzero( strAdd, strlen( strAdd ) );
 		sprintf( strAdd, "_%d", (int)iIndex );
 		strcat( strCompletePath, FILE_SUFFIZ );
-		
 		if ( iIndex > 1024 ) {
 			logi( "the dir is file full!\n" );
 			break;
 		}
 	}
-	
 	memset(g_filename, 0x00, 1024);
 	memcpy(g_filename, strCompletePath, strlen(strCompletePath));
 	return strCompletePath;
@@ -561,7 +526,6 @@ static T_pSTR MakeFileName()
 static T_S32 CanRecord( T_pSTR pstrRecPath )
 {
 	T_S64 iDiskFreeSize = 0;
-	
 	assert( pstrRecPath );
 
 	iDiskFreeSize = GetDiskFreeSize( pstrRecPath );
@@ -569,11 +533,9 @@ static T_S32 CanRecord( T_pSTR pstrRecPath )
 		loge( "CanRecord::get disk free size error!\n" );
 		return -1;
 	}
-	
 	if ( iDiskFreeSize <= g_nMinLimitSize ) {
 		return 0;
 	}
-	
 	return 1;
 }
 */
@@ -597,16 +559,13 @@ static T_S32 InitManager( T_pSTR pstrRecPath, T_U32 nRecordDuration )
 	if ( MakeRecordPath( pstrRecPath, g_bIsCyc ) < 0 ) {
 		return -1;
 	}
-    
 	if ( g_bIsCyc ) {
         // if cyc, enable time limit and space limit
         g_MaxDuration = nRecordDuration;
-        
         // 如果估算大小小于最小写数据长度
         if (g_EstimateFSize < MIN_DISK_SIZE_FOR_WRITE) {
             g_EstimateFSize = MIN_DISK_SIZE_FOR_WRITE;
         }
-        
         strSignFile = Unite2Str( g_RecPath, SIGN_FILE_NAME );
 		if ( strSignFile == NULL ) {
 			return -1;
@@ -619,7 +578,7 @@ static T_S32 InitManager( T_pSTR pstrRecPath, T_U32 nRecordDuration )
             // this directory record file is not  first times
 		} else {
             isFirstTimes = AK_TRUE;
-            // record first times 
+            // record first times
 			if ( ( fd = FileOpen( strSignFile ) ) < 0 ) {
 				loge( "InitManager::can't create the sign file!\n" );
 				free( strSignFile );
@@ -632,7 +591,6 @@ static T_S32 InitManager( T_pSTR pstrRecPath, T_U32 nRecordDuration )
 		}
 
 		free( strSignFile );
-		
 		 GetDiskFreeSize( g_RecPath, &avial, &bsize );
 		 iDiskFreeSize = (T_S64)(T_U32)(avial) * (T_S64)(T_U32)(bsize);
 		if ( iDiskFreeSize < 0 ) {
@@ -653,9 +611,7 @@ static T_S32 InitManager( T_pSTR pstrRecPath, T_U32 nRecordDuration )
         if (g_EstimateFSize > g_MaxFileSize) {
             g_EstimateFSize = g_MaxFileSize;
         }
-        
         recmgr_del_file( !isFirstTimes, 1 );
-        
 	} else {
         // if normal, just enable space limit
 		GetDiskFreeSize( g_RecPath, &avial, &bsize );
@@ -679,7 +635,7 @@ static T_S32 InitManager( T_pSTR pstrRecPath, T_U32 nRecordDuration )
         return -1;
     }
 
-//    printf( "InitManager:CtrlParam: %s Max=0x%X,Estimate=0x%X,MinLimit=0x%X\r\n", 
+//    printf( "InitManager:CtrlParam: %s Max=0x%X,Estimate=0x%X,MinLimit=0x%X\r\n",
 //        g_RecPath, MAX_FILE_SIZE,  g_EstimateFSize, g_nMinLimitSize);
 	return 0;
 }
@@ -690,7 +646,6 @@ static T_S32 MakeRecordPath( T_pSTR pstrRecPath, T_BOOL bIsCyc )
 	struct tm * tnow = NULL;
 	T_CHR astrDate[10];
 	bzero( astrDate, sizeof( astrDate ) );
-	
 	if ( NULL != g_RecPath ) {
 		free( g_RecPath );
 		g_RecPath = NULL;
@@ -709,9 +664,8 @@ static T_S32 MakeRecordPath( T_pSTR pstrRecPath, T_BOOL bIsCyc )
 			return -1;
 		}
 
-		sprintf( astrDate, "%4d%02d%02d/", 1900 + tnow->tm_year, 
+		sprintf( astrDate, "%4d%02d%02d/", 1900 + tnow->tm_year,
 				 tnow->tm_mon + 1, tnow->tm_mday );
-		
 		iAddLen = 10;
 	}
 
@@ -740,7 +694,6 @@ static T_S32 MakeRecordPath( T_pSTR pstrRecPath, T_BOOL bIsCyc )
 			}
 		}
 	}
-	
 	return 0;
 }
 

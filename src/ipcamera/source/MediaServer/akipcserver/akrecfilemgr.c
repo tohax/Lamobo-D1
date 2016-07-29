@@ -14,7 +14,7 @@
 #include "log.h"
 
 static const T_U32 MAX_FILE_SIZE				= ((4UL<<30)-(100UL<<20));	// 4G - 100M
-static const T_U32 MIN_DISK_SIZE_FOR_WRITE		= (64UL<<20);		// 64M 
+static const T_U32 MIN_DISK_SIZE_FOR_WRITE		= (64UL<<20);		// 64M
 
 typedef T_BOOL (*FILE_QUERY_CB)(T_pSTR pFileName);
 
@@ -58,7 +58,7 @@ static T_pSTR RecFile_makeName(T_pSTR path, T_BOOL cycRec)
 			1900+tnow->tm_year, tnow->tm_mon+1, tnow->tm_mday,
 			tnow->tm_hour, tnow->tm_min, tnow->tm_sec, FILE_SUFFIX, FILE_NAME_DIF);
 	}else {
-		sprintf(fileName,"%s%02d%02d%02d%s", REC_FILE_PREFIX, 
+		sprintf(fileName,"%s%02d%02d%02d%s", REC_FILE_PREFIX,
 			tnow->tm_hour, tnow->tm_min, tnow->tm_sec, FILE_SUFFIX);
 	}
 
@@ -80,7 +80,6 @@ static T_pSTR RecFile_makeName(T_pSTR path, T_BOOL cycRec)
 		bzero(strAdd, strlen(strAdd));
 		sprintf(strAdd, "_%ld", ++iIndex);
 		strcat(pathName, FILE_SUFFIX);
-		
 		if (iIndex > 1024) {
 			logi( "the dir is file full!\n" );
 			break;
@@ -89,7 +88,6 @@ static T_pSTR RecFile_makeName(T_pSTR path, T_BOOL cycRec)
 
 	if (iIndex > 0)
 		strcat(pathName, FILE_NAME_DIF);
-	
 	return pathName;
 }
 
@@ -115,7 +113,7 @@ static T_pSTR RecFile_makeDir(T_pSTR pRecPath, T_BOOL bCycRec)
 			return NULL;
 		}
 
-		sprintf(astrDate, "%4d%02d%02d/", 1900+tnow->tm_year, tnow->tm_mon+1, tnow->tm_mday);		
+		sprintf(astrDate, "%4d%02d%02d/", 1900+tnow->tm_year, tnow->tm_mon+1, tnow->tm_mday);
 		iAddLen = 10;
 	}
 
@@ -143,7 +141,7 @@ static T_pSTR RecFile_makeDir(T_pSTR pRecPath, T_BOOL bCycRec)
 			return NULL;
 		}
 	}
-	
+
 	return path;
 }
 
@@ -151,14 +149,14 @@ static T_pSTR RecFile_makeDir(T_pSTR pRecPath, T_BOOL bCycRec)
 static T_S64 RecFile_calcFilesSize(T_pSTR pRecPath, FILE_QUERY_CB query)
 {
 	DIR 			*dirp = NULL;
-    struct dirent 	*direntp = NULL; 
+    struct dirent 	*direntp = NULL;
 	struct stat 	statbuf;
 	T_CHR			astrFile[MAX_PATH];
     T_S64 totalSize = 0;
 
 	bzero( astrFile, sizeof( astrFile ) );
-	
-	if(!(dirp = opendir(pRecPath))) {  
+
+	if(!(dirp = opendir(pRecPath))) {
 		loge( "Open Directory %s Error: %s\n", pRecPath, strerror(errno) );
 		return -1;
 	}
@@ -167,7 +165,7 @@ static T_S64 RecFile_calcFilesSize(T_pSTR pRecPath, FILE_QUERY_CB query)
 		if (direntp->d_name == NULL) {
 			continue;
 		}
-		
+
 		if (!strcmp(direntp->d_name, "." )
 			|| !strcmp(direntp->d_name, "..")
 			|| !strcmp(direntp->d_name, SIGN_FILE_NAME)) {
@@ -180,10 +178,10 @@ static T_S64 RecFile_calcFilesSize(T_pSTR pRecPath, FILE_QUERY_CB query)
 
 		bzero(astrFile, sizeof(astrFile));
 		sprintf(astrFile, "%s%s", pRecPath, direntp->d_name);
-		
+
 		if (stat(astrFile, &statbuf) == -1) {
-			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );  
-			continue; 
+			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );
+			continue;
 		}
 
 		if (!S_ISREG(statbuf.st_mode)) {
@@ -207,7 +205,7 @@ T_S32 RecFile_setMinSize(T_U32 nMinLimitSize )
 		printf("ERR: recFile NOT Init in %s", __func__);
 		return -1;
 	}
-		
+
 	if (nMinLimitSize < MIN_DISK_SIZE_FOR_WRITE) {
 		printf( "the min limit record size set to recorder manager is less then 64M,\n \
 			will use 64M instead!\n" );
@@ -226,11 +224,11 @@ T_S32 RecFile_open(T_pSTR pRecPath, T_U32 nFileBitRate, T_U32 nRecDuration_ms, T
 		loge( "InitManager::invalid parameter!\n" );
 		return -1;
 	}
-	
-	if (!IsExists(pRecPath) 
+
+	if (!IsExists(pRecPath)
 		&& CompleteCreateDirectory(pRecPath) < 0 )
 		return -1;
-	
+
 	//the record manager already open!
 	if (recFile)
 		return 0;
@@ -245,10 +243,9 @@ T_S32 RecFile_open(T_pSTR pRecPath, T_U32 nFileBitRate, T_U32 nRecDuration_ms, T
 	//Estimate the media file size
 	recFile->nEstSize = (nRecDuration_ms / 1000) * (nFileBitRate / 8);
 	recFile->nMaxDuration = nRecDuration_ms;
-	
+
 	if ( recFile->nMinSize == 0 )
 		recFile->nMinSize = MIN_DISK_SIZE_FOR_WRITE;
-		
 
 	ret = RecFile_init(pRecPath, nRecDuration_ms);
 	if ( ret < 0 ) {
@@ -261,7 +258,7 @@ T_S32 RecFile_open(T_pSTR pRecPath, T_U32 nFileBitRate, T_U32 nRecDuration_ms, T
 
 
 T_BOOL RecFile_limitSize(T_U32 nFileLen, T_U32 nFileDuration)
-{	
+{
 	if (recFile->nMaxDuration != 0
 		&& nFileDuration >= recFile->nMaxDuration) {
 			return AK_TRUE;
@@ -294,7 +291,7 @@ static T_S32 RecFile_delFile(T_BOOL bNeedLast, T_U16 needRecNum )
 	T_S64 iDiskFreeSize = 0, iNeedSize;
 	T_S32 ret = 0;
 	T_S32 avial, bsize;
-	
+
 	DiskFreeSize(recFile->szRecPath, &avial, &bsize );
 	iDiskFreeSize = (T_S64)(T_U32)(avial) * (T_S64)(T_U32)(bsize);
 	if ( iDiskFreeSize < 0 ) {
@@ -315,16 +312,17 @@ static T_S32 RecFile_delFile(T_BOOL bNeedLast, T_U16 needRecNum )
 
 		DiskFreeSize(recFile->szRecPath, &avial, &bsize);
 		iDiskFreeSize = (T_S64)avial * (T_S64)bsize;
-		if (iDiskFreeSize < 0){
+		if (iDiskFreeSize < 0)
+{
 			printf( "ManageCycRecordFile::get disk %s free size error!\n", recFile->szRecPath );
 			return -1;
 		}
 	}
-	
+
 	return 0;
 }
 
-	
+
 /*
 	nRecordDuration : file time
 */
@@ -339,16 +337,16 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
 	if (!(recFile->szRecPath = RecFile_makeDir(pRecPath, recFile->bCycRec))) {
 		return -1;
 	}
-    
+
 	if (recFile->bCycRec) {
         // if cyc, enable time limit and space limit
         recFile->nMaxDuration = nRecordDuration;
-        
+
         // 如果估算大小小于最小写数据长度
         if (recFile->nEstSize < MIN_DISK_SIZE_FOR_WRITE) {
             recFile->nEstSize = MIN_DISK_SIZE_FOR_WRITE;
         }
-        
+
         strSignFile = Unite2Str(recFile->szRecPath, SIGN_FILE_NAME);
 		if ( strSignFile == NULL ) {
 			return -1;
@@ -361,7 +359,7 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
             // this directory record file is not  first times
 		} else {
             isFirstTimes = AK_TRUE;
-            // record first times 
+            // record first times
 			if ( ( fd = FileOpen( strSignFile ) ) < 0 ) {
 				loge( "InitManager::can't create the sign file!\n" );
 				free( strSignFile );
@@ -374,7 +372,6 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
 		}
 
 		free( strSignFile );
-		
 		DiskFreeSize(recFile->szRecPath, &avial, &bsize);
 		iDiskFreeSize = (T_S64)(avial) * (T_S64)(bsize);
 		if ( iDiskFreeSize < 0 ) {
@@ -387,7 +384,6 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
         if (iCompareTemp >= MAX_FILE_SIZE) {
             iCompareTemp = MAX_FILE_SIZE;
         }
-		
         recFile->nMaxSize = iCompareTemp;
 
 //		printf("g_maxfilesize = %d \n", g_MaxFileSize);
@@ -396,9 +392,7 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
         if (recFile->nEstSize > recFile->nMaxSize) {
             recFile->nEstSize = recFile->nMaxSize;
         }
-        
         RecFile_delFile(!isFirstTimes, 1);
-        
 	}
 	else {
         // if normal, just enable space limit
@@ -415,7 +409,7 @@ static T_S32 RecFile_init(T_pSTR pRecPath, T_U32 nRecordDuration)
 			recFile->nMaxSize = iDiskFreeSize - recFile->nMinSize;
 		}
 	}
-	
+
 	DiskFreeSize(recFile->szRecPath, &avial, &bsize );
 	iDiskFreeSize = (T_S64)(T_U32)(avial) * (T_S64)(T_U32)(bsize);
 
@@ -448,7 +442,7 @@ T_S32 RecFile_openFile(T_pSTR *filename)
 		*filename = NULL;
 		return -1;
 	}
-    
+
 	return fd;
 }
 
@@ -459,7 +453,7 @@ T_S32 RecFile_openFile(T_pSTR *filename)
 T_S32 RecFile_removeOldFile(T_pSTR path, T_BOOL bNeedLast)
 {
 	DIR 			*dirp = NULL;
-    struct dirent 	*direntp = NULL; 
+    struct dirent 	*direntp = NULL;
 	struct stat 	statbuf;
 	T_CHR			astrFile[MAX_PATH], astrTemp[MAX_PATH];
 	time_t			stFirstTime = 0x7FFFFFFF;
@@ -467,8 +461,8 @@ T_S32 RecFile_removeOldFile(T_pSTR path, T_BOOL bNeedLast)
 
 	bzero(astrFile, sizeof(astrFile));
 	bzero(astrTemp, sizeof(astrTemp));
-	
-	if(!(dirp = opendir(path))) {  
+
+	if(!(dirp = opendir(path))) {
 		loge( "Open Directory %s Error: %s\n", path, strerror(errno) );
 		printf("Opend DIR ERR\n");
 		return -1;
@@ -477,7 +471,6 @@ T_S32 RecFile_removeOldFile(T_pSTR path, T_BOOL bNeedLast)
 	while (NULL != (direntp = readdir(dirp))) {
 		if (direntp->d_name == NULL)
 			continue;
-		
 		if (!strcmp(direntp->d_name, ".")
 			|| !strcmp(direntp->d_name, "..")
 			|| !strcmp(direntp->d_name, SIGN_FILE_NAME)) {
@@ -492,24 +485,23 @@ T_S32 RecFile_removeOldFile(T_pSTR path, T_BOOL bNeedLast)
 			sprintf(astrFile, "%s%s", path, direntp->d_name);
 		else
 			sprintf(astrFile, "%s%c%s", path, DIR_SEPARATOR, direntp->d_name);
-		
+
 		if (stat(astrFile, &statbuf ) == -1) {
-			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );  
-			continue; 
+			loge( "Get stat on %s Error:%s\n ", direntp->d_name, strerror(errno) );
+			continue;
 		}
 
 		if (!S_ISREG(statbuf.st_mode))
 			continue;
 
 		++nFileCnt;
-		
 		// Find Min Time Stamp File
 		if (stFirstTime >= statbuf.st_mtime) {
 			stFirstTime = statbuf.st_mtime;
 			memcpy(astrTemp, astrFile, MAX_PATH);
 		}
 	}
-	
+
 	if (closedir(dirp) != 0)
 		loge("close Directory %s Error:%s\n ", path, strerror(errno));
 
@@ -524,7 +516,6 @@ T_S32 RecFile_removeOldFile(T_pSTR path, T_BOOL bNeedLast)
 		loge("remove %s Dir Error:%s\n ", astrTemp, strerror(errno));
 
 	printf("DelOldFile: %s\r\n", astrTemp);
-	
 	return 1;
 }
 
@@ -535,7 +526,7 @@ T_BOOL RecFile_isCycFile(T_pSTR pFileName)
 
 	//名字固定长度为大于/等于25(不包括结束符)
 	if (strlen(pFileName) < 25
-		|| !(strPrefix = strstr(pFileName, CYC_FILE_PREFIX))		
+		|| !(strPrefix = strstr(pFileName, CYC_FILE_PREFIX))
 		|| !(strSuffix = strstr(pFileName, FILE_SUFFIX))
 		|| strPrefix != pFileName
 		|| strSuffix-strPrefix < 21) {

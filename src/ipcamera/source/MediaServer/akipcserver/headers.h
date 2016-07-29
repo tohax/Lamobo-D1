@@ -62,7 +62,7 @@ typedef struct demo_setting {
 	char *					strHelpString;
 	unsigned long width;			//实际编码图像的宽度，能被4整除
 	unsigned long height;			//实际编码图像的长度，能被2整除
-	unsigned char kbpsmode; 
+	unsigned char kbpsmode;
 	long qpHdr;			//初始的QP的值
 	long iqpHdr;			//初始的i帧的QP值
 	long bitPerSecond;	//目标bps
@@ -70,7 +70,7 @@ typedef struct demo_setting {
 	long maxQp;
 	long framePerSecond;
 	long video_types;
-	long audioType;	
+	long audioType;
 	char bhasAudio;
 	unsigned long abitsrate;
 	unsigned long aSamplerate;
@@ -90,4 +90,3 @@ extern T_S32 g_bNeedPrintf;
 
 
 #endif /* HEADERS_H */
-

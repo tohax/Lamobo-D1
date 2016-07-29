@@ -31,7 +31,7 @@ typedef struct {
 * @date 2012-07-05
 * @param none
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio);
 
@@ -41,7 +41,7 @@ T_S32 OpenMotionDetect(T_U16 width, T_U16 height, T_U16 *ratio);
 * @date 2012-07-05
 * @param none
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 CloseMotionDetect();
 
@@ -51,7 +51,7 @@ T_S32 CloseMotionDetect();
 * @date 2012-07-05
 * @param[int] nVideoWidth, nVideoHeight
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 //T_S32 SetVideoResolution( T_U32 nVideoWidth, T_U32 nVideoHeight, T_MOTION_DETECTOR_DIMENSION	*pDimension );
 

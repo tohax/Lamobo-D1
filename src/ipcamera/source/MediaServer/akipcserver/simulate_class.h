@@ -100,7 +100,7 @@ extern "C" {
 			return; \
 		pClass->type##_destructor( pClass );\
 	}
-	
+
 //simulate new
 #define NEW_SIMULATE_CLASS( type ) \
 	simulate_new_##type()

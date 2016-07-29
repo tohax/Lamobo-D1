@@ -55,12 +55,12 @@ int record_rename_file(){
 
 /**
 * @brief  open muxer to write file
-* 
+*
 * @author dengzhou
 * @date 2013-04-07
-* @param[in] 
+* @param[in]
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 int mux_open(T_MUX_INPUT *mux_input)
 {
@@ -76,13 +76,11 @@ int mux_open(T_MUX_INPUT *mux_input)
 		goto err;
 	}
 
-	index_fid = open("/mnt/index", O_RDWR | O_CREAT | O_TRUNC); //create avi file index 
-	
+	index_fid = open("/mnt/index", O_RDWR | O_CREAT | O_TRUNC); //create avi file index
 	if(index_fid <= 0 )
 	{
 		goto err;
 	}
-	
 	pfile1 = ak_rec_cb_load(fid, AK_FALSE, 6*1024*1024, 16 * 1024);
 	pfile2 = ak_rec_cb_load(index_fid, AK_TRUE, 4*1024*1024, 16 * 1024);
 	if(pfile1 == AK_NULL || pfile2 == AK_NULL)
@@ -110,7 +108,7 @@ int mux_open(T_MUX_INPUT *mux_input)
 	mux_open_input.m_nHeight		= mux_input->m_nHeight;//480;
 	mux_open_input.m_nFPS			= parse.fps1;
 	mux_open_input.m_nKeyframeInterval	= parse.fps1-1;
-	
+
 // set audio open info
 	mux_open_input.m_eAudioType			= mux_input->m_eAudioType;//MEDIALIB_AUDIO_PCM;
 	mux_open_input.m_nSampleRate		= mux_input->m_nSampleRate;//8000;
@@ -141,7 +139,6 @@ int mux_open(T_MUX_INPUT *mux_input)
 				case 12000 :
 					mux_open_input.m_ulAudioBitrate = 12000;
 					break;
-			
 				case 16000:
 					mux_open_input.m_ulAudioBitrate = 16000;
 					break;
@@ -164,7 +161,6 @@ int mux_open(T_MUX_INPUT *mux_input)
 					mux_open_input.m_ulAudioBitrate = 48000;
 					break;
 			}
-		
 			break;
 		}
 		case MEDIALIB_AUDIO_ADPCM:
@@ -193,11 +189,10 @@ int mux_open(T_MUX_INPUT *mux_input)
 					mux_open_input.m_nBlockAlign = 0x400;
 					break;
 			}
-			
 			mux_open_input.m_ulSamplesPerPack =
 				(mux_open_input.m_nBlockAlign-4)*8/4+1;
-			
-			mux_open_input.m_ulAudioBitrate = 
+
+			mux_open_input.m_ulAudioBitrate =
 			mux_open_input.m_nAvgBytesPerSec = mux_open_input.m_nSampleRate
 						* mux_open_input.m_nBlockAlign
 						/ mux_open_input.m_ulSamplesPerPack;
@@ -209,7 +204,7 @@ int mux_open(T_MUX_INPUT *mux_input)
 		}
 		default:
 			goto err;
-			
+
 	}
 
 	mux_open_input.m_CBFunc.m_FunPrintf= (MEDIALIB_CALLBACK_FUN_PRINTF)printf;
@@ -265,17 +260,17 @@ err:
 		MediaLib_Mux_Close(hMedia);
 	}
 	return -1;
-	
+
 }
 
 /**
 * @brief  mux audio data to file
-* 
+*
 * @author dengzhou
 * @date 2013-04-07
-* @param[in] 
+* @param[in]
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 int mux_addAudio(void *pbuf, unsigned long size, unsigned long timestamp)
 {
@@ -309,7 +304,6 @@ int mux_addAudio(void *pbuf, unsigned long size, unsigned long timestamp)
 		}
 	}
 	Mutex_Unlock(&muxMutex);
-	
 	mux_status = MediaLib_Mux_GetStatus(hMedia);
 	if ( MEDIALIB_MUX_SYSERR == mux_status ||MEDIALIB_MUX_MEMFULL == mux_status )
 	{
@@ -320,12 +314,12 @@ int mux_addAudio(void *pbuf, unsigned long size, unsigned long timestamp)
 
 /**
 * @brief  mux video data to file
-* 
+*
 * @author dengzhou
 * @date 2013-04-07
-* @param[in] 
+* @param[in]
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 int mux_addVideo(void *pbuf, unsigned long size, unsigned long timestamp, int nIsIFrame)
 {
@@ -356,9 +350,7 @@ int mux_addVideo(void *pbuf, unsigned long size, unsigned long timestamp, int nI
 	{
 		mux_status = MediaLib_Mux_Handle(hMedia);
 	}
-	
 	Mutex_Unlock(&muxMutex);
-	
 	mux_status = MediaLib_Mux_GetStatus(hMedia);
 	if (MEDIALIB_MUX_SYSERR == mux_status || MEDIALIB_MUX_MEMFULL == mux_status)
 	{
@@ -368,12 +360,12 @@ int mux_addVideo(void *pbuf, unsigned long size, unsigned long timestamp, int nI
 }
 /**
 * @brief  close muxer
-* 
+*
 * @author dengzhou
 * @date 2013-04-07
-* @param[in] 
+* @param[in]
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 int mux_close(void)
 {
@@ -381,7 +373,7 @@ int mux_close(void)
 	printf("%s\n", __func__);
 	bzero(strFile, sizeof(strFile));
 	sprintf(strFile, "/mnt/index" );
-	
+
 	MediaLib_Mux_Stop(hMedia);
 	ak_rec_cb_unload(pfile1);
 	fsync(fid);
@@ -439,7 +431,7 @@ int Get_Resolution(char *Res, int *width, int *height)
 }
 
 void read_Parse(void *mSettings)
-{	
+{
 	demo_setting * set = (demo_setting *) mSettings;
 	IniSetting_init();
 	struct video_info * video = IniSetting_GetVideoInfo();
@@ -453,7 +445,7 @@ void read_Parse(void *mSettings)
 		set->video_types = 0;
 		parse.format1 = 0;
 	}
-	
+
 	if( !strcmp(video->kbps_mode1, "static_kbps") )
 	{
 		parse.kbps_mode1 = 0;
@@ -464,18 +456,18 @@ void read_Parse(void *mSettings)
 		parse.kbps_mode1 = 1;
 		set->kbpsmode = 1;
 	}
-	
+
 	parse.kbps1 = atoi( video->kbps1 );
 	if(parse.kbps1 <= 6144 && parse.kbps1 >= 256)
 		parse.kbps1 = parse.kbps1 * 1024;
 	else
 		parse.kbps1 = 256 * 1024;
-	
+
 	//parse.minqp1 = atoi( video->minqp1 );
 	parse.group1 = atoi( video->group1);
 	parse.fps1 = atoi( video->fps1 );
 	Get_Resolution(video->dpi1, &parse.width, &parse.height);
-	
+
 	if(parse.fps1 <= 30 && parse.fps1 >= 1)
 		set->framePerSecond = parse.fps1;
 	if(parse.width %4 == 0 && parse.width > 0)
@@ -490,7 +482,7 @@ void read_Parse(void *mSettings)
 	{
 		parse.format2 = 0;
 	}
-	
+
 	if( !strcmp(video->kbps_mode2, "static_kbps") )
 	{
 		parse.kbps_mode2 = 0;
@@ -499,23 +491,23 @@ void read_Parse(void *mSettings)
 	{
 		parse.kbps_mode2 = 1;
 	}
-	
+
 	parse.kbps2 = atoi( video->kbps2 );
 	if(parse.kbps2 <= 6144 && parse.kbps2 >= 64)
 		parse.kbps2 = parse.kbps2 * 1000;
 	else
 		parse.kbps2 = 64 * 1000;
-	
+
 	parse.quality = atoi( video->quality );
-	
+
 	parse.group2 = atoi( video->group2 );
-	
+
 	parse.fps2 = atoi( video->fps2 );
-	
+
 	Get_Resolution(video->dpi2 , &parse.width2 , &parse.height2);
-	
+
 	printf("width2 = %d, height2 = %d", parse.width2, parse.height2);
-		
+
 	if(set->kbpsmode == 0)//static
 	{
 		if(parse.kbps1 <= 5000 && parse.kbps1 >= 64)
@@ -532,7 +524,7 @@ void read_Parse(void *mSettings)
 	parse.video_kbps = atoi( video->video_kbps);
 //	printf("width = %d, height = %d,bitPerSecond=%d", set->width, set->height, set->bitPerSecond);
 	IniSetting_destroy();
-	
+
 }
 
 typedef struct BitsRateTable_st
@@ -547,7 +539,7 @@ static const BitsRateTable BRTable[] = {
 	{ 720, 576, AK_TRUE,  (200) *1024 * 1024 * 8 },
 	{ 640, 480, AK_TRUE,  (500 + 30) * 1024 * 8 },
 	{ 320, 240, AK_TRUE,  (170 + 30) * 1024 * 8 }
-	
+
 };
 
 static const BitsRateTable BRTable_h264[] = {
@@ -568,8 +560,8 @@ int start_record( int cycrecord )
 	T_S32 bavail, bsize;
 	int format;
 	int wid;
-	
-#if 1		
+
+#if 1
 	DiskFreeSize( "/mnt", &bavail, &bsize);
 	DiskSize = (T_S64)(T_U32)(bavail) * (T_S64)(T_U32)(bsize);
 	printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
@@ -581,24 +573,24 @@ int start_record( int cycrecord )
         printf("avail= %ld, bsize = %ld, DiskSize = %lld\n", bavail, bsize, DiskSize);
     }
     /*
-	if (DiskSize < (T_S64)MIN_LIMIT_FREE_SPACE_SIZE) 
+	if (DiskSize < (T_S64)MIN_LIMIT_FREE_SPACE_SIZE)
 	{
 		printf( "get %s disk size full!\n", "/mnt" );
 		return -1;
 	}
     */
-	
+
 	DiskSizeTenth = DiskSize /10;
 	if ( DiskSizeTenth > MIN_LIMIT_FREE_SPACE_SIZE_CALC ) {
 		SetMinRecordLimit( MIN_LIMIT_FREE_SPACE_SIZE_CALC );
-	}else if ( ( DiskSizeTenth < MIN_LIMIT_FREE_SPACE_SIZE ) && 
+	}else if ( ( DiskSizeTenth < MIN_LIMIT_FREE_SPACE_SIZE ) &&
 				 ( DiskSize > MIN_LIMIT_FREE_SPACE_SIZE ) ) {
 		SetMinRecordLimit( MIN_LIMIT_FREE_SPACE_SIZE );
 	}else if ( DiskSizeTenth > MIN_LIMIT_FREE_SPACE_SIZE ) {
 		SetMinRecordLimit( DiskSizeTenth );
 	}else {
 		printf("the %s is disk size is %lldM is too less!", "/mnt/", DiskSize);
-		
+
 		return -1;
 	}
 #endif
@@ -608,13 +600,13 @@ int start_record( int cycrecord )
 	T_S32 video_index = atoi(recoder->video_index);
 	T_S32 leng = atoi(recoder->length);
 	T_S32 time = atoi(recoder->time);
-	
+
 	if (leng <= 0)
 		leng = 3;
-	
+
 	if (time <= 0)
 		time = 1;
-	
+
 	times = (time*3600)/(leng*60);
 	if (times <= 0)
 		times = 1;
@@ -637,7 +629,7 @@ int start_record( int cycrecord )
 			default:
 				format = 0;
 		}
-		
+
 		switch (parse.width2)
 		{
 			case 720:
@@ -664,10 +656,10 @@ int start_record( int cycrecord )
 		printf("open record manager error \n");
 		return -1;
 	}
-	
+
 	T_MUX_INPUT mux_input1;
 	mux_input1.m_MediaRecType = MEDIALIB_REC_AVI_NORMAL;
-	
+
 	if (video_index == 1)
 	{
 		//mux video
@@ -690,7 +682,7 @@ int start_record( int cycrecord )
 		mux_input1.m_nWidth = parse.width2;
 		mux_input1.m_nHeight = parse.height2;
 	}
-	
+
 	//mux audio
 	mux_input1.m_bCaptureAudio = 1;
 	mux_input1.m_eAudioType = MEDIALIB_AUDIO_AAC;
@@ -711,20 +703,19 @@ int start_record( int cycrecord )
 	memset(&SchedAttr, 0, sizeof(pthread_attr_t));
 	memset(&SchedParam, 0, sizeof(SchedParam));
 
-	pthread_attr_init( &SchedAttr );				
-	SchedParam.sched_priority = 60;	
+	pthread_attr_init( &SchedAttr );
+	SchedParam.sched_priority = 60;
 	pthread_attr_setschedparam( &SchedAttr, &SchedParam );
 	pthread_attr_setschedpolicy( &SchedAttr, SCHED_RR );
-	if (pthread_create(&ThredMuxID, &SchedAttr, thread_enc, NULL ) != 0 ) 
+	if (pthread_create(&ThredMuxID, &SchedAttr, thread_enc, NULL ) != 0 )
 	{
 		pthread_attr_destroy(&SchedAttr);
 //		printf( "unable to create a thread for osd = %d!\n" );
 		return -1;
 	}
-	
+
 	pthread_attr_destroy(&SchedAttr);
 	setled_record_start(video_index-1);
-	
 	return 0;
 }
 
@@ -743,12 +734,12 @@ int mux_write_data(int type, void *pbuf, unsigned long size, unsigned long times
 
 	if (hMedia == AK_NULL || close_flag == 1 || stop_record_flag == 1)
 	{
-		
+
 		return 0;
 	}
-#if 0	
+#if 0
 	MediaLib_Mux_GetInfo(hMedia, &mux_info);
-	
+
 	if(ReachLimit(mux_info.m_ulFileBytes, mux_info.m_ulTotalTime_ms))
 	{
 		mux_close();
@@ -761,13 +752,13 @@ int mux_write_data(int type, void *pbuf, unsigned long size, unsigned long times
 			return -1;
 		}
 		else
-		{		
+		{
 			mux_open( &mux_input );
-						
+
 		}
-		
+
 	}
-#endif	
+#endif
 	if (type == 0)
 		ret = mux_addAudio(pbuf, size, timestamp);
 	else
@@ -780,7 +771,6 @@ static T_pVOID thread_enc( T_pVOID user )
 {
 	T_U8* pbuf = (T_U8*)malloc(100 * 1024);
 	T_MEDIALIB_MUX_INFO mux_info;
-	
 	while (1)
 	{
 		if (g_mux_exit == 1)
@@ -797,7 +787,7 @@ static T_pVOID thread_enc( T_pVOID user )
 		{
 			stop_record_flag = 1;
 
-			MediaLib_Mux_Stop(hMedia);			
+			MediaLib_Mux_Stop(hMedia);
 			ak_rec_cb_unload(pfile1);
 			fsync(fid);
 			close(fid);
@@ -823,7 +813,7 @@ static T_pVOID thread_enc( T_pVOID user )
             if (times <= 0)
             {
                 printf("Record over \n");
-				
+
 				CloseRecordManager();
 				Recordflag = 0;
 				setled_record_stop(RecordIndex);
@@ -831,7 +821,7 @@ static T_pVOID thread_enc( T_pVOID user )
 				break;
 			}
 			else
-			{		
+			{
 				T_CHR	strFile[MAX_PATH];
 
 				memset(strFile, 0x00, sizeof(strFile));
@@ -846,14 +836,14 @@ static T_pVOID thread_enc( T_pVOID user )
 					printf("Open file err \n");
 					break;
 				}
-				
+
 				MediaLib_Mux_Restart(hMedia, (T_S32)pfile1);
 			}
-			
+
 			stop_record_flag = 0;
 		}
 	}
-	
+
 	free(pbuf);
 	return NULL;
 }
@@ -863,7 +853,7 @@ int mux_exit( void )
 {
 	if (hMedia == AK_NULL)
 		return 0;
-	
+
 	g_mux_exit = 1;
 	printf("mux process close \n");
 	//wait capture thread return
@@ -873,7 +863,6 @@ int mux_exit( void )
 	mux_close();
 	CloseRecordManager();
 	CloseListenSD();
-	
 	return 0;
 }
 

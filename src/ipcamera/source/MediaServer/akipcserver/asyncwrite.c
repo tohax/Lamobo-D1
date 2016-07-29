@@ -30,7 +30,6 @@ typedef struct AkAsyncFileWriter_handle_st
 	T_U32 			mWriteCacheSize;
 	T_BOOL 			mRequestExit;
 	T_U32			mWriteBytes;
-		
 	nthread_t		mTID;
 	Condition		mCondition;
 } AkAsyncFileWriter_handle;
@@ -73,7 +72,6 @@ DEFINE_CONSTRUCTOR_BEGIN( AkAsyncFileWriter )
 	}
 
 	this->handle = (T_pVOID)handle;
-	
 	handle->mCycBuffer = NULL;
 	handle->mfd = -1;
 	handle->mWriteBlockSize = 0;
@@ -97,10 +95,10 @@ DEFINE_DESTRUCTOR_BEGIN( AkAsyncFileWriter )
 {
 	AkAsyncFileWriter *this = (AkAsyncFileWriter *)pthis;
 	AkAsyncFileWriter_handle * handle = (AkAsyncFileWriter_handle *)this->handle;
-	
+
 	if ( handle->mCycBuffer != NULL )
 		DEL_SIMULATE_CLASS( CCycBuffer, handle->mCycBuffer );
-	
+
 	Condition_Destroy( &(handle->mCondition) );
 
 	free( handle );
@@ -135,7 +133,6 @@ static T_S32 createFileWriter( T_pVOID pthis, T_S32 fd, T_BOOL IsJustFd,
 		handle->mbIsJustFd = AK_TRUE;
 		return 0;
 	}
-	
 	if ( handle->mWriteBlockSize > handle->mWriteCacheSize ) {
 		loge( "AkAsyncFileWriter::invalid parameter!\n" );
 		handle->mCycBuffer = NULL;
@@ -175,7 +172,6 @@ static T_S32 ResetFd( T_pVOID pthis, T_S32 fd )
 	assert( fd > 0 );
 
 	handle->mfd = fd;
-	
 	if ( handle->mbIsJustFd ) {
 		return 0;
 	}
@@ -184,7 +180,7 @@ static T_S32 ResetFd( T_pVOID pthis, T_S32 fd )
 		loge( "ResetFd::the cyc buffer is NULL!\n" );
 		return -1;
 	}
-	
+
 	handle->mCycBuffer->Clean( handle->mCycBuffer );
 	handle->mWriteBytes = 0;
 	return 0;
@@ -244,9 +240,9 @@ static T_S32 AsyncWrite( T_pVOID pthis, T_pVOID buf, T_S32 size )
 		logi( "current no offer Async write function!\n" );
 		return 0;
 	}
-	
+
 	//LOGV("write hfile 0x%lx,buf %p,size 0x%lx",hFile,buf,size);
-	//incase out of memory 
+	//incase out of memory
  	if( handle->mCycBuffer == NULL ){
 		loge( "out of memory in %s %s", __FILE__, __LINE__ );
 		return -1;
@@ -257,7 +253,7 @@ static T_S32 AsyncWrite( T_pVOID pthis, T_pVOID buf, T_S32 size )
 		loge( "cycbuffer don't have enough space to push one frame!\n" );
 		return -1;
 	}
-	
+
 	Condition_Lock( handle->mCondition );
 	handle->mWriteBytes += retVal;
 	Condition_Unlock( handle->mCondition );
@@ -279,7 +275,6 @@ static T_S32 AsyncRead( T_pVOID pthis, T_pVOID buf, T_S32 size )
 {
 	AkAsyncFileWriter *this = (AkAsyncFileWriter *)pthis;
 	AkAsyncFileWriter_handle * handle = (AkAsyncFileWriter_handle *)this->handle;
-	
 	return read( handle->mfd, buf, size );
 }
 
@@ -308,14 +303,12 @@ static T_U32 AsyncSeek( T_pVOID pthis, T_U32 offset, T_S32 whence )
 		logi( "current no offer Async seek function!\n" );
 		return 0;
 	}
-	
 	flush( this );
 	//do actual seek job
 	T_U32 ret = (T_U32)lseek64( handle->mfd, offset, whence );
 	Condition_Lock( handle->mCondition );
 	handle->mWriteBytes = ret;
 	Condition_Unlock( handle->mCondition );
-	
 	return ret;
 }
 
@@ -329,7 +322,6 @@ static T_S32 fileExist( T_pVOID pthis )
 {
 	AkAsyncFileWriter *this = (AkAsyncFileWriter *)pthis;
 	AkAsyncFileWriter_handle * handle = (AkAsyncFileWriter_handle *)this->handle;
-	
 	if( lseek64( handle->mfd, 0, SEEK_CUR ) < 0 ){
 		loge( "file des %d not exsisted, in %s %s", handle->mfd, __FILE__, __LINE__);
 		return 0;
@@ -353,8 +345,8 @@ static T_U32 tell( T_pVOID pthis )
 		logi( "current no offer Async tell function!\n" );
 		return 0;
 	}
-	
-	//incase out of memory 
+
+	//incase out of memory
  	if( handle->mCycBuffer == NULL ){
 		loge( "out of memory in %s %s", __FILE__, __LINE__ );
 		return -1;
@@ -380,16 +372,16 @@ static T_VOID flush( T_pVOID pthis )
 		logi( "current no offer flush function!\n" );
 		return;
 	}
-	
+
 	LOGV( "flush buffer to file %d", handle->mfd );
-	//incase out of memory 
+	//incase out of memory
  	if( handle->mCycBuffer == NULL ){
 		loge( "out of memory in %s %s", __FILE__, __LINE__ );
 		return;
 	}
 
 	ret = handle->mCycBuffer->flush( handle->mCycBuffer, handle->mfd );
-	
+
 	if ( ret < 0 )
 		loge( "AkAsyncFileWriter::flush error!\n" );
 }
@@ -399,7 +391,7 @@ static T_VOID flush( T_pVOID pthis )
  * @brief		start write thread
  * @param[in] pthis 	the pointer point to the AkAsyncFileWriter.
  * @return	T_S32
- * @retval	0 for success, other for error 
+ * @retval	0 for success, other for error
  */
 static T_S32 start( T_pVOID pthis )
 {
@@ -410,14 +402,14 @@ static T_S32 start( T_pVOID pthis )
 		logi( "no need to start!\n" );
 		return 0;
 	}
-	
+
 	//already start
 	Condition_Lock( handle->mCondition );
 	if ( !(handle->mRequestExit) ) {
 		Condition_Unlock( handle->mCondition );
 		return 0;
 	}
-	
+
 	handle->mRequestExit = AK_FALSE;
 	handle->mWriteBytes = 0;
 
@@ -449,7 +441,7 @@ static T_S32 start( T_pVOID pthis )
  * @brief		stop write thread
  * @param[in] pthis  the pointer point to the AkAsyncFileWriter.
  * @return	int
- * @retval	0 for success, other for error 
+ * @retval	0 for success, other for error
  */
 static T_S32 stop( T_pVOID pthis )
 {
@@ -460,7 +452,7 @@ static T_S32 stop( T_pVOID pthis )
 		logi( "no need to stop!\n" );
 		return 0;
 	}
-	
+
 	if ( NULL == handle->mCycBuffer ) {
 		return -1;
 	}
@@ -477,17 +469,17 @@ static T_S32 stop( T_pVOID pthis )
 	if ( handle->mCycBuffer->IsEmpty( handle->mCycBuffer ) ) {
 		handle->mCycBuffer->ForceQuit( handle->mCycBuffer );
 	}
-	
+
 	handle->mRequestExit = AK_TRUE;
 	Condition_Unlock( handle->mCondition );
 
 	pthread_join( handle->mTID, NULL );
 	logi( "Async file write thread is end!\n" );
-	
+
 	//flush the cycbuffer is data to file
 	handle->mCycBuffer->ResumeForceQuitState( handle->mCycBuffer );
 	flush( this );
-	
+
 	return 0;
 }
 
@@ -507,11 +499,11 @@ static T_U32 getTotalWriteBytes( T_pVOID pthis )
 		logi( "the AkAsyncFileWriter current no offer the async process!\n" );
 		return 0;
 	}
-	
+
 	Condition_Lock( handle->mCondition );
 	ret = handle->mWriteBytes;
 	Condition_Unlock( handle->mCondition );
-	
+
 	return ret;
 }
 
@@ -526,7 +518,7 @@ static T_VOID Run( T_pVOID pthis )
 	AkAsyncFileWriter *this = (AkAsyncFileWriter *)pthis;
 	AkAsyncFileWriter_handle * handle = (AkAsyncFileWriter_handle *)this->handle;
 	T_S32 ret = 0;
-		
+
 	if ( NULL == handle->mCycBuffer ) {
 		loge( "AkAsyncFileWriter have a process error! can't run the async write thread!\n" );
 		return;
@@ -553,7 +545,7 @@ static T_VOID Run( T_pVOID pthis )
 
 
 /*
- * @brief		construct a file writer to do file writing 
+ * @brief		construct a file writer to do file writing
  * @param	fd [in], IsJustFd[in], writebufsize[in], writeblocksize[in]
  * @return	AkAsyncFileWriter
  * @retval	NULL for error, otherwise a handle of AkAsyncFileWriter
@@ -561,7 +553,7 @@ static T_VOID Run( T_pVOID pthis )
 AkAsyncFileWriter* ak_rec_cb_load( int fd, T_BOOL IsJustFd, int writebufsize, int writeblocksize )
 {
 	T_S32 ret = 0;
-	
+
 	//construct a file write then  start it
 	AkAsyncFileWriter* asyncwriter = NEW_SIMULATE_CLASS( AkAsyncFileWriter );
 	if ( asyncwriter == NULL ){
@@ -578,7 +570,7 @@ AkAsyncFileWriter* ak_rec_cb_load( int fd, T_BOOL IsJustFd, int writebufsize, in
 	if ( IsJustFd ) {
 		return asyncwriter;
 	}
-	
+
 	if ( asyncwriter->start( asyncwriter ) != 0 ) {
 		loge("unable to start async file writer");
 		DEL_SIMULATE_CLASS( AkAsyncFileWriter, asyncwriter );
@@ -612,7 +604,7 @@ void ak_rec_cb_unload( AkAsyncFileWriter* writer )
 }
 
 /*
- * @brief		used for media lib to print 
+ * @brief		used for media lib to print
  * @param	format [in] ,... [in]
  * @return	T_VOID
  * @retval	NONE
@@ -622,7 +614,7 @@ T_VOID ak_rec_cb_printf( T_pCSTR format, ... )
 	//REC_TAG, used to identify print informations of media lib
 #if 1
 	va_list ap;
-	char buf[LOG_BUF_SIZE];    
+	char buf[LOG_BUF_SIZE];
 
 	va_start( ap, format );
 	vsnprintf( buf, LOG_BUF_SIZE, format, ap );
@@ -637,7 +629,7 @@ T_VOID ak_rec_cb_printf( T_pCSTR format, ... )
 
 /*
  * @brief		used to alloc memory
- * @param	size [in] 
+ * @param	size [in]
  * @return	T_pVOID
  * @retval	NULL for error,otherwise the handle of memory allocated.
  */
@@ -650,7 +642,7 @@ T_pVOID ak_rec_cb_malloc( T_U32 size )
 
 /*
  * @brief		free memory
- * @param	mem [in] 
+ * @param	mem [in]
  * @return	T_VOID
  * @retval	NONE
  */
@@ -669,7 +661,6 @@ T_VOID ak_rec_cb_free( T_pVOID mem )
 T_pVOID ak_rec_cb_memcpy( T_pVOID dest, T_pCVOID src, T_U32 size )
 {
 	LOGV("memcpy dest %p,src %p,size 0x%lx",dest,src,size);
-	
 	return memcpy( dest, src, size );
 }
 
@@ -688,11 +679,11 @@ T_S32 ak_rec_cb_fread( T_S32 hFileWriter, T_pVOID buf, T_S32 size )
 		LOGE("invalid parameter");
 		return -1;
 	}
-	
+
 	if ( writer->IsJustFd( writer ) ) {
 		return read( writer->getFd( writer ), buf, size );
 	}
-	
+
 	return writer->read( writer, buf, size );
 }
 
@@ -705,13 +696,13 @@ T_S32 ak_rec_cb_fread( T_S32 hFileWriter, T_pVOID buf, T_S32 size )
 T_S32 ak_rec_cb_fwrite( T_S32 hFileWriter, T_pVOID buf, T_S32 size )
 {
 	LOGV("fwrite file writer 0x%lx  buf %p, size 0x%lx, \n",hFileWriter, buf, size);
-	
+
 	AkAsyncFileWriter* writer = (AkAsyncFileWriter*)hFileWriter;
 	if ( writer == NULL ) {
 		LOGE("invalid parameter");
 		return -1;
 	}
-	
+
 	if ( writer->IsJustFd( writer ) ) {
 		T_S32 ret = write( writer->getFd( writer ), buf, size );
 		if ( ret < 0 ) {
@@ -736,13 +727,13 @@ T_U32 ak_rec_cb_fseek( T_S32 hFileWriter, T_U32 offset, T_U32 whence )
 		LOGE("invalid parameter");
 		return -1;
 	}
-	
+
 	if ( writer->IsJustFd( writer ) ) {
 		off_t ret = lseek64( writer->getFd( writer ), offset, whence );
 		if ( ret < 0 ) {
 			loge( "ak_rec_cb_fseek error = %s\n", strerror(errno) );
 		}
-		
+
 		return (T_U32)ret;
 	}
 
@@ -758,7 +749,7 @@ T_U32 ak_rec_cb_fseek( T_S32 hFileWriter, T_U32 offset, T_U32 whence )
 T_U32 ak_rec_cb_ftell( T_S32 hFileWriter )
 {
 	LOGV("ftell file writer 0x%lx",hFileWriter);
-	
+
 	AkAsyncFileWriter* writer = (AkAsyncFileWriter*)hFileWriter;
 	if ( writer == NULL ) {
 		LOGE("invalid parameter");
@@ -772,7 +763,7 @@ T_U32 ak_rec_cb_ftell( T_S32 hFileWriter )
 		}
 		return (T_U32)ret;
 	}
-	
+
 	return writer->tell( writer );
 }
 
@@ -797,7 +788,7 @@ T_BOOL ak_rec_cb_lnx_filesys_isbusy()
 T_S32 ak_rec_cb_lnx_fhandle_exist( T_S32 hFileWriter )
 {
 	LOGV("fhandle exist file writer %p",hFileWriter);
-	
+
 	AkAsyncFileWriter* writer = (AkAsyncFileWriter*)hFileWriter;
 	if ( writer == NULL ) {
 		LOGE("invalid parameter");
@@ -816,7 +807,7 @@ T_S32 ak_rec_cb_lnx_fhandle_exist( T_S32 hFileWriter )
 T_BOOL ak_rec_cb_lnx_delay(T_U32 ticks)
 {
 	logi("delay 0x%lx ticks",ticks);
-	
+
 #ifdef ANDROID
 	//usleep (ticks*1000);
 	akuio_wait_irq();
@@ -844,7 +835,4 @@ REGISTER_FUN( start, start )
 REGISTER_FUN( stop, stop )
 REGISTER_FUN( getTotalWriteBytes, getTotalWriteBytes )
 REGISTER_FUN_END( AkAsyncFileWriter )
-
 REGISTER_SIMULATE_CLASS_C( AkAsyncFileWriter )
-
-

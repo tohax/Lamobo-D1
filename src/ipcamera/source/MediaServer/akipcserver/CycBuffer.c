@@ -18,7 +18,7 @@ typedef struct CycBuffer_handle_st {
 	T_BOOL		mPushComplete;
 	T_BOOL		mPopComplete;
 	T_BOOL		mForceQuit;
-	
+
 	Condition 	mDataCon;
 	Condition 	mWriteDataCon;
 	//Condition	mWaitForPopCon;
@@ -49,7 +49,7 @@ static T_CHR * PopSingle( T_pVOID pthis, T_S32 iSize );
 * @return NONE
 */
 DEFINE_CONSTRUCTOR_BEGIN( CCycBuffer )
-{	
+{
 	CCycBuffer *this = (CCycBuffer *)pthis;
 	CycBuffer_handle * handle = NULL;
 
@@ -60,7 +60,6 @@ DEFINE_CONSTRUCTOR_BEGIN( CCycBuffer )
 	}
 
 	this->handle = (T_pVOID)handle;
-	
 	handle->mBufferSize = 0;
 	handle->mUseSize = 0;
 	handle->mRead = NULL;
@@ -77,7 +76,7 @@ DEFINE_CONSTRUCTOR_BEGIN( CCycBuffer )
 	return this;
 }
 DEFINE_CONSTRUCTOR_END
-	
+
 /**
 * @brief   simulate class CCycbuffer destructor
 * 
@@ -88,10 +87,9 @@ DEFINE_CONSTRUCTOR_END
 * @return NONE
 */
 DEFINE_DESTRUCTOR_BEGIN( CCycBuffer )
-{	
+{
 	CCycBuffer *this = (CCycBuffer *)pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	//虚构时，如果当前还有线程在Push流程中等待
 	//那么首先Pop出Buffer中的所有数据，唤醒在Push
 	//中等待的线程，等待其完成push操作。
@@ -118,12 +116,10 @@ DEFINE_DESTRUCTOR_BEGIN( CCycBuffer )
 
 		//唤醒在Pop中等待的线程
 		Condition_Signal( &(handle->mDataCon) );
-		
 		Condition_Wait( &handle->mDataCon );
 		Condition_Unlock( handle->mDataCon );
 	} else
 		Condition_Unlock( handle->mDataCon );
-	
 	DestroyCycBuffer( this );
 	Condition_Destroy( &( handle->mDataCon ) );
 	Condition_Destroy( &( handle->mWriteDataCon ) );
@@ -141,31 +137,28 @@ DEFINE_DESTRUCTOR_END
 * @param[in] pthis   the pointer point to the CCycBuffer.
 * @param[in] iSize   the cyc buffer size.
 * @return T_S32
-* @retval if return 0, set buffer size success, otherwise failed 
+* @retval if return 0, set buffer size success, otherwise failed
 */
 static T_S32 SetBufferSize( T_pVOID pthis, T_S32 iSize )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	assert( iSize > 0 );
-	
 	Condition_Lock( handle->mDataCon );
 	handle->mBufferSize = iSize;
 	Condition_Unlock( handle->mDataCon );
-	
-	return 0;	
+	return 0;
 }
 
 /**
 * @brief   create the Cyc Buffer, malloc memory
 *
-* call SetBufferSize fuction to set cyc buffer size before call this function 
+* call SetBufferSize fuction to set cyc buffer size before call this function
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pthis   the pointer point to the CCycBuffer.
 * @return T_S32
-* @retval if return 0, create cyc buffer success, otherwise failed 
+* @retval if return 0, create cyc buffer success, otherwise failed
 */
 static T_S32 CreateCycBuffer( T_pVOID pthis )
 {
@@ -174,10 +167,8 @@ static T_S32 CreateCycBuffer( T_pVOID pthis )
 	T_S32 ret = 0;
 
 	Condition_Lock( handle->mDataCon );
-	
 	if ( handle->mCycBuffer != NULL )
 		DestroyCycBuffer( this );
-	
 	handle->mCycBuffer = (T_CHR *)malloc( handle->mBufferSize );
 	if ( handle->mCycBuffer == NULL )
 	{
@@ -185,7 +176,6 @@ static T_S32 CreateCycBuffer( T_pVOID pthis )
 		ret = -1;
 		goto End;
 	}
-	
 	memset( handle->mCycBuffer, 0, handle->mBufferSize );
 
 	handle->mRead = handle->mWrite = handle->mCycBuffer;
@@ -198,13 +188,13 @@ End:
 /**
 * @brief   create the Cyc Buffer, malloc memory
 *
-* not need to call setBufferSize function 
+* not need to call setBufferSize function
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pthis   the pointer point to the CCycBuffer.
 * @param[in] iSize   the cyc buffer size.
 * @return T_S32
-* @retval if return 0, create cyc buffer success, otherwise failed 
+* @retval if return 0, create cyc buffer success, otherwise failed
 */
 static T_S32 CreateCycBufferEx( T_pVOID pthis, T_S32 iSize )
 {
@@ -214,7 +204,6 @@ static T_S32 CreateCycBufferEx( T_pVOID pthis, T_S32 iSize )
 	ret = SetBufferSize( this, iSize );
 	if ( ret < 0 )
 		return ret;
-	
 	ret = CreateCycBuffer( this );
 	return ret;
 }
@@ -228,26 +217,21 @@ static T_S32 CreateCycBufferEx( T_pVOID pthis, T_S32 iSize )
 * @param[in] pthis   the pointer point to the CCycBuffer.
 * @param[in] iSize   the cyc buffer size.
 * @return T_S32
-* @retval if return 0 destroy cyc buffer success, otherwise failed 
+* @retval if return 0 destroy cyc buffer success, otherwise failed
 */
 static T_S32 DestroyCycBuffer( T_pVOID pthis )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	Condition_Lock( handle->mDataCon );
 
 	if ( handle->mCycBuffer != NULL )
 		free( handle->mCycBuffer );
-
 	handle->mCycBuffer = NULL;
-
 	handle->mRead = NULL;
 	handle->mWrite = NULL;
-	
 	handle->mBufferSize = 0;
 	handle->mUseSize = 0;
-
 	Condition_Unlock( handle->mDataCon );
 	return 0;
 }
@@ -272,7 +256,6 @@ static T_S32 Pop( T_pVOID pthis, char * pBuffer, T_S32 iSize )
 	T_S32 iLeavings = 0;
 	T_S32 iReadSize = 0;
 	T_S32 iLineSize = 0;
-	
 	if ( iSize > handle->mBufferSize ) {
 		loge( "CCycBuffer::Pop() can't not Pop %d data from buffer, %d > %d(buffer size)", iSize, iSize, handle->mBufferSize );
 		return -1;
@@ -294,7 +277,6 @@ static T_S32 Pop( T_pVOID pthis, char * pBuffer, T_S32 iSize )
 		Condition_Unlock( handle->mDataCon );
 		return 0;
 	}
-	
 	assert( ( pBuffer != NULL ) && ( handle->mCycBuffer != NULL ) && ( iSize > 0 ) );
 	assert( ( ( handle->mRead >= handle->mCycBuffer ) && ( handle->mRead < (handle->mCycBuffer + handle->mBufferSize) ) ) );
 	assert( ( ( handle->mWrite >= handle->mCycBuffer ) && ( handle->mWrite < (handle->mCycBuffer + handle->mBufferSize) ) ) );
@@ -316,15 +298,11 @@ static T_S32 Pop( T_pVOID pthis, char * pBuffer, T_S32 iSize )
 		pBuffer += iReadSize;
 		iLeavings -= iReadSize;
 	}
-	
 	handle->mUseSize -= iGetSize;
-
 	handle->mPopComplete = AK_TRUE;
 	Condition_Unlock( handle->mDataCon );
-
 	//logi( "pop signal send!\n" );
 	Condition_Signal( &(handle->mDataCon) );
-	
 	return iGetSize;
 }
 
@@ -347,16 +325,14 @@ static T_S32 Push( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 	T_S32 iLeavings = 0;
 	T_S32 iWriteSize = 0;
 	T_S32 iLineSize = 0;
-	
 	if ( iSize > handle->mBufferSize ) {
 		loge( "CCycBuffer::Push() can't not push %d data to buffer, %d > %d(buffer size)", iSize, iSize, handle->mBufferSize );
 		return -1;
 	}
-	
 	//the cyc buffer is full. wait for pop
 	Condition_Lock( handle->mDataCon );
 	handle->mPushComplete = AK_FALSE;
-	while ( ( ( handle->mBufferSize - handle->mUseSize ) < iSize ) && 
+	while ( ( ( handle->mBufferSize - handle->mUseSize ) < iSize ) &&
 			( !(handle->mForceQuit) ) ) {
 		//Condition_Unlock( handle->mDataCon );
 		logi( "Push buffer full! %d\n", handle->mBufferSize );
@@ -370,11 +346,11 @@ static T_S32 Push( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 		Condition_Unlock( handle->mDataCon );
 		return 0;
 	}
-	
+
 	assert( ( pBuffer != NULL ) && ( handle->mCycBuffer != NULL ) && ( iSize > 0 ) );
 	assert( ( ( handle->mRead >= handle->mCycBuffer ) && ( handle->mRead < (handle->mCycBuffer + handle->mBufferSize) ) ) );
 	assert( ( ( handle->mWrite >= handle->mCycBuffer ) && ( handle->mWrite < (handle->mCycBuffer + handle->mBufferSize) ) ) );
-	
+
 	iLeavings = iSize;
 
 	while ( iLeavings > 0 )
@@ -391,7 +367,7 @@ static T_S32 Push( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 		pBuffer += iWriteSize;
 		iLeavings -= iWriteSize;
 	}
-	
+
 	handle->mUseSize = ( ( handle->mUseSize + iSize ) > handle->mBufferSize )?handle->mBufferSize:( handle->mUseSize + iSize );
 	if ( handle->mUseSize == handle->mBufferSize )
 		handle->mRead = handle->mWrite;
@@ -412,16 +388,16 @@ static T_S32 PushSingle( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 	T_S32 iWriteSize = 0;
 	T_S32 iLineSize = 0;
 	T_CHR *	mTempWrite = NULL;
-	
+
 	if ( iSize > handle->mBufferSize ) {
 		loge( "CCycBuffer::Push() can't not push %d data to buffer, %d > %d(buffer size)", iSize, iSize, handle->mBufferSize );
 		return -1;
 	}
-	
+
 	//the cyc buffer is full. wait for pop
 	Condition_Lock( handle->mDataCon );
 	handle->mPushComplete = AK_FALSE;
-	while ( ( ( handle->mBufferSize - handle->mUseSize ) < iSize ) && 
+	while ( ( ( handle->mBufferSize - handle->mUseSize ) < iSize ) &&
 			( !(handle->mForceQuit) ) ) {
 		//Condition_Unlock( handle->mDataCon );
 		logi( "PushSingle buffer full! %d\n", handle->mBufferSize );
@@ -435,14 +411,13 @@ static T_S32 PushSingle( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 		Condition_Unlock( handle->mDataCon );
 		return 0;
 	}
-	
 	assert( ( pBuffer != NULL ) && ( handle->mCycBuffer != NULL ) && ( iSize > 0 ) );
 	assert( ( ( handle->mRead >= handle->mCycBuffer ) && ( handle->mRead < (handle->mCycBuffer + handle->mBufferSize) ) ) );
 	assert( ( ( handle->mWrite >= handle->mCycBuffer ) && ( handle->mWrite < (handle->mCycBuffer + handle->mBufferSize) ) ) );
 
 	mTempWrite = handle->mWrite;
 	Condition_Unlock( handle->mDataCon );
-	
+
 	iLeavings = iSize;
 
 	while ( iLeavings > 0 )
@@ -489,7 +464,7 @@ static T_S32 PushSingle( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize )
 * @retval return  >=0 the size of bytes write to file, < 0  failed
 */
 static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
-{	
+{
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_CHR * pBuffer = NULL;
@@ -501,9 +476,9 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 	if ( -1 == iSize ) {
 		iSize = handle->mUseSize;
 	}
-	
+
 	pBuffer = PopSingle( pthis, iSize );
-	
+
 	if ( pBuffer == NULL ) {
 		ResumeForceQuitState( pthis );
 		Condition_Unlock( handle->mWriteDataCon );
@@ -527,7 +502,7 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 			loge( "WriteToFs::WriteComplete error!\n" );
 			return -1;
 		}
-		
+
 		pBuffer += iLineSize;
 		iLeavings -= iLineSize;
 	}
@@ -541,7 +516,7 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 
 	//logi( "pop signal send!\n" );
 	Condition_Signal( &(handle->mDataCon) );
-	
+
 	return iSize;
 }
 
@@ -569,7 +544,7 @@ static T_S32 flush( T_pVOID pthis, T_S32 fd )
 		if(i > 10)
 			break;
 	}
-	
+
 	return WriteToFs( pthis, fd, -1 );
 }
 
@@ -584,12 +559,12 @@ static T_S32 flush( T_pVOID pthis, T_S32 fd )
 * @return T_S32
 * @retval return  >=0 the size of bytes write to file, < 0  failed
 
-static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize ) 
+static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_S32 iGetSize = 0, iLeavings = 0, iReadSize = 0, iLineSize = 0, iTempRead = 0, iRet = 0;
-	
+
 	if ( iSize > handle->mBufferSize ) {
 		loge( "CCycBuffer::WriteToFs() can't not Pop %d data from buffer, %d > %d(buffer size)", iSize, iSize, handle->mBufferSize );
 		return -1;
@@ -611,7 +586,7 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 		Condition_Unlock( handle->mDataCon );
 		return 0;
 	}
-	
+
 	assert( ( fd > 0 ) && ( handle->mCycBuffer != NULL ) && ( iSize > 0 ) );
 	assert( ( ( handle->mRead >= handle->mCycBuffer ) && ( handle->mRead < (handle->mCycBuffer + handle->mBufferSize) ) ) );
 	assert( ( ( handle->mWrite >= handle->mCycBuffer ) && ( handle->mWrite < (handle->mCycBuffer + handle->mBufferSize) ) ) );
@@ -619,7 +594,7 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 	iGetSize = ( handle->mUseSize > iSize )?iSize:(handle->mUseSize);
 	iLeavings = iGetSize;
 	iGetSize = 0;
-	
+
 	while ( iLeavings > 0 )
 	{
 		iLineSize = ( handle->mCycBuffer + handle->mBufferSize ) - handle->mRead;
@@ -633,21 +608,20 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 				iTempRead = 0;
 				break;
 			}
-			
+
 			iTempRead -= (iRet < 0) ? 0 : iRet;
-			
+
 		}while( iTempRead > 0 );
 
 		iGetSize += ( iReadSize - iTempRead );
-		
+
 		if ( iReadSize == iLineSize )
 			handle->mRead = handle->mCycBuffer;
 		else
 			handle->mRead += iReadSize;
-		
+
 		iLeavings -= iReadSize;
 	}
-	
 	handle->mUseSize -= iGetSize;
 
 	handle->mPopComplete = AK_TRUE;
@@ -658,7 +632,6 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 
 	if ( iRet < 0 )
 		iGetSize = iRet;
-	
 	return iGetSize;
 }
 */
@@ -674,15 +647,14 @@ static T_S32 WriteToFs( T_pVOID pthis, T_S32 fd, T_S32 iSize )
 * @retval return the cyc buffer size
 */
 static T_S32 GetBufferSize( T_pVOID pthis )
-{	
+{
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_S32 ret = 0;
-	
+
 	Condition_Lock( handle->mDataCon );
 	ret = handle->mBufferSize;
 	Condition_Unlock( handle->mDataCon );
-	
 	return ret;
 }
 
@@ -700,16 +672,15 @@ static T_BOOL IsEmpty( T_pVOID pthis )
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_BOOL bRet = AK_FALSE;
-	
 	Condition_Lock( handle->mDataCon );
 
 	if ( !(handle->mPushComplete) ) {
 		return AK_FALSE;
 	}
-	
+
 	bRet = (handle->mUseSize == 0) ? AK_TRUE : AK_FALSE;
 	Condition_Unlock( handle->mDataCon );
-	
+
 	return bRet;
 }
 
@@ -728,13 +699,12 @@ static T_S32 GetIdleSize( T_pVOID pthis )
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_S32 ret = 0;
-	
+
 	Condition_Lock( handle->mDataCon );
 	ret = handle->mBufferSize - handle->mUseSize;
 	Condition_Unlock( handle->mDataCon );
-	
 	return ret;
-	
+
 }
 
 
@@ -752,7 +722,7 @@ static T_S32 GetUsedSize( T_pVOID pthis )
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
 	T_S32 ret = 0;
-	
+
 	Condition_Lock( handle->mDataCon );
 	ret = handle->mUseSize;
 	Condition_Unlock( handle->mDataCon );
@@ -774,13 +744,13 @@ static T_S32 Clean( T_pVOID pthis )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
+
 	Condition_Lock( handle->mDataCon );
 	if ( handle->mUseSize == 0 ) {
 		Condition_Unlock( handle->mDataCon );
 		return 0;
 	}
-	
+
 	//复位read write指针
 	handle->mRead = handle->mWrite = handle->mCycBuffer;
 	handle->mUseSize = 0;
@@ -805,7 +775,6 @@ static T_S32 FakePushFull( T_pVOID pthis )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	Condition_Lock( handle->mDataCon );
 	if ( handle->mUseSize == handle->mBufferSize ) {
 		Condition_Unlock( handle->mDataCon );
@@ -835,7 +804,6 @@ static T_S32 ForceQuit( T_pVOID pthis )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	Condition_Lock( handle->mDataCon );
 
 	handle->mForceQuit = AK_TRUE;
@@ -844,14 +812,14 @@ static T_S32 ForceQuit( T_pVOID pthis )
 	//Condition_Broadcast( &(handle->mWaitForPopCon) );
 	Condition_Broadcast( &(handle->mDataCon) );
 	Condition_Unlock( handle->mDataCon );
-	
+
 	return 0;
 }
 
 
 /**
 * @brief   call this function to resume the force quit state. If you call
-* ForceQuit before, and then you want to push or pop again, please 
+* ForceQuit before, and then you want to push or pop again, please
 * call this function first.
 *
 * @author hankejia
@@ -864,7 +832,6 @@ static T_S32 ResumeForceQuitState( T_pVOID pthis )
 {
 	CCycBuffer *this = ( CCycBuffer * )pthis;
 	CycBuffer_handle * handle = (CycBuffer_handle *)this->handle;
-	
 	Condition_Lock( handle->mDataCon );
 	handle->mForceQuit = AK_FALSE;
 	Condition_Unlock( handle->mDataCon );
@@ -893,7 +860,6 @@ static T_CHR * PopSingle( T_pVOID pthis, T_S32 iSize )
 	while ( ( handle->mUseSize < iSize ) && ( !(handle->mForceQuit) ) ) {
 		//Condition_Unlock( handle->mDataCon );
 		Condition_Unlock( handle->mWriteDataCon );
-		
 		//logi( "PopSingle buffer empty!\n" );
 		Condition_Wait( &(handle->mDataCon) );
 		//logi( "wake up from push signed!\n" );
@@ -941,5 +907,3 @@ REGISTER_FUN( FakePushFull, FakePushFull )
 REGISTER_FUN_END( CCycBuffer )
 
 REGISTER_SIMULATE_CLASS_C( CCycBuffer )
-
-

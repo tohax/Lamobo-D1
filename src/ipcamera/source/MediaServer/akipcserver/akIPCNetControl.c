@@ -111,13 +111,12 @@ int startNetCtlServer(NetCtlSrvPar* ncsp)
 		//memset(priAreaSave + i, 0, sizeof(PRIVACY_AREA));
 		priAreaSave[i].nNumber = i + 1;
 	}
-#endif	
+#endif
 	if( IniSetting_aki() < 0 )
 	{
 		printf("Init OCC fail \n");
 		return -1;
 	}
-	
 	struct isp_info *isp = IniSetting_GetispInfo();
 	if(isp == NULL)
 		printf("read isp err \n");
@@ -137,26 +136,25 @@ int startNetCtlServer(NetCtlSrvPar* ncsp)
 	srvInfoSave.stImageSet.nBrightness = atoi(isp->nBrightness);
 
 	IniSetting_akidestroy();
-	
 	pthread_attr_t SchedAttr;
 	pthread_t ntid;
 	struct sched_param	SchedParam;
 	memset(&SchedAttr, 0, sizeof(pthread_attr_t));
-	memset(&SchedParam, 0, sizeof(SchedParam));					
-	pthread_attr_init( &SchedAttr );				
-	SchedParam.sched_priority = 60;	
+	memset(&SchedParam, 0, sizeof(SchedParam));
+	pthread_attr_init( &SchedAttr );
+	SchedParam.sched_priority = 60;
 	pthread_attr_setschedparam( &SchedAttr, &SchedParam );
 	pthread_attr_setschedpolicy( &SchedAttr, SCHED_RR );
 	if ( ( ret = pthread_create( &ntid, &SchedAttr, process_thread, (void*)&fd) ) != 0 ) {
 		pthread_attr_destroy(&SchedAttr);
 		printf( "unable to create a thread for read data ret = %d!\n", ret );
-		return -1;	
+		return -1;
 	}
 #if 1
 	if ( ( ret = pthread_create( &ntid, &SchedAttr, audio_rec_thread, (void*)&fd) ) != 0 ) {
 		pthread_attr_destroy(&SchedAttr);
 		printf( "unable to create a thread for read data ret = %d!\n", ret );
-		return -1;	
+		return -1;
 	}
 
 	pthread_create( &ntid, &SchedAttr, audio_write_thread, NULL);
@@ -178,30 +176,26 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 	}
 	unsigned char* pbuf = buf;
 	int structsize = 0;
-	
 	structsize = sizeof(SYSTEM_HEADER);
 	printf("structsize:%d\n", structsize);
 	if(nlen < structsize)
 	{
 		printf("system header error\n");
-		return -1;	
+		return -1;
 	}
-	
 	/*SYSTEM_HEADER* psysHeader = (SYSTEM_HEADER*)pbuf*/;
 	pbuf += structsize;
 	nlen -= structsize;
-	
 	structsize = sizeof(COMMAND_HEADER);
 	printf("cmd structsize:%d\n", structsize);
 	if(nlen < structsize)
 	{
 		printf("command header error\n");
-		return -1;	
+		return -1;
 	}
 	COMMAND_HEADER* pcmdHeader = (COMMAND_HEADER*)pbuf;
 	pbuf += structsize;
 	nlen -= structsize;
-	
 	switch(pcmdHeader->CommandType)
 	{
 		case COMM_TYPE_OPEN_SERVICE:
@@ -215,7 +209,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set Talk error\n");
-					return -1;	
+					return -1;
 				}
 				AUDIOPARAMETER* TalkSet = (AUDIOPARAMETER*)pbuf;
 				pbuf += structsize;
@@ -230,7 +224,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set MotionSet error\n");
-					return -1;	
+					return -1;
 				}
 				MOTION_DETECT* MotionSet = (MOTION_DETECT*)pbuf;
 				pbuf += structsize;
@@ -242,7 +236,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				return -1;
 		}
 		break;
-		
+
 		case COMM_TYPE_SET_PARAMETER:
 		switch(pcmdHeader->subCommandType)
 		{
@@ -251,7 +245,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set image net recv error\n");
-					return -1;	
+					return -1;
 				}
 				IMAGE_SET* pimgSet = (IMAGE_SET*)pbuf;
 				pbuf += structsize;
@@ -259,7 +253,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				handleSetImage(pimgSet);
 				break;
 			case SET_COMM_ISP:
-				
+
 				handleSetIsp(*fd, pbuf, pcmdHeader->nLen);
 				break;
 			case SET_COMM_PRIVACY_AREA:
@@ -267,20 +261,19 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set privacyarea net recv error\n");
-					return -1;	
+					return -1;
 				}
 				PRIVACY_AREA* pPriArea = (PRIVACY_AREA*)pbuf;
 				pbuf += structsize;
 				nlen -= structsize;
 				handleSetPrivacyArea(*fd, pPriArea);
 				break;
-			
 			case SET_COMM_ZOOM:
 				structsize = sizeof(ZOOM);
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set zoom net recv error\n");
-					return -1;	
+					return -1;
 				}
 				ZOOM* pZoom = (ZOOM*)pbuf;
 				pbuf += structsize;
@@ -292,7 +285,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set volume recverror\n");
-					return -1;	
+					return -1;
 				}
 				VOLUME* pVolume = (VOLUME*)pbuf;
 				pbuf += structsize;
@@ -306,9 +299,9 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("set camera movement recv error\n");
-					return -1;	
+					return -1;
 				}
-				
+
 				unsigned char utmp = *pbuf;
 				CAMERA_MOVEMENT_TYPE movement= (CAMERA_MOVEMENT_TYPE)utmp;
 				//CAMERA_MOVEMENT_TYPE* pmovement = (CAMERA_MOVEMENT_TYPE*)(unsigned char*)pbuf;
@@ -318,7 +311,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				break;
 			default:
 				printf("comm type set parameter error\n");
-				return -1;	
+				return -1;
 		}
 		break;
 		case COMM_TYPE_GET_INFO:
@@ -332,12 +325,11 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("get server info recv error\n");
-					return -1;	
+					return -1;
 				}
 				TIME_INFO* pTimeInfo = (TIME_INFO*)pbuf;
 				pbuf += structsize;
 				nlen -= structsize;
-				
 				handleGetSrvInfo(*fd, addr, pTimeInfo);
 				break;
 			case GET_COMM_PRIVACY_AREA:
@@ -356,7 +348,7 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				if(nlen < structsize || pcmdHeader->nLen != structsize)
 				{
 					printf("get isp info rece error\n");
-					return -1;		
+					return -1;
 				}
 				int nIspType = *(int*)pbuf;
 				pbuf += structsize;
@@ -366,14 +358,13 @@ int parseAndHandleCMD(int* fd, struct sockaddr* addr, void* buf, unsigned int nl
 				break;
 			default:
 				printf("comm type get info error\n");
-				return -1;	
+				return -1;
 		}
 		break;
 		default:
 			printf("command type error\n");
-			return -1;	
+			return -1;
 	}
-	
 	return 0;
 }
 
@@ -389,7 +380,7 @@ void* process_thread(void* param)
 	int ret;
 	int i;
 
-	//udp listen broadcast 
+	//udp listen broadcast
 	udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct sockaddr_in dest_addr;
 	bzero(&dest_addr, sizeof(dest_addr));
@@ -405,30 +396,29 @@ void* process_thread(void* param)
 
 
 	//tcp listen client
-	if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+	if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("socket");
 		return NULL;
 	}
 
-	if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) 
+	if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 	{
 		perror("setsockopt");
 		return NULL;
 	}
-    
 	server_addr.sin_family = AF_INET;         // host byte order
 	server_addr.sin_port = htons(TCPLISTENPORT);     // short, network byte order
 	server_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
 	memset(server_addr.sin_zero, '\0', sizeof(server_addr.sin_zero));
 
-	if (bind(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) 
+	if (bind(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
 	{
 		perror("bind");
 		return NULL;
 	}
 
-	if (listen(sock_fd, MAXCLIENT) == -1) 
+	if (listen(sock_fd, MAXCLIENT) == -1)
 	{
 		perror("listen");
 		return NULL;
@@ -443,7 +433,7 @@ void* process_thread(void* param)
 	conn_amount = 0;
 	sin_size = sizeof(client_addr);
 	maxsock = (sock_fd > udp_fd) ? sock_fd:udp_fd;
-	while (1) 
+	while (1)
 	{
 		if(startflag == 0)
 			break;
@@ -457,41 +447,41 @@ void* process_thread(void* param)
 		tv.tv_usec = 0;
 
 		// add active connection to fd set
-		for (i = 0; i < MAXCLIENT; i++) 
+		for (i = 0; i < MAXCLIENT; i++)
 		{
-			if (clients[i].fd != 0) 
+			if (clients[i].fd != 0)
 			{
 				FD_SET(clients[i].fd, &fdsr);
 			}
 		}
 
 		ret = select(maxsock + 1, &fdsr, NULL, NULL, &tv);
-		if (ret < 0) 
+		if (ret < 0)
 		{
 			perror("select");
 			break;
-		} 
-		else if (ret == 0) 
+		}
+		else if (ret == 0)
 		{
 			continue;
 		}
 
 		// check every fd in the set
-		for (i = 0; i < MAXCLIENT; i++) 
+		for (i = 0; i < MAXCLIENT; i++)
 		{
 			if (FD_ISSET(clients[i].fd, &fdsr))
 			{
 				ret = recv(clients[i].fd, buf, sizeof(buf), 0);
-				if (ret <= 0) 
-				{        
+				if (ret <= 0)
+				{
 					// client close
 					printf("client[%d] close\n", i);
 					close(clients[i].fd);
 					FD_CLR(clients[i].fd, &fdsr);
 					clients[i].fd = 0;
 					conn_amount --;
-				} 
-				else 
+				}
+				else
 				{   // receive data
 					if (ret < BUFLEN)
 						memset(&buf[ret], '\0', 1);
@@ -510,16 +500,16 @@ void* process_thread(void* param)
 		}
 
     // check whether a new connection comes
-		if (FD_ISSET(sock_fd, &fdsr)) 
+		if (FD_ISSET(sock_fd, &fdsr))
 		{
 			new_fd = accept(sock_fd, (struct sockaddr *)&client_addr, &sin_size);
-			if (new_fd <= 0) 
+			if (new_fd <= 0)
 			{
 				perror("accept");
 				continue;
 			}
 			// add to fd queue
-			if (conn_amount < MAXCLIENT) 
+			if (conn_amount < MAXCLIENT)
 			{
 				for(i = 0;i < MAXCLIENT;i++)
 				{
@@ -528,17 +518,16 @@ void* process_thread(void* param)
 						clients[i].fd = new_fd;
 						memcpy(&clients[i].addr, &client_addr, sizeof(client_addr));
 						break;
-					}		
+					}
 				}
 				conn_amount++;
 
 				printf("new connection client[%d] %s:%u\n", i,
 		                (char*)inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-		
 				if (new_fd > maxsock)
 					maxsock = new_fd;
 			}
-			else 
+			else
 			{
 				printf("*****max connections arrive, refuse\n");
 				//send(new_fd, "bye", 4, 0);
@@ -552,7 +541,6 @@ void* process_thread(void* param)
 		if (FD_ISSET(udp_fd, &fdsr))
 		{
 			ret = recvfrom(udp_fd, buf, BUFLEN, 0, (struct sockaddr*)&dest_addr, &addrlen);
-		
 			if(ret < 0)
 			{
 				perror("recvfrom");
@@ -574,9 +562,9 @@ void* process_thread(void* param)
 	}
 
 	// close other connections
-	for (i = 0; i < MAXCLIENT; i++) 
+	for (i = 0; i < MAXCLIENT; i++)
 	{
-		if (clients[i].fd != 0) 
+		if (clients[i].fd != 0)
 		{
 			close(clients[i].fd);
 			clients[i].fd = 0;
@@ -612,7 +600,6 @@ int handleGetSrvInfo(int fd, struct sockaddr* addr, TIME_INFO* tInfo)
 	CON_SYSTEM_TAG(SYSTEM_TAG, &sysHeader.nSystemTag);
 	sysHeader.nCommandCnt = 1;
 	sysHeader.nLen = sizeof(SERVER_INFO) + sizeof(COMMAND_HEADER);
-	
 	COMMAND_HEADER cmdHeader;
 	cmdHeader.CommandType = COMM_TYPE_GET_INFO;
 	cmdHeader.subCommandType = GET_COMM_SERVER_INFO;
@@ -631,7 +618,6 @@ int handleGetSrvInfo(int fd, struct sockaddr* addr, TIME_INFO* tInfo)
 		printf("Init OCC fail \n");
 		return -1;
 	}
-	
 	struct isp_info *isp = IniSetting_GetispInfo();
 	if(isp == NULL)
 		printf("read isp err \n");
@@ -645,10 +631,10 @@ int handleGetSrvInfo(int fd, struct sockaddr* addr, TIME_INFO* tInfo)
 		{
 			if(clients[i].fd == fd)
 			{
-				break;	
-			}	
+				break;
+			}
 		}
-		
+
 		srvInfoSave.stImageSet.nContrast = 255;
 		srvInfoSave.stImageSet.nSaturation = 255;
 		srvInfoSave.stImageSet.nBrightness = 255;
@@ -675,16 +661,16 @@ int handleGetSrvInfo(int fd, struct sockaddr* addr, TIME_INFO* tInfo)
 			printf("send error\n");
 			return -1;
 		}
-			
+
 		nSend -= ret;
 		pbuf += ret;
 	}
-		
+
 	if(i >=0 && i < MAXCLIENT)
 	{
 		close(clients[i].fd);
 		clients[i].fd = 0;
-		conn_amount --;	
+		conn_amount --;
 		printf("max connections arrive, refuse\n");
 	}
 	return 0;
@@ -729,13 +715,13 @@ int handleGetMotionDetectAreas(int fd)
 			printf("send error\n");
 			return -1;
 		}
-			
+
 		nSend -= ret;
 		pbuf += ret;
 	}
 	return 0;
 
-	
+
 }
 int handleGetPriArea(int fd)
 {
@@ -744,19 +730,15 @@ int handleGetPriArea(int fd)
 	CON_SYSTEM_TAG(SYSTEM_TAG, &sysHeader.nSystemTag);
 	sysHeader.nCommandCnt = 4;
 	sysHeader.nLen = sizeof(PRIVACY_AREA) + sizeof(COMMAND_HEADER) * sysHeader.nCommandCnt;
-	
 	COMMAND_HEADER cmdHeader;
 	cmdHeader.CommandType = COMM_TYPE_GET_INFO;
 	cmdHeader.subCommandType = GET_COMM_PRIVACY_AREA;
 	cmdHeader.nLen = sizeof(PRIVACY_AREA);
 	unsigned char buf[BUFLEN];
-	
 	int nSend = 0;
 	memset(buf, 0, BUFLEN);
-	
 	memcpy(buf, &sysHeader, sizeof(sysHeader));
 	nSend += sizeof(sysHeader);
-	
 	for(int i = 0; i < sysHeader.nCommandCnt; i ++)
 	{
 		memcpy(buf + nSend, &cmdHeader, sizeof(cmdHeader));
@@ -764,7 +746,6 @@ int handleGetPriArea(int fd)
 		memcpy(buf + nSend, priAreaSave + i, sizeof(srvInfoSave));
 		nSend += sizeof(PRIVACY_AREA);
 	}
-	
 	int ret;
 	unsigned char* pbuf = buf;
 	while(nSend > 0)
@@ -775,7 +756,6 @@ int handleGetPriArea(int fd)
 			printf("send error\n");
 			return -1;
 		}
-			
 		nSend -= ret;
 		pbuf += ret;
 	}
@@ -793,25 +773,19 @@ static int handleGetIspInfo_awb(int fd)
 		CON_SYSTEM_TAG(SYSTEM_TAG, &sysHeader.nSystemTag);
 		sysHeader.nCommandCnt = 1;
 		sysHeader.nLen = awbbuflen + sizeof(COMMAND_HEADER) * sysHeader.nCommandCnt;
-	
 		COMMAND_HEADER cmdHeader;
 		cmdHeader.CommandType = COMM_TYPE_GET_INFO;
 		cmdHeader.subCommandType = GET_COMM_ISP_INFO;
 		cmdHeader.nLen = awbbuflen;
 		unsigned char buf[BUFLEN];
-	
 		int nSend = 0;
 		memset(buf, 0, BUFLEN);
-	
 		memcpy(buf, &sysHeader, sizeof(sysHeader));
 		nSend += sizeof(sysHeader);
-			
 		memcpy(buf + nSend, &cmdHeader, sizeof(cmdHeader));
 		nSend += sizeof(cmdHeader);
-				
 		memcpy(buf + nSend, awbbuf, awbbuflen);
 		nSend += awbbuflen;
-	
 		int ret;
 		unsigned char* pbuf = buf;
 		while(nSend > 0)
@@ -822,7 +796,6 @@ static int handleGetIspInfo_awb(int fd)
 				printf("send error\n");
 				return -1;
 			}
-			
 			nSend -= ret;
 			pbuf += ret;
 		}
@@ -837,16 +810,13 @@ static int sendFileList(int fd, unsigned char* filebuf, int buflen)
 	CON_SYSTEM_TAG(SYSTEM_TAG, &sysHeader.nSystemTag);
 	sysHeader.nCommandCnt = 1;
 	sysHeader.nLen = buflen + sizeof(COMMAND_HEADER) * sysHeader.nCommandCnt;
-	
 	COMMAND_HEADER cmdHeader;
 	cmdHeader.CommandType = COMM_TYPE_GET_INFO;
 	cmdHeader.subCommandType = GET_COMM_FILES_LIST;
 	cmdHeader.nLen = buflen;
-	
 	unsigned char buf[BUFLEN];
 	int nSend = 0;
 	memset(buf, 0, BUFLEN);
-	
 	memcpy(buf, &sysHeader, sizeof(sysHeader));
 	nSend += sizeof(sysHeader);
 
@@ -855,7 +825,6 @@ static int sendFileList(int fd, unsigned char* filebuf, int buflen)
 
 	memcpy(buf + nSend, filebuf, buflen);
 	nSend += buflen;
-	
 	int ret;
 	unsigned char* pbuf = buf;
 	while(nSend > 0)
@@ -866,11 +835,9 @@ static int sendFileList(int fd, unsigned char* filebuf, int buflen)
 			printf("send error\n");
 			return -1;
 		}
-			
 		nSend -= ret;
 		pbuf += ret;
 	}
-	
 	return 0;
 }
 
@@ -878,10 +845,10 @@ int handleGetFilesList(int fd)
 {
 	printf("%s\n", __func__);
 	DIR 			*dirp = NULL;
-	struct dirent 	*direntp = NULL; 
+	struct dirent 	*direntp = NULL;
 	char* pstrRecPath = "/mnt";
 	char* pstrRecPathT = "mnt";
-	if( ( dirp = opendir(pstrRecPath) ) == NULL ) {  
+	if( ( dirp = opendir(pstrRecPath) ) == NULL ) {
 		printf( "Open Directory %s Error: %s\n", pstrRecPath, strerror(errno) );
 		return -1;
 	}
@@ -890,7 +857,6 @@ int handleGetFilesList(int fd)
 	const int maxfilecount = 20;
 	int filecount = 0;
 	int buflen = 0;
-	
 	sprintf((char*)filenamebuf, "[%s];", pstrRecPathT);
 	buflen = strlen((const char*)filenamebuf);
 	while ( ( direntp = readdir( dirp ) ) != NULL )
@@ -898,8 +864,7 @@ int handleGetFilesList(int fd)
 		if ( direntp->d_name == NULL ) {
 			continue;
 		}
-		
-		if ( !( strcmp( direntp->d_name, "." ) ) || 
+		if ( !( strcmp( direntp->d_name, "." ) ) ||
 			 !( strcmp( direntp->d_name, ".." ) )/* ||
 			 !( strcmp( direntp->d_name, SIGN_FILE_NAME ) )*/ ) {
 			continue;
@@ -912,20 +877,18 @@ int handleGetFilesList(int fd)
 		buflen += strlen(direntp->d_name);
 		filenamebuf[buflen] = ';';
 		buflen ++;
-		
 		filecount ++;
 		if(filecount == maxfilecount)
 		{
 			filecount = 0;
 			if(sendFileList(fd, filenamebuf, buflen) < 0)
 			{
-				break;	
+				break;
 			}
 			sprintf((char*)filenamebuf, "[%s];", pstrRecPathT);
 			buflen = strlen((const char*)filenamebuf);
 		}
 	}
-	
 	if(filecount != 0)
 	{
 		sendFileList(fd, filenamebuf, buflen);
@@ -960,10 +923,8 @@ int handleCloseTalk(int fd)
 
 
 	unsigned char buf[BUFLEN];
-	
 	int nSend = 0;
 	memset(buf, 0, BUFLEN);
-	
 	memcpy(buf, &sysHeader, sizeof(sysHeader));
 	nSend += sizeof(sysHeader);
 
@@ -983,21 +944,18 @@ int handleCloseTalk(int fd)
 			printf("send error\n");
 			return -1;
 		}
-			
 		nSend -= ret;
 		pbuf += ret;
 	}
 	return 0;
-	
 }
 
 //extern T_MUX_INPUT mux_input;
-extern int Recordflag; 
+extern int Recordflag;
 
 int handleOpenRecord()
 {
 	printf("%s\n", __func__);
-	
 	if (Recordflag == 0)
 	{
 		if (check_sdcard() < 0)
@@ -1005,10 +963,8 @@ int handleOpenRecord()
 			printf("no sd card \n");
 			return -1;
 		}
-		
 		start_record(1);
 	}
-	
 	return 0;
 }
 
@@ -1020,7 +976,7 @@ int handleOpenTalk(AUDIOPARAMETER * audiopara, int fd)
 	if(thread_num > 0 && audiopara->nChannels == 0)
 	{
 		Closeaec();
-		printf("@@@@encode type =%d, channel =%d sample =%d samplefmt =%d\n", 
+		printf("@@@@encode type =%d, channel =%d sample =%d samplefmt =%d\n",
 			audiopara->nEncodeType, audiopara->nChannels, audiopara->nSampleRateType, audiopara->nSampleFmt);
 		deocde_exit	= 1;
 		audio_fd = 0;
@@ -1032,7 +988,7 @@ int handleOpenTalk(AUDIOPARAMETER * audiopara, int fd)
 		usleep(10000);
 	}
 	cmd_fd = fd;
-	printf("encode type =%d, channel =%d sample =%d samplefmt =%d\n", 
+	printf("encode type =%d, channel =%d sample =%d samplefmt =%d\n",
 			audiopara->nEncodeType, audiopara->nChannels, audiopara->nSampleRateType, audiopara->nSampleFmt);
 	switch(audiopara->nEncodeType)
 	{
@@ -1041,7 +997,6 @@ int handleOpenTalk(AUDIOPARAMETER * audiopara, int fd)
 			break;
 		default:
 			type = _SD_MEDIA_TYPE_AAC;
-			
 	}
 	Channels = audiopara->nChannels;
 	switch(audiopara->nSampleRateType)
@@ -1093,7 +1048,6 @@ void InitMotionDetect( void )
 		printf("Init OCC fail \n");
 		return;
 	}
-	
 	struct md_info * md = IniSetting_GetmdInfo();
 	if(NULL == md)
 	{
@@ -1108,7 +1062,6 @@ void InitMotionDetect( void )
 	g_motion_detect.nReserve = 0;
 
 //	IniSetting_akidestroy();
-	
 	if( 1 == atoi(md->on))
 	{
 		handleOpenMotionDetect( &g_motion_detect );
@@ -1117,9 +1070,7 @@ void InitMotionDetect( void )
 //	printf("%d \n", atoi(md->nSensitivity));
 //	printf("%d \n", atoi(md->on));
 
-	
 }
-	
 
 int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 {
@@ -1152,7 +1103,6 @@ int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 	}
 	else
 		 on = 1;
-	
 	sprintf(md->matrix_high, "%d", matrix_high);
 	printf("%s\n", md->matrix_high);
 	sprintf(md->matrix_low, "%d", matrix_low);
@@ -1162,7 +1112,6 @@ int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 	sprintf(md->on, "%d", on);
 	printf("%s\n", md->on);
 	IniSetting_akisave();
-	
 //	IniSetting_akidestroy();
 
 	if ((matrix_low | matrix_high) == 0)
@@ -1181,9 +1130,8 @@ int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 		CloseMotionDetect();
 		usleep(35000);
 	}
-#endif	
+#endif
 
-	
 	switch (MotionSet->nSensitivity)
 	{
 	case 6:
@@ -1218,9 +1166,7 @@ int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 
 	printf("0x%x, ", matrix_low);
 	printf("0x%x\n\n", matrix_high);
-	
 
-	
 	for (int i = 1; i < RATIO_NUM; i++)
 	{
 		if( matrix & 0x1 )
@@ -1233,16 +1179,14 @@ int handleOpenMotionDetect(MOTION_DETECT* MotionSet)
 			ratios[i] = DEF_RATIO;
 			// printf(".");
 		}
-		
+
 		// if (i%8 == 0)
 		// 	printf("\n");
-		
+
 		matrix >>= 1;
 	}
-	
 	OpenMotionDetect(parse.width, parse.height, ratios);
 	g_InitMotion = 1;
-	
 	return 0;
 }
 
@@ -1284,7 +1228,7 @@ int handleSetIsp(int fd, unsigned char *pbuf, int nlen)
 	printf("%s\n", __func__);
 	printf("datalneg = %d \n", nlen);
 	for(int i = 0; i< nlen; i++)
-	{	
+	{
 		printf(" %d", *(pbuf+i));
 	}
 	printf("\n");
@@ -1299,7 +1243,7 @@ int handleSetPrivacyArea(int fd, PRIVACY_AREA* priArea)
 		return -1;
 	printf("Num:%u,LTX:%u,LTY:%u,Wid:%u,Hei:%u\n",\
 	priArea->nNumber,priArea->nLeftTopX,priArea->nLeftTopY,priArea->nWidth,priArea->nHeight);
-	
+
 	if(priArea->nNumber == 0)
 	{
 		//clear all
@@ -1314,7 +1258,7 @@ int handleSetPrivacyArea(int fd, PRIVACY_AREA* priArea)
 				//then set it
 				int endx = priAreaSave[i].nLeftTopX + priAreaSave[i].nWidth;
 				int endy = priAreaSave[i].nLeftTopY +priAreaSave[i].nHeight;
-				if(priAreaSave[i].nLeftTopX == 0 && 
+				if(priAreaSave[i].nLeftTopX == 0 &&
 					priAreaSave[i].nLeftTopY == 0 &&
 					priAreaSave[i].nWidth == 0 &&
 					priAreaSave[i].nHeight == 0)
@@ -1327,8 +1271,8 @@ int handleSetPrivacyArea(int fd, PRIVACY_AREA* priArea)
 					SetOcc(priAreaSave[i].nNumber, priAreaSave[i].nLeftTopX, priAreaSave[i].nLeftTopY, endx, endy, 1);
 					SaveOcc(priAreaSave[i].nNumber, priAreaSave[i].nLeftTopX, priAreaSave[i].nLeftTopY, endx, endy, 1);
 				}
-				break;	
-			}	
+				break;
+			}
 		}
 	}
 	return 0;
@@ -1340,7 +1284,7 @@ int handleSetZoom(ZOOM* zm)
 	printf("%s\n", __func__);
 	if(zm == NULL)
 		return -1;
-		
+
 	printf("zoom:%u\n", *zm);
 	Set_Zoom( *zm );
 	return 0;
@@ -1351,7 +1295,7 @@ int handleSetVolume(VOLUME* vol)
 	printf("%s\n", __func__);
 	if(vol == NULL)
 		return -1;
-	
+
 	printf("volume:%u\n", *vol);
 	int volume = GetAudioMicVolume();
 	printf( "%d \n", volume );
@@ -1430,30 +1374,30 @@ void* audio_rec_thread(void* param)
     //int i;
 
 	//tcp listen client
-    if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+    if ((sock_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
         perror("socket");
         return NULL;
     }
 
-    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) 
+    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 	{
         perror("setsockopt");
         return NULL;
     }
-    
+
     server_addr.sin_family = AF_INET;         // host byte order
     server_addr.sin_port = htons(AUDIOLISTENPORT);     // short, network byte order
     server_addr.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
     memset(server_addr.sin_zero, '\0', sizeof(server_addr.sin_zero));
 
-    if (bind(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) 
+    if (bind(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
 	{
         perror("bind");
         return NULL;
     }
 
-    if (listen(sock_fd, 2) == -1) 
+    if (listen(sock_fd, 2) == -1)
 	{
         perror("listen");
         return NULL;
@@ -1496,14 +1440,14 @@ void* audio_rec_thread(void* param)
     conn_amount = 0;
     sin_size = sizeof(client_addr);
     maxsock =  sock_fd;
-	while (1) 
+	while (1)
 	{
 
        	// check whether a new connection comes
 #if 1
 			printf("accept net \n ");
             new_fd = accept(sock_fd, (struct sockaddr *)&client_addr, &sin_size);
-            if (new_fd <= 0) 
+            if (new_fd <= 0)
 			{
                 perror("accept");
                 continue;
@@ -1528,24 +1472,24 @@ void* audio_rec_thread(void* param)
 			//pthread_t ntid;
 			struct sched_param	SchedParam;
 			memset(&SchedAttr, 0, sizeof(pthread_attr_t));
-			memset(&SchedParam, 0, sizeof(SchedParam));					
-			pthread_attr_init( &SchedAttr );				
-			SchedParam.sched_priority = 60;	
+			memset(&SchedParam, 0, sizeof(SchedParam));
+			pthread_attr_init( &SchedAttr );
+			SchedParam.sched_priority = 60;
 			pthread_attr_setschedparam( &SchedAttr, &SchedParam );
 			pthread_attr_setschedpolicy( &SchedAttr, SCHED_RR );
 			{
 				pthread_t ntid;
-				if ( ( ret = pthread_create( &ntid, &SchedAttr, audio_dec_thread, NULL) ) != 0 ) 
+				if ( ( ret = pthread_create( &ntid, &SchedAttr, audio_dec_thread, NULL) ) != 0 )
 				{
 					printf( "unable to create a thread for read data ret = %d!\n", ret );
-					return /*-1*/ NULL;	
+					return /*-1*/ NULL;
 				}
 			}
 			pthread_attr_destroy(&SchedAttr);
 			printf("newfd is %d \n", new_fd);
 
 #endif
-		
+
     }
 
 
@@ -1567,17 +1511,12 @@ static T_S32 OpenSDFilter( int nChannels, int nActuallySR, int nSampleRate )
 	s_ininfo.cb_fun.Malloc = (MEDIALIB_CALLBACK_FUN_MALLOC)malloc;
 	s_ininfo.cb_fun.Free = (MEDIALIB_CALLBACK_FUN_FREE)free;
 	s_ininfo.cb_fun.printf = (MEDIALIB_CALLBACK_FUN_PRINTF)printf;
-
-	
 	s_ininfo.m_info.m_BitsPerSample = 16;
-
-	
 	s_ininfo.m_info.m_Channels = nChannels;
 	s_ininfo.m_info.m_SampleRate = nActuallySR; //我们ADC的实际采样率
-
 	s_ininfo.m_info.m_Type = _SD_FILTER_RESAMPLE;
 	s_ininfo.m_info.m_Private.m_resample.maxinputlen = 0;
-	s_ininfo.m_info.m_Private.m_resample.outSrindex = 0; 
+	s_ininfo.m_info.m_Private.m_resample.outSrindex = 0;
 	s_ininfo.m_info.m_Private.m_resample.outSrFree = nSampleRate; // 需要转换成的采样率
 	s_ininfo.m_info.m_Private.m_resample.reSampleArithmetic = RESAMPLE_ARITHMETIC_1; //1是新算法，比较省内存；0是老算法，比较耗内存。
 
@@ -1597,7 +1536,6 @@ void* audio_dec_thread(void* param)
 	int size = 0;
 	int fd = audio_fd;
 
-	
 	printf("audio_dec_thread run \n");
 	char * netbuf = (char *) malloc(2048);
 	if(NULL == netbuf)
@@ -1605,7 +1543,6 @@ void* audio_dec_thread(void* param)
 		printf("malloc buf failed \n");
 		return NULL;
 	}
-	
 	thread_num++;
 	printf("recv data num %d\n", thread_num);
 	while(thread_num >= 2)
@@ -1617,10 +1554,10 @@ void* audio_dec_thread(void* param)
 	printf("Channels = 0 \n");
 	while(media.m_nChannels == 0)
 	{
-		
+
 		usleep(1000);
 	}
-#if 1	
+#if 1
 	ret = stAlsaModule.OpenDA(&stAlsaHandle, NULL);
 	if ( ret < 0 ) {
 		printf( "StartRec::can't open AD!\n" );
@@ -1650,7 +1587,6 @@ void* audio_dec_thread(void* param)
 	ret = recv( fd , netbuf, 512, 0);
 	//fd_set fdsr;
 
-	
 	while(1)
 	{
 		if(deocde_exit == 1)
@@ -1668,17 +1604,17 @@ void* audio_dec_thread(void* param)
 		{
 			ret = recv( fd , netbuf, size, 0);
 			//printf("read net data %d \n", ret);
-			
-			if (ret < 0) 
-			{        
+
+			if (ret < 0)
+			{
 				// client close
             	printf("audio_fd close\n" );
               	close(fd);
 				Closeaec();
-		    	break;	
-            } 
-			else 
-			{   
+		    	break;
+            }
+			else
+			{
 				if(ret <= size)
 					FillAudioData( netbuf, ret);
             }
@@ -1690,15 +1626,11 @@ void* audio_dec_thread(void* param)
 
 		//usleep(5000);
 	}
-	
 	decode_close();
-	
 	stAlsaModule.Close(&stAlsaHandle, AK_FALSE);
-
 	free(netbuf);
 	deocde_exit = 0;
 	thread_num--;
-	
 	return NULL;
 }
 
@@ -1742,7 +1674,7 @@ void *audio_write_thread(void *param)
 			}
 		#if 1
 			//双通道改单通道
-			for( i =0, j=0; i< size; i+=4) 
+			for( i =0, j=0; i< size; i+=4)
 			{
 				*(bata+j) = *(decbuf+i);
 				j++;
@@ -1756,7 +1688,7 @@ void *audio_write_thread(void *param)
 			fbuf_strc.len_in = size/2; // 这里指输入ibuf中的有效数据长度
 			fbuf_strc.len_out = 4096;	 // 这里指输出buffer 大小，库里面做判断用，防止写buffer越界。
 			nReSRDataLen = _SD_Filter_Control( pSdFilter, &fbuf_strc );
-#endif			
+#endif
 #if 0
 			//printf("decode size = %d \n", size );
 			short *tempbuf = (short *)decbuf;
@@ -1767,10 +1699,10 @@ void *audio_write_thread(void *param)
 	            temp = (temp * 1024) >> 10;
 	            tempbuf[i] = (short)temp;
 	        }
-#endif			
+#endif
 			if(size > 0)
 			{
-				
+
 				stAlsaModule.WriteDA(&stAlsaHandle, bata, (T_U32)nReSRDataLen);
 				//write(file_fd, bata, size/2);
 			}
@@ -1794,15 +1726,12 @@ void audio_dec_exit( void )
 	}
 #if 0
 	decode_close();
-	
+
 	stAlsaModule.Close(&stAlsaHandle, AK_FALSE);
 #endif
-	if ( pSdFilter ) 
+	if ( pSdFilter )
 	{
 		_SD_Filter_Close( pSdFilter );
 		pSdFilter = NULL;
 	}
 }
-
-
-

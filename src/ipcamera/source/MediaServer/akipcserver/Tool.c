@@ -10,12 +10,12 @@
 
 /**
 * @brief   judge the file or dir exists?
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pstrFilePath  file or dir is path.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 IsExists( T_pSTR pstrFilePath )
 {
@@ -31,20 +31,19 @@ T_S32 IsExists( T_pSTR pstrFilePath )
 
 /**
 * @brief   complete create the directory
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pstrRecPath  dir is path.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 CompleteCreateDirectory( T_pSTR pstrRecPath )
 {
 	T_S32 iRet = 0;
 	T_CHR *pstrTemp = NULL, *pszBackSlash = NULL;
-	
+
 	assert( pstrRecPath != NULL );
-	
 	T_pSTR pstrPath = (T_pSTR)malloc( ( strlen( pstrRecPath ) + 1 ) );
 	if ( NULL == pstrRecPath ) {
 		loge( "CompleteCreateDirectory::Out of memory!\n" );
@@ -59,7 +58,6 @@ T_S32 CompleteCreateDirectory( T_pSTR pstrRecPath )
 		pszBackSlash = strchr( pstrTemp + 1, '/' );
 		if ( NULL == pszBackSlash )
 			break;
-		
 		*pszBackSlash= '\0';
 
 		if ( IsExists( pstrPath ) ) {
@@ -82,7 +80,6 @@ T_S32 CompleteCreateDirectory( T_pSTR pstrRecPath )
 		loge( "CompleteCreateDirectory::can't complete create dir %s! error = %s!\n", pstrPath, strerror(errno) );
 		iRet = -1;
 	}
-	
 Exit:
 	free( pstrPath );
 	return iRet;
@@ -93,12 +90,12 @@ Exit:
 
 /**
 * @brief   get current is time, and convert to string
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param NONE
 * @return T_pSTR
-* @retval if return NULL failed, otherwise the time is string 
+* @retval if return NULL failed, otherwise the time is string
 */
 T_pSTR GetCurTimeStr()
 {
@@ -159,7 +156,7 @@ T_U32 GetCurTimeStampStr(struct tm *tnow, char * pstrTime)
 * @date 2012-07-05
 * @param NONE
 * @return struct tm *
-* @retval if return NULL failed, otherwise the current time 
+* @retval if return NULL failed, otherwise the current time
 */
 struct tm * GetCurTime()
 {
@@ -203,7 +200,6 @@ T_pSTR Unite2Str( T_pSTR str1, T_pSTR str2 )
 
 	strcpy( pstrDes, str1 );
 	strcat( pstrDes, str2 );
-	
 	return pstrDes;
 }
 
@@ -245,21 +241,18 @@ void delay_loop( unsigned long sec, unsigned long usec )
 * @date 2012-07-05
 * @param[in] pstrPath 	file path
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 FileOpen( T_pSTR pstrPath )
 {
 	mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
 	T_S32 fd = 0;
-	
 	assert( pstrPath );
-	
 	fd = open( pstrPath, O_LARGEFILE | O_RDWR | O_CREAT, mode );
 	if ( fd < 0 ) {
 		loge( "FileOpen::can't not open file %s! error = %s", pstrPath, strerror(errno) );
 		return -1;
 	}
-	
 	return fd;
 }
 
@@ -273,7 +266,7 @@ T_S32 FileOpen( T_pSTR pstrPath )
 * @param[in] pData 		the data will write to file
 * @param[in] nDataSize 	data size
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 WriteComplete( T_S32 fd, T_U8 * pData, T_U32 nDataSize )
 {
@@ -291,15 +284,12 @@ T_S32 WriteComplete( T_S32 fd, T_U8 * pData, T_U32 nDataSize )
 				delay_loop( 0, 1000 ); // 1ms delay
 				continue;
 			}
-			
 			loge( "WriteComplete::write file error! error = %s\n", strerror(errno) );
 			return -1;
 		} else {
 			sent += n;
 		}
-		
 	}while( sent < nDataSize );
-	
 	return 0;
 }
 
@@ -315,13 +305,12 @@ T_S32 WriteComplete( T_S32 fd, T_U8 * pData, T_U32 nDataSize )
 * @param[in] nlen 			lock len, lock data from whence to whence + nlen.
 * @param[in] time_ms 		time out ms
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 flock_set( T_S32 fd, T_U32 type, T_U32 whence, T_U32 nlen, T_U32 time_ms )
 {
 	struct flock lock;
 	T_U32 delay_ms_once = 10 * 1000UL, delay_ms = 0;
-	
 	lock.l_type = type;
 	lock.l_whence = whence;
 	lock.l_start = 0;
@@ -395,11 +384,9 @@ T_U32 ColorConvert_RgbToYuv(T_U32 color888)
 	T_U8 R = 0;
 	T_U8 G = 0;
 	T_U8 B = 0;
-    
 	T_U8 Y = 0;
 	T_U8 U = 0;
 	T_U8 V = 0;
-    
     B = (T_U8)color888;         // B
     G = (T_U8)(color888 >> 8);  // G
     R = (T_U8)(color888 >> 16); // R
@@ -412,7 +399,6 @@ T_U32 ColorConvert_RgbToYuv(T_U32 color888)
 T_S64 GetDiskSize( T_pSTR pstrRecPath )
 {
 	struct statfs disk_statfs;
-	
 	assert( pstrRecPath );
 
 	bzero( &disk_statfs, sizeof( struct statfs ) );
@@ -431,7 +417,6 @@ T_S64 GetDiskSize( T_pSTR pstrRecPath )
  T_S32 DiskFreeSize( T_pSTR pstrRecPath, T_S32 *f_bavail, T_S32 *f_bsize )
 {
 	struct statfs disk_statfs;
-	
 	assert( pstrRecPath );
 //	T_S64 disk_size;
 	bzero( &disk_statfs, sizeof( struct statfs ) );

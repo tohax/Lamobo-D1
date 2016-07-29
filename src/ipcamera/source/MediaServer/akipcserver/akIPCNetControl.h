@@ -7,7 +7,7 @@ extern "C"{
 #include <errno.h>
 #include <sys/socket.h>
 #include "IPCameraCommand.h"
-typedef struct 
+typedef struct
 {
 	char strDeviceID[32];
 	char strStreamName1[16];

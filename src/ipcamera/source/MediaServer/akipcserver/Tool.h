@@ -9,23 +9,23 @@ extern "C" {
 
 /**
 * @brief   judge the file or dir exists?
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pstrFilePath  file or dir is path.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 IsExists( T_pSTR pstrFilePath );
 
 /**
 * @brief   complete create the directory
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] pstrRecPath  dir is path.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 CompleteCreateDirectory(  T_pSTR pstrRecPath );
 
@@ -42,18 +42,18 @@ void delay_loop( unsigned long sec, unsigned long usec );
 
 /**
 * @brief   get current is time, and convert to string
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param NONE
 * @return T_pSTR
-* @retval if return NULL failed, otherwise the time is string 
+* @retval if return NULL failed, otherwise the time is string
 */
 T_pSTR GetCurTimeStr();
 
 /**
 * @brief   convert time to time string.
-* 
+*
 * @author wangxi
 * @date 2012-07-05
 * @param[in] tnow			time struct pointer
@@ -71,7 +71,7 @@ T_U32 GetCurTimeStampStr(struct tm *tnow, char * pstrTime);
 * @date 2012-07-05
 * @param NONE
 * @return struct tm *
-* @retval if return NULL failed, otherwise the current time 
+* @retval if return NULL failed, otherwise the current time
 */
 struct tm * GetCurTime();
 
@@ -94,7 +94,7 @@ T_pSTR Unite2Str( T_pSTR str1, T_pSTR str2 );
 * @date 2012-07-05
 * @param[in] pstrPath 	file path
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 FileOpen( T_pSTR pstrPath );
 
@@ -107,7 +107,7 @@ T_S32 FileOpen( T_pSTR pstrPath );
 * @param[in] pData 		the data will write to file
 * @param[in] nDataSize 	data size
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 WriteComplete( T_S32 fd, T_U8 * pData, T_U32 nDataSize );
 
@@ -122,7 +122,7 @@ T_S32 WriteComplete( T_S32 fd, T_U8 * pData, T_U32 nDataSize );
 * @param[in] nlen 			lock len, lock data from whence to whence + nlen.
 * @param[in] time_ms 		time out ms
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 flock_set( T_S32 fd, T_U32 type, T_U32 whence, T_U32 nlen, T_U32 time_ms );
 

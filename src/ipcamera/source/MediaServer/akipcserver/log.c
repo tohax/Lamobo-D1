@@ -41,16 +41,14 @@ T_VOID log_write(T_S32 level, T_pCSTR fmt, ...)
     T_CHR buf[LOG_BUF_MAX];
     va_list ap;
 
-    
+
     if (level < log_level) return;
     if (log_fd < 0) return;
-    
+
     va_start(ap, fmt);
     vsnprintf(buf, LOG_BUF_MAX, fmt, ap);
     buf[LOG_BUF_MAX - 1] = 0;
     va_end(ap);
-    
-    
     write(log_fd, LOG_TAG,strlen(LOG_TAG));
 	write(log_fd, "::", 3);
     write(log_fd, buf, strlen(buf));

@@ -22,11 +22,11 @@ static void * ListenSD( void * this );
 * @date 2012-07-05
 * @param[in] this  			the pointer point to the AkMediaRecorder.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 T_S32 InitListenSD( void )
 {
-	
+
 	struct sockaddr_nl snl;
 	const T_S32 buffersize = 16 * 1024 * 1024;
 	T_S32 retval;
@@ -39,27 +39,27 @@ T_S32 InitListenSD( void )
 	//open socket
 	hotplug_sock = socket( PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT );
 	if ( hotplug_sock == -1 )
-	{        
+	{
 		printf( "error getting socket: %s\n", strerror(errno) );
 		return -1;
 	}
-	
-	/* set receive buffersize */   
-	setsockopt( hotplug_sock, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize) ); 
+
+	/* set receive buffersize */
+	setsockopt( hotplug_sock, SOL_SOCKET, SO_RCVBUFFORCE, &buffersize, sizeof(buffersize) );
 	retval = bind( hotplug_sock, (struct sockaddr *) &snl, sizeof(struct sockaddr_nl) );
-	if ( retval < 0 )  
-	{	 
-		printf( "bind failed: %s\n", strerror(errno) );   
-		close(hotplug_sock);   
-		hotplug_sock = -1;     
-		return -1;   
+	if ( retval < 0 )
+	{
+		printf( "bind failed: %s\n", strerror(errno) );
+		close(hotplug_sock);
+		hotplug_sock = -1;
+		return -1;
 	}
 	g_StopListenTh = 0;
 	if ( pthread_create( ( pthread_t *)&SDTid, NULL, ListenSD, NULL ) != 0 ) {
 		printf( "unable to create a thread for listen SD hot plug !\n" );
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -79,7 +79,7 @@ void CloseListenSD( void )
 */
 
 void mount_sd(void)
-{ 
+{
 	if (access("/dev/mmcblk0p1", R_OK) == 0)
 	{
 		system("mount /dev/mmcblk0p1 /mnt");
@@ -89,11 +89,11 @@ void mount_sd(void)
 		system("mount /dev/mmcblk0 /mnt");
 	}
     printf("*** mount the sd to /mnt ***\n");
-    
+
 #if 1
     system("mount /mnt/local /usr/local");
 #endif
-	
+
 	sd_mount = 1;
 
 }
@@ -119,8 +119,8 @@ void umount_sd(void)
 //¿¨ÉÏ¡£
 static void * ListenSD( void * this )
 {
-	
-	T_CHR buf[SD_EVENT_BUF_SIZE * 2] = {0};    
+
+	T_CHR buf[SD_EVENT_BUF_SIZE * 2] = {0};
 	T_CHR temp_buf[20];
 	//T_pSTR *p;
 	T_S32 i, ret = 0;
@@ -133,7 +133,7 @@ static void * ListenSD( void * this )
 			break;
 		}
 
-		memset( buf, 0, sizeof(buf) ); 
+		memset( buf, 0, sizeof(buf) );
 		//recv hot-plug/pull uevent
 		ret = recv( hotplug_sock, &buf, sizeof(buf), MSG_DONTWAIT );
 		//printf("recv buf = %s\n", buf);
@@ -146,10 +146,10 @@ static void * ListenSD( void * this )
 
 		//get event string
 		for (i = 0; buf[i] != '@' && buf[i] != 0; i++)
-		{     
+		{
 			temp_buf[i] = buf[i];
 		}
-		
+
 		temp_buf[i] = 0;
 		//if ((!strcmp(p, "/mmcblk")) && (!strcmp(temp_buf, "remove")))
         /*
@@ -158,10 +158,8 @@ static void * ListenSD( void * this )
 			//close_flag = 1;
 			sd_remove = 1;
 			times = 0;
-			
 		}
         */
-		
 	}
 	//umount_sd();
 
@@ -185,5 +183,5 @@ int check_sdcard( void )
 		return 0;
 	}
 }
-	
+
 

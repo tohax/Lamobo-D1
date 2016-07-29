@@ -112,7 +112,6 @@ typedef int nthread_t;
     int thread_equalid( nthread_t inLeft, nthread_t inRight );
 
     nthread_t thread_zeroid( void );
-    
 
 #ifdef __cplusplus
 } /* end extern "C" */

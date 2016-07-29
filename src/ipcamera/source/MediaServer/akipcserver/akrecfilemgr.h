@@ -7,12 +7,12 @@ extern "C" {
 
 #include "headers.h"
 
-#define SIGN_FILE_NAME							".LMR_RecordManger_Sign"
-#define FILE_SUFFIX								".avi"
-#define FILE_NAME_DIF							"(New)"
-#define DIR_SEPARATOR							'/'
-#define CYC_FILE_PREFIX							"CYC_DV_"
-#define REC_FILE_PREFIX							"DV_"
+#define SIGN_FILE_NAME	".LMR_RecordManger_Sign"
+#define FILE_SUFFIX	".avi"
+#define FILE_NAME_DIF	"(New)"
+#define DIR_SEPARATOR	'/'
+#define CYC_FILE_PREFIX	"CYC_DV_"
+#define REC_FILE_PREFIX	"DV_"
 
 typedef enum
 {
@@ -23,8 +23,7 @@ typedef enum
 
 T_S32 RecFile_setMinSize( T_U32 nMinLimitSize );
 
-T_S32 RecFile_open( T_pSTR pstrRecPath, T_U32 nFileBitRate, 
-							   T_U32 nRecordDuration, T_BOOL bIsCyc );
+T_S32 RecFile_open( T_pSTR pstrRecPath, T_U32 nFileBitRate, T_U32 nRecordDuration, T_BOOL bIsCyc );
 
 T_S32 RecFile_openFile(T_pSTR *filename);
 

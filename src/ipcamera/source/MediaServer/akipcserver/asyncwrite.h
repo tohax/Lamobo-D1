@@ -59,7 +59,7 @@ typedef struct AkAsyncFileWriter
 	* @@retval  return if do the async job return AK_TRUE, do the sync job return false
 	*/
 	T_BOOL (*IsJustFd)( T_pVOID pthis );
-	
+
 	/*
 	 * @brief		write buf to file writer
 	 * @param	[in]pthis, buf , size
@@ -75,7 +75,7 @@ typedef struct AkAsyncFileWriter
 	 * @retval	<=0 for error,otherwise the length of read
 	 */
 	T_S32 (*read)( T_pVOID pthis, T_pVOID buf, T_S32 size );
-	
+
 	/*
 	 * @brief		seek the write postion according to offset & whence
 	 * @param	hFileWriter [in],  offset[in], whence[in], pthis[in]
@@ -112,7 +112,7 @@ typedef struct AkAsyncFileWriter
 	 * @brief		start write thread
 	 * @param	pthis[in]
 	 * @return	T_S32
-	 * @retval	0 for success, other for error 
+	 * @retval	0 for success, other for error
 	 */
 	T_S32 (*start)( T_pVOID pthis );
 
@@ -120,7 +120,7 @@ typedef struct AkAsyncFileWriter
 	 * @brief		stop write thread
 	 * @param	pthis[in]
 	 * @return	T_S32
-	 * @retval	0 for success, other for error 
+	 * @retval	0 for success, other for error
 	 */
  	T_S32 (*stop)( T_pVOID pthis );
 
@@ -139,7 +139,7 @@ typedef struct AkAsyncFileWriter
 REGISTER_SIMULATE_CLASS_H( AkAsyncFileWriter );
 
 /*
- * @brief		construct a file writer to do file writing 
+ * @brief		construct a file writer to do file writing
  * @param	fd [in], writebufsize[in], writeblocksize[in]
  * @return	AkAsyncFileWriter
  * @retval	NULL for error, otherwise a handle of AkAsyncFileWriter
@@ -155,7 +155,7 @@ REGISTER_SIMULATE_CLASS_H( AkAsyncFileWriter );
 void ak_rec_cb_unload(AkAsyncFileWriter* writer);
 
 /*
- * @brief		used for media lib to print 
+ * @brief		used for media lib to print
  * @param	format [in] ,... [in]
  * @return	T_VOID
  * @retval	NONE
@@ -164,7 +164,7 @@ T_VOID ak_rec_cb_printf(T_pCSTR format, ...);
 
 /*
  * @brief		used to alloc memory
- * @param	size [in] 
+ * @param	size [in]
  * @return	T_pVOID
  * @retval	NULL for error,otherwise the handle of memory allocated.
  */
@@ -172,7 +172,7 @@ T_pVOID ak_rec_cb_malloc(T_U32 size);
 
 /*
  * @brief		free memory
- * @param	mem [in] 
+ * @param	mem [in]
  * @return	T_VOID
  * @retval	NONE
  */

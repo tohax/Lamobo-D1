@@ -41,7 +41,7 @@ typedef struct CCycBuffer
 	//程Pop的情况，如果有多个线程需要push，则不都能使用此接口，
 	//否则冲乱读数据。
 	T_S32 (*PushSingle)( T_pVOID pthis, T_CHR * pBuffer, T_S32 iSize );
-	
+
 	//将循环Buffer中从读指针开始的iSize个数据写入指定的文件中
 	//此接口只能和PushSingle配合使用，只适用同PushSingle的情况下使用。
 	T_S32 (*WriteToFs)( T_pVOID pthis, T_S32 fd, T_S32 iSize );
@@ -70,12 +70,12 @@ typedef struct CCycBuffer
 	//恢复强制退出状态，在调用ForceQuit后如果想继续使用pop/push功能
 	//请先调用此接口。
 	T_S32 (*ResumeForceQuitState)( T_pVOID pthis );
-	
-	T_S32 (*DestroyCycBuffer)( T_pVOID pthis );	
+
+	T_S32 (*DestroyCycBuffer)( T_pVOID pthis );
 
 	//将循环Buffer的状态修改成满状态。
 	T_S32 (*FakePushFull)( T_pVOID pthis );
-	
+
 	T_pVOID	handle;
 }CCycBuffer;
 

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define SD_EVENT_BUF_SIZE  				4096
+#define SD_EVENT_BUF_SIZE	4096
 
 T_S32 InitListenSD( void );
 void CloseListenSD( void );

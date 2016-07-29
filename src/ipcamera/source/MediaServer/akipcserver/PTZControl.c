@@ -24,26 +24,22 @@ typedef enum
 
 struct ak_motor
 {
-	
+
 	int running;
-	
 	pthread_mutex_t lock;
 	struct notify_data data;
 	int fd;
 	MT_STATUS mt_status;
 	int step_degree;
 	int cw;
-
 	int default_speed;
 	int run_speed;
 	int runto_speed;
 	int hit_speed;
 	int step_speed;
 	int direction;//0左右   1上下
-	
 	int nMax_hit;//撞击角度
 	int nMax_unhit;//最大不撞击角度
-	
 	int dg_max;//最大角度
 	int dg_min;//最小角度
 	int dg_save;//保存设置位置的角度
@@ -55,19 +51,17 @@ struct ak_motor
 #define MAX_SPEED 16
 #define MAX_DG 360 * 2 + 1//最大转动角度，这里定义足够大
 
-static struct ak_motor akmotor[] = 
+static struct ak_motor akmotor[] =
 {
 	[0] = {
 		.fd = -1,
 		.mt_status = MT_STOP,
 		.step_degree = 8,//这个值或者它的倍数的误差最小
-		
 		.default_speed = MAX_SPEED,//5,
 		.run_speed = 10,//5,
 		.runto_speed = MAX_SPEED,//15,
 		.hit_speed = MAX_SPEED,//15,
 		.step_speed = MAX_SPEED,//15,//8,
-		
 		.direction = 0,
 		.dg_center = 0,
 	},
@@ -75,13 +69,11 @@ static struct ak_motor akmotor[] =
 		.fd = -1,
 		.mt_status = MT_STOP,
 		.step_degree = 8,
-		
 		.default_speed = MAX_SPEED,//3,
 		.run_speed = 10,//3,
 		.runto_speed = MAX_SPEED,//15,
 		.hit_speed = MAX_SPEED,//15,
 		.step_speed = MAX_SPEED,//15,//8,
-		
 		.direction = 1,
 		.dg_center = -32,
 	},
@@ -94,8 +86,7 @@ static int motor_turn(struct ak_motor *motor, int angle, int is_cw)
 		return -1;
 	int ret;
 	int cmd = is_cw ? AK_MOTOR_TURN_CLKWISE:AK_MOTOR_TURN_ANTICLKWISE;
-	
-	ret = ioctl(motor->fd, cmd, &angle);	
+	ret = ioctl(motor->fd, cmd, &angle);
 	if(ret) {
 		printf("%s fail. is_cw:%d, angle:%d, ret:%d.\n", __func__, angle, is_cw, ret);
 	}
@@ -104,11 +95,11 @@ static int motor_turn(struct ak_motor *motor, int angle, int is_cw)
 
 static int motor_change_speed(struct ak_motor *motor, int ang_speed)
 {
-	int ret;	
+	int ret;
 	int val = ang_speed;
 	if(motor->fd < 0)
 		return -1;
-	ret = ioctl(motor->fd, AK_MOTOR_SET_ANG_SPEED, &val);	
+	ret = ioctl(motor->fd, AK_MOTOR_SET_ANG_SPEED, &val);
 	if(ret) {
 		printf("%s fail.  ang_speed:%d, ret:%d.\n", __func__, ang_speed, ret);
 	}
@@ -130,9 +121,9 @@ start:
 		printf("wait, ret:%d,\n", ret);
 		return -1;
 	}
-	
+
 	ret = read(motor->fd, (void*)&motor->data, sizeof(struct notify_data));
-		
+
 	if(motor->data.event != AK_MOTOR_EVENT_STOP)
 	{
 		printf("not stop, %d, %d\n", motor->data.event, motor->data.remain_angle);
@@ -142,7 +133,7 @@ start:
 			//如果出现这种情况就按原来的方向转动剩余角度
 			motor_turn(motor, motor->data.remain_angle, motor->cw);
 			goto start;
-		}	
+		}
 	}
 
 	*remain_angle = motor->data.remain_angle;
@@ -163,15 +154,15 @@ start:
 		printf("wait, ret:%d,\n", ret);
 		return -1;
 	}
-	
+
 	ret = read(motor->fd, (void*)&motor->data, sizeof(struct notify_data));
-	
+
 	if(motor->data.event != AK_MOTOR_EVENT_HIT)
 	{
 		printf("not hit,motor->data.event = %d, %d\n", motor->data.event, motor->data.remain_angle);
 		goto start;
 	}
-	
+
 	*remain_angle = motor->data.remain_angle;
 	return 0;
 }
@@ -190,15 +181,15 @@ start:
 		printf("wait, ret:%d,\n", ret);
 		return -1;
 	}
-	
+
 	ret = read(motor->fd, (void*)&motor->data, sizeof(struct notify_data));
-		
+
 	if(motor->data.event != AK_MOTOR_EVENT_UNHIT)
 	{
 		printf("not unhit,motor->data.event = %d,,%d\n", motor->data.event, motor->data.remain_angle);
 		goto start;
 	}
-	
+
 	*remain_angle = motor->data.remain_angle;
 	return 0;
 }
@@ -243,9 +234,9 @@ static int ak_motor_turn_anticlkwise(struct ak_motor *motor)
 		motor_turn(motor, motor->step_degree, motor->cw);
 		ak_motor_wait_stop(motor, &rg);
 		motor->dg_cur -= motor->step_degree;
-		
+
 	}
-	
+
 	return 0;
 }
 
@@ -254,7 +245,6 @@ static void* ak_motor_cal_thread(void* data)
 	printf("%s\n", __func__);
 	//巡航，校准
 	struct ak_motor *motor = NULL;
-	
 	int rg;
 	int a,b,c,d;
 	//先水平，后垂直
@@ -267,7 +257,6 @@ static void* ak_motor_cal_thread(void* data)
 			continue;
 		motor_change_speed(motor, motor->runto_speed);
 		motor->mt_status = MT_CAL;
-		
 		//顺时针转到底
 		motor->cw = 1;
 		motor_turn(motor, MAX_DG, motor->cw);
@@ -278,7 +267,6 @@ static void* ak_motor_cal_thread(void* data)
 		motor_turn(motor, rg, motor->cw);
 		ak_motor_wait_unhit(motor, &rg);
 		b = rg;
-	
 		motor_turn(motor, rg, motor->cw);
 		ak_motor_wait_hit(motor, &rg);
 		c = rg;
@@ -288,20 +276,16 @@ static void* ak_motor_cal_thread(void* data)
 		ak_motor_wait_unhit(motor, &rg);
 		d = rg;
 		printf("a = %d, b = %d, c = %d, d = %d, ac = %d, bd = %d\n", a,b,c,d, (a - c), (b + d - 2 * c));
-	
 		motor->nMax_hit = a - c;
 		motor->nMax_unhit = b + d - 2 * c;
-	
 		motor->dg_max = motor->nMax_unhit / 2;
 		motor->dg_min =  - (motor->nMax_unhit) / 2;
 		motor->dg_save = motor->dg_center;
 		motor->dg_cur = motor->dg_min;
-	
 		rg = motor->dg_save - motor->dg_cur;
 		motor_turn(motor, rg, motor->cw);
 		ak_motor_wait_stop(motor, &rg);
 		motor->dg_cur = motor->dg_save;
-	
 		motor->mt_status = MT_STOP;
 		motor_change_speed(motor, motor->step_speed);
 	}
@@ -325,9 +309,7 @@ static void* ak_motor_run_thread(void* data)
 
 	motor->mt_status = MT_RUN;
 	motor_change_speed(motor, motor->run_speed);
-	
 	motor->cw = 1;//默认从顺时针转
-	
 	while(motor->mt_status == MT_RUN)
 	{
 		if(motor->cw == 1)
@@ -339,7 +321,6 @@ static void* ak_motor_run_thread(void* data)
 			ak_motor_turn_anticlkwise(motor);
 		}
 	}
-	
 	motor_change_speed(motor, motor->step_speed);
 	return NULL;
 }
@@ -361,13 +342,11 @@ static void* ak_motor_runto_thread(void* data)
 
 	int rg;
 	motor->mt_status = MT_RUNTO;
-	
 	motor_change_speed(motor, motor->runto_speed);
 	int dg = motor->dg_save - motor->dg_cur;//计算当前位置和保存位置的角度
-	
 	if(dg > 0)//判断转动方向
 	{
-		motor->cw = 1;	
+		motor->cw = 1;
 	}
 	else if(dg < 0)
 	{
@@ -378,7 +357,6 @@ static void* ak_motor_runto_thread(void* data)
 	motor_turn(motor, dg, motor->cw);
 	ak_motor_wait_stop(motor, &rg);
 	motor->dg_cur = motor->dg_save;
-	
 	motor_change_speed(motor, motor->step_speed);
 	motor->mt_status = MT_STOP;
 	return NULL;
@@ -420,9 +398,7 @@ int PTZControlStepUp()
 		return -1;
 	motor->mt_status = MT_STEP;
 	motor->cw = 1;
-	
 	ak_motor_turn_clkwise(motor);
-	
 	motor->mt_status = MT_STOP;
 	//printf("up:curpos=%d\n", motor->dg_cur);
 	return 0;
@@ -430,14 +406,11 @@ int PTZControlStepUp()
 int PTZControlStepDown()
 {
 	struct ak_motor* motor = &akmotor[1];
-	
 	if(motor->mt_status != MT_STOP)
 		return -1;
 	motor->mt_status = MT_STEP;
 	motor->cw = 0;
-	
 	ak_motor_turn_anticlkwise(motor);
-	
 	motor->mt_status = MT_STOP;
 	//printf("down:curpos=%d\n", motor->dg_cur);
 	return 0;
@@ -449,9 +422,7 @@ int PTZControlStepLeft()
 		return -1;
 	motor->mt_status = MT_STEP;
 	motor->cw = 1;
-	
 	ak_motor_turn_clkwise(motor);
-	
 	motor->mt_status = MT_STOP;
 	//printf("left:curpos=%d\n", motor->dg_cur);
 	return 0;
@@ -459,14 +430,11 @@ int PTZControlStepLeft()
 int PTZControlStepRight()
 {
 	struct ak_motor* motor = &akmotor[0];
-	
 	if(motor->mt_status != MT_STOP)
 		return -1;
 	motor->mt_status = MT_STEP;
 	motor->cw = 0;
-	
 	ak_motor_turn_anticlkwise(motor);
-	
 	motor->mt_status = MT_STOP;
 	//printf("right:curpos=%d\n", motor->dg_cur);
 	return 0;
@@ -478,14 +446,13 @@ int PTZControlUpDown()
 	if(pmotor->mt_status == MT_RUN)
 	{
 		printf("run-->stop\n");
-		pmotor->mt_status = MT_STOP;	
+		pmotor->mt_status = MT_STOP;
 	}
 	else if(pmotor->mt_status == MT_STOP)
 	{
 		printf("stop-->run\n");
 		ak_motor_run(pmotor);
 	}
-	
 	return 0;
 }
 int PTZControlLeftRight()
@@ -495,7 +462,7 @@ int PTZControlLeftRight()
 	if(pmotor->mt_status == MT_RUN)
 	{
 		printf("run-->stop\n");
-		pmotor->mt_status = MT_STOP;	
+		pmotor->mt_status = MT_STOP;
 	}
 	else if(pmotor->mt_status == MT_STOP)
 	{
@@ -508,7 +475,6 @@ int PTZControlSetPosition()
 {
 	akmotor[0].dg_save = akmotor[0].dg_cur;
 	akmotor[1].dg_save = akmotor[1].dg_cur;
-	
 	printf("savepos= %d,,%d\n", akmotor[0].dg_save, akmotor[1].dg_cur);
 	return 0;
 }
@@ -516,10 +482,8 @@ int PTZControlRunPosition()
 {
 	akmotor[0].mt_status = MT_STOP;
 	akmotor[1].mt_status = MT_STOP;
-	
 	ak_motor_runto(&akmotor[0]);
 	ak_motor_runto(&akmotor[1]);
-	
 	return 0;
 }
 
@@ -527,12 +491,10 @@ int PTZControlDeinit()
 {
 	akmotor[0].mt_status = MT_STOP;
 	akmotor[1].mt_status = MT_STOP;
-	
 	if(akmotor[0].fd > 0)
 		close(akmotor[0].fd);
 	if(akmotor[1].fd > 0)
 		close(akmotor[1].fd);
-	
 	akmotor[0].fd = -1;
 	akmotor[1].fd = -1;
 	return 0;

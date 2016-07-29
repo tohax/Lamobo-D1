@@ -15,40 +15,40 @@
 #include <sys/types.h>
 #include <sys/file.h>
 
-static unsigned char frameArray[][31] = 
-{    //0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30 
+static unsigned char frameArray[][31] =
+{    //0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
       {0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 /*1 */{1,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 /*2 */{1,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-/*3 */{1,0,0,0,0,0,0,0,0,0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},	
+/*3 */{1,0,0,0,0,0,0,0,0,0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 /*4 */{1,0,0,0,0,0,0,0,1,0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
 /*5 */{1,0,0,0,0,0,1,0,0,0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-/*6 */{1,0,0,0,0,1,0,0,0,0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},	
+/*6 */{1,0,0,0,0,1,0,0,0,0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
 /*7 */{1,0,0,0,1,0,0,0,0,1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0},
 /*8 */{1,0,0,0,1,0,0,0,1,0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-/*9 */{1,0,0,0,1,0,0,0,1,0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},	
+/*9 */{1,0,0,0,1,0,0,0,1,0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
 /*10*/{1,0,0,1,0,0,1,0,0,1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0},
 /*11*/{1,0,0,1,0,0,1,0,0,1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0},
-/*12*/{1,0,0,1,0,1,0,1,0,1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},	
+/*12*/{1,0,0,1,0,1,0,1,0,1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
 /*13*/{1,0,0,1,0,1,0,1,0,1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
 /*14*/{1,0,1,0,1,0,1,0,1,0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-/*15*/{1,0,1,0,1,0,1,0,1,0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},	
+/*15*/{1,0,1,0,1,0,1,0,1,0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
 /*16*/{1,0,1,0,1,0,1,0,1,0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
      //0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
 /*17*/{1,0,1,0,1,0,1,0,1,1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
-/*18*/{1,0,1,1,1,0,1,0,1,0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1},	
+/*18*/{1,0,1,1,1,0,1,0,1,0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1},
 /*19*/{1,1,0,1,1,0,1,1,0,1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1},
 /*20*/{1,1,0,1,1,0,1,1,0,1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1},
-/*21*/{1,1,0,1,1,0,1,1,1,0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1},	
+/*21*/{1,1,0,1,1,0,1,1,1,0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1},
 /*22*/{1,1,0,1,1,0,1,1,1,0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1},
 /*23*/{1,1,0,1,1,1,0,1,1,1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1},
-/*24*/{1,0,1,1,1,1,0,1,1,1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1},	
+/*24*/{1,0,1,1,1,1,0,1,1,1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1},
 /*25*/{1,0,1,1,1,1,1,0,1,1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1},
 /*26*/{1,0,1,1,1,1,1,1,0,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-/*27*/{1,0,1,1,1,1,1,1,1,1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},	
+/*27*/{1,0,1,1,1,1,1,1,1,1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 /*28*/{1,0,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 /*29*/{1,0,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-/*30*/{1,1,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},	
+/*30*/{1,1,1,1,1,1,1,1,1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 };
 
 using namespace std;
@@ -118,11 +118,11 @@ static unsigned long gettimespan(struct timeval* before, struct timeval* after)
 static void printBufSize(int index, int when)
 {
 	if(when == 0) //check
-		printf("@@check:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());	
+		printf("@@check:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());
 	else if(when == 1)//put
-		printf("$$$$put:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());	
+		printf("$$$$put:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());
 	else if(when == 2)//get
-		printf("****get:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());	
+		printf("****get:index[%d] buf size<%u>,<%u>\n", index, queueBuf[index].size(), queueBufFree[index].size());
 }
 #endif
 static int video_process_clear_buf(int index)
@@ -136,7 +136,7 @@ static int video_process_clear_buf(int index)
 		if(pvideobuf == NULL)
 		{
 			printf("clear pvideobuf = NULL\n");
-			while(1);	
+			while(1);
 		}
 		queueBuf[index].pop();
 		queueBufFree[index].push(pvideobuf);
@@ -157,7 +157,7 @@ static void initvideoBuf()
 			pbuf = new T_VIDEOBUF;
 			queueBufFree[i].push(pbuf);
 		}
-		
+
 		videobufTT[i] = new T_VIDEOBUF;
 	}
 	Condition_Initialize(&conView);
@@ -166,7 +166,7 @@ static void initvideoBuf()
 int video_process_get_buf(void* buf, unsigned* nlen, int nNeedIFrame, struct timeval* ptv, int index)
 {
 	T_VIDEOBUF* bufvideo;
-	
+
 	if(nNeedIFrame > 0)
 	{
 		if(nInit == 0)
@@ -182,8 +182,8 @@ int video_process_get_buf(void* buf, unsigned* nlen, int nNeedIFrame, struct tim
 		return 0;
 	}
 	Condition_Lock(con[index]);
-	if(queueBuf[index].empty())	
-	{	
+	if(queueBuf[index].empty())
+	{
 		Condition_Unlock(con[index]);
 		*nlen = 0;
 		goto out1;
@@ -197,20 +197,20 @@ int video_process_get_buf(void* buf, unsigned* nlen, int nNeedIFrame, struct tim
 	*nlen = (bufvideo->nlen);
 	//*nlen = (bufvideo->nIsIFrame)?(bufvideo->nlen - nal_offset[index]):(bufvideo->nlen);
 	Condition_Lock(con[index]);
-	queueBufFree[index].push(bufvideo);				
+	queueBufFree[index].push(bufvideo);
 	Condition_Unlock(con[index]);
-	
-#ifdef DBG_GET_FRAMERATE //cal get framerate	
-	static int count[2] = {0,0};	
-	count[index] ++;	
-	static struct timeval tv1[2], tv2[2];	
+
+#ifdef DBG_GET_FRAMERATE //cal get framerate
+	static int count[2] = {0,0};
+	count[index] ++;
+	static struct timeval tv1[2], tv2[2];
 	gettimeofday(&tv2[index], NULL);
 	static unsigned long bytepsec[2] = {0, 0};
 	bytepsec[index] += *nlen;
-	if(tv1[index].tv_sec != tv2[index].tv_sec)	
-	{		
-			printf("index:%d live555 get frame:%d, %u kbps\n", index, count[index], bytepsec[index] / 1000 * 8);		
-			tv1[index] = tv2[index];		
+	if(tv1[index].tv_sec != tv2[index].tv_sec)
+	{
+			printf("index:%d live555 get frame:%d, %u kbps\n", index, count[index], bytepsec[index] / 1000 * 8);
+			tv1[index] = tv2[index];
 			count[index] = 0;
 			bytepsec[index] = 0;
 	}
@@ -226,7 +226,6 @@ static int video_process_put_buf(void* buf, unsigned* nlen, int nIsIFrame, struc
 	pvideobuf = queueBufFree[index].front();
 	queueBufFree[index].pop();
 	Condition_Unlock(con[index]);
-	
 	memcpy(pvideobuf->buf, buf, *nlen);
 	pvideobuf->nlen = *nlen;
 	pvideobuf->tv = *ptv;
@@ -234,7 +233,6 @@ static int video_process_put_buf(void* buf, unsigned* nlen, int nIsIFrame, struc
 		pvideobuf->nIsIFrame = 1;
 	else
 		pvideobuf->nIsIFrame = 0;
-			
 	Condition_Lock(con[index]);
 	queueBuf[index].push(pvideobuf);
 	Condition_Unlock(con[index]);
@@ -249,14 +247,14 @@ static int skipFrame_framerate(int framerate, int* curframenum)
 	{
 		ret = 0;
 	}
-	
+
 	if(*curframenum == 29)
 	{
-		*curframenum = 0;	
+		*curframenum = 0;
 	}
 	else
 	{
-		(*curframenum) ++;	
+		(*curframenum) ++;
 	}
 	return ret;
 }
@@ -265,7 +263,6 @@ static int skipFrame_buffull(unsigned long ts, int framenum)
 {
 	int ret = 1;
 	static int throwcount = 0;
-	
 	if(ViewFlag == 0)
 	{
 		if(Recordflag == 0)
@@ -301,7 +298,7 @@ static int skipFrame_buffull(unsigned long ts, int framenum)
 			{
 				printf("[%u,%u) ei %d::full, throw frame,%lu,%d\n", throwX[1][0], throwX[1][1],index, ts,framenum);
 				throwcount = 0;
-				ret = 0;	
+				ret = 0;
 			}
 			else
 				throwcount ++;
@@ -310,23 +307,22 @@ static int skipFrame_buffull(unsigned long ts, int framenum)
 		{
 			printf("[%u,+~) ei %d::full, throw frame,%lu,%d\n", throwX[2][0],index, ts,framenum);
 			throwcount = 0 ;
-			ret = 0;	
+			ret = 0;
 		}
-		
+
 		Condition_Unlock(con[index]);
 	}
 	else if(ViewFlag == 3)
 	{
-		Condition_Lock(con[0]);	
+		Condition_Lock(con[0]);
 		Condition_Lock(con[1]);
-	
 		if(queueBuf[0].size() < throwX[0][0] && queueBuf[1].size() < throwX[0][0])
 			throwcount = 0;
 		else if((queueBuf[0].size() >= throwX[2][0]) || (queueBuf[1].size() >= throwX[2][0]))
 		{
 			printf("[%u,+~) ei 0 && 1::full, throw frame,%lu,%d\n",throwX[2][0], ts,framenum);
 			throwcount = 0 ;
-			ret = 0;	
+			ret = 0;
 		}
 		else if((queueBuf[0].size() >= throwX[1][0] && queueBuf[0].size() < throwX[1][1]) || (queueBuf[1].size() >= throwX[1][0] && queueBuf[1].size() < throwX[1][1]))
 		{
@@ -334,7 +330,7 @@ static int skipFrame_buffull(unsigned long ts, int framenum)
 			{
 				printf("[%u,%u) ei 0 && 1 ::full, throw frame,%lu,%d\n",throwX[1][0], throwX[1][1], ts,framenum);
 				throwcount = 0;
-				ret = 0;	
+				ret = 0;
 			}
 			else
 				throwcount ++;
@@ -350,11 +346,11 @@ static int skipFrame_buffull(unsigned long ts, int framenum)
 			else
 				throwcount ++;
 		}
-		
+
 		Condition_Unlock(con[1]);
 		Condition_Unlock(con[0]);
 	}
-	
+
 	return ret;
 }
 #endif
@@ -368,9 +364,9 @@ static int skipFrame(int framerate, unsigned long ts)
 	{
 		throwbyrate = 1;
 	}
-	
+
 	static int throwcount = 0;
-	
+
 	if(ViewFlag == 0)//无预览
 	{
 		if(Recordflag == 0)//无录像
@@ -430,7 +426,7 @@ static int skipFrame(int framerate, unsigned long ts)
 			}
 			else if(lastthrow)
 			{
-				throwcount ++;	
+				throwcount ++;
 			}
 			else
 			{
@@ -438,7 +434,7 @@ static int skipFrame(int framerate, unsigned long ts)
 				{
 					printf("(%u,%u] ei %d::full, throw frame,%lu,%d\n", throwX[1][0], throwX[1][1],index, ts,framenum);
 					throwcount = 0;
-					ret = 0;	
+					ret = 0;
 				}
 				else
 					throwcount ++;
@@ -448,16 +444,16 @@ static int skipFrame(int framerate, unsigned long ts)
 		{
 			printf("[%u,0] ei %d::full, throw frame,%lu,%d\n", throwX[2][0],index, ts,framenum);
 			throwcount = 0 ;
-			ret = 0;	
+			ret = 0;
 		}
-		
+
 		Condition_Unlock(con[index]);
 	}
 	else if(ViewFlag == 3)//两路都预览
 	{
-		Condition_Lock(con[0]);	
+		Condition_Lock(con[0]);
 		Condition_Lock(con[1]);
-	
+
 		if(queueBufFree[0].size() > throwX[0][1] && queueBufFree[1].size() > throwX[0][1])
 		{
 			if(throwbyrate)
@@ -470,7 +466,7 @@ static int skipFrame(int framerate, unsigned long ts)
 		{
 			printf("[%u,0) ei 0 && 1::full, throw frame,%lu,%d\n",throwX[2][0], ts,framenum);
 			throwcount = 0 ;
-			ret = 0;	
+			ret = 0;
 		}
 		else if((queueBufFree[0].size() > throwX[1][0] && queueBufFree[0].size() <= throwX[1][1]) || (queueBufFree[1].size() > throwX[1][0] && queueBufFree[1].size() <= throwX[1][1]))
 		{
@@ -480,7 +476,7 @@ static int skipFrame(int framerate, unsigned long ts)
 			}
 			else if(lastthrow)
 			{
-				throwcount ++;	
+				throwcount ++;
 			}
 			else
 			{
@@ -488,7 +484,7 @@ static int skipFrame(int framerate, unsigned long ts)
 				{
 					printf("(%u,%u] ei 0 && 1 ::full, throw frame,%lu,%d\n",throwX[1][0], throwX[1][1], ts,framenum);
 					throwcount = 0;
-					ret = 0;	
+					ret = 0;
 				}
 				else
 					throwcount ++;
@@ -516,29 +512,29 @@ static int skipFrame(int framerate, unsigned long ts)
 					throwcount ++;
 			}
 		}
-		
+
 		Condition_Unlock(con[1]);
 		Condition_Unlock(con[0]);
 	}
-	
+
 	if(ret == 0)
 	{
-		lastthrow = 1;	
+		lastthrow = 1;
 	}
 	else
 	{
-		lastthrow = 0;		
+		lastthrow = 0;
 	}
-	
+
 	if(framenum == 29)
 	{
-		framenum = 0;	
+		framenum = 0;
 	}
 	else
 	{
-		framenum ++;	
+		framenum ++;
 	}
-	
+
 	return ret;
 }
 
@@ -553,14 +549,14 @@ static unsigned get_nal_offset(void* pbuf, unsigned nlen)
 			 *(tpbuf + i + 1) == 0x00 &&
 			 *(tpbuf + i + 2) == 0x00 &&
 			 *(tpbuf + i + 3) == 0x01)
-		{	
+		{
 			startcount ++;
-			
+
 			if(startcount == 3)
 				break;
 		}
 	}
-	
+
 	return (i == nlen - 4) ? 0 : i;
 }
 
@@ -569,10 +565,10 @@ extern T_MUX_INPUT mux_input;
 static void* video_thread_entry(void* param)
 {
 	printf("thread_process video start\n");
-	
-	unsigned long timestamp = 0;	
+
+	unsigned long timestamp = 0;
 	unsigned long ts;
-	long size;	
+	long size;
 	videoStartFlag = 1;
 	struct timeval tvs;
 	void* ppbuf[2], *pbuf;
@@ -581,7 +577,7 @@ static void* video_thread_entry(void* param)
 	T_ENC_INPUT encInput[2];
 	//unsigned long lasttime = 0;
 	long offset = (parse.height*parse.width*3/2);
-	
+
 #ifdef DBG_ENCODE_FRAME1
 	int dbg_encode_frame_count1 = 0;
 	FILE* fp1 = fopen(DBG_ENCODE_FRAME_FILENAME1, "w");
@@ -591,7 +587,7 @@ static void* video_thread_entry(void* param)
 	int dbg_encode_frame_count2 = 0;
 	FILE* fp2 = fopen(DBG_ENCODE_FRAME_FILENAME2, "w");
 #endif
-	
+
 	while (1)//获取第一帧
 	{
 		if (videoStartFlag == 0)
@@ -600,32 +596,32 @@ static void* video_thread_entry(void* param)
 		if (camera_getframe((void**)&pbuf, &size, &ts) == 1)
 			break;
 	}
-	
+
 	//编码第一帧
 	encode_frame(&encInput[0], pbuf, &ppbuf[0], &nIsIFrame[0], &encInput[1], (T_U8*)pbuf+size, &ppbuf[1], &nIsIFrame[1]);
 	camera_usebufok(pbuf);
-	
+
 	#ifdef DBG_ENCODE_FRAME1
 	fwrite(ppbuf[0], encInput[0].size, 1, fp1);
 	#endif
-	
+
 	#ifdef DBG_ENCODE_FRAME1
 	fwrite(ppbuf[1], encInput[1].size, 1, fp2);
 	#endif
-	
+
 	//把编码后的第一帧数据保存起来，live555需要
 	Condition_Lock(con[0]);
 	memcpy(videobufTT[0]->buf, ppbuf[0], encInput[0].size);
 	videobufTT[0]->nlen = encInput[0].size;
 	Condition_Unlock(con[0]);
 	nal_offset[0] = get_nal_offset(videobufTT[0]->buf, videobufTT[0]->nlen);
-	
+
 	Condition_Lock(con[1]);
 	memcpy(videobufTT[1]->buf, ppbuf[1], encInput[1].size);
 	videobufTT[1]->nlen = encInput[1].size;
 	Condition_Unlock(con[1]);
 	nal_offset[1] = get_nal_offset(videobufTT[1]->buf, videobufTT[1]->nlen);
-	
+
 	printf("nal offset[0] = 0x%x,, nal offset[1] = 0x%x\n", nal_offset[0], nal_offset[1]);
 	int num = 0;
 	//int numvideo = 0;
@@ -637,16 +633,15 @@ static void* video_thread_entry(void* param)
 	if ( parse.fps1 > 30 || parse.fps1 <=0)
 		frame = 30;
 	else
-		frame = parse.fps1;	
-	
+		frame = parse.fps1;
+
 	nInit = 1;
 	while (1)
 	{
-		if (videoStartFlag == 0)			
-			return NULL;			
+		if (videoStartFlag == 0)
+			return NULL;
 
 		gettimeofday(&tvs, NULL);
-		
 		if (camera_getframe((void**)&pbuf, &size, &ts) != 1)
 			continue;
 
@@ -686,11 +681,11 @@ static void* video_thread_entry(void* param)
 			//如果当前时间戳小于前一个时间则丢弃。
 			if (ts < lasttime)
 			{
-				
+
 				if(ts > 1000 && ts < 2000)
 				{
 					printf("del timestamp = %lu, ts =%lu lasttime =%lu \n", timestamp, ts, lasttime);
-					
+
 				}
 				else
 				{
@@ -715,7 +710,7 @@ static void* video_thread_entry(void* param)
 					x++;
 					y -= 33;
 				}
-				
+
 				y += temp % 33;
 				timestamp += x * 33;
 				//printf("x = %d, y =%d, times = %d ts = %d \n", x, y, timestamp, ts);
@@ -723,13 +718,13 @@ static void* video_thread_entry(void* param)
 		}
 		lasttime = ts;
 #else
-		
+
 		timestamp = ts;
 
-#endif 
+#endif
 
 #if 1
-		if( 1 == g_InitMotion ) 
+		if( 1 == g_InitMotion )
 		{
 			if(num % 30 == 0)
 			{
@@ -747,7 +742,7 @@ static void* video_thread_entry(void* param)
 			camera_usebufok(pbuf);
 			continue;
 		}
-		
+
 		encode_frame(&encInput[0], pbuf, &ppbuf[0], &nIsIFrame[0], &encInput[1], (T_U8*)pbuf+size, &ppbuf[1], &nIsIFrame[1]);
 		camera_usebufok(pbuf);
 		if((ViewFlag == 1) && encInput[0].size != 0)
@@ -759,9 +754,9 @@ static void* video_thread_entry(void* param)
 			video_process_put_buf(ppbuf[0], (unsigned*)&encInput[0].size, nIsIFrame[0], &tvs, 0);
 			video_process_put_buf(ppbuf[1], (unsigned*)&encInput[1].size, nIsIFrame[1], &tvs, 1);
 		}
-		
+
 		UnLockViewFlag();
-#if 1	
+#if 1
 		if ((Recordflag == 1 || Recordflag == 2) && encInput[Recordflag - 1].size != 0)
 		{
 			mux_write_data(1, ppbuf[Recordflag - 1], encInput[Recordflag - 1].size, timestamp, nIsIFrame[Recordflag - 1]);
@@ -795,7 +790,7 @@ static void* video_thread_entry(void* param)
 			fwrite(ppbuf[1], encInput[1].size, 1, fp2);
 		}
 #endif
-		
+
 #ifdef DBG_ENCODE_FRAMERATE ///cal framerate
 		static struct timeval tv1, tv2;
 		static int count = 0;
@@ -804,13 +799,13 @@ static void* video_thread_entry(void* param)
 		{
 			printf("****framerate:%d\n", count);
 			count = 0 ;
-			tv2 = tv1;	
+			tv2 = tv1;
 		}
 		count ++;
 #endif
 
 	}
-	
+
 	return NULL;
 }
 
@@ -824,19 +819,18 @@ int video_process_start()
 	initvideoBuf();
 	memset(&SchedAttr, 0, sizeof(pthread_attr_t));
 	memset(&SchedParam, 0, sizeof(SchedParam));
-				
-	pthread_attr_init( &SchedAttr );				
-	SchedParam.sched_priority = 60;	
+
+	pthread_attr_init( &SchedAttr );
+	SchedParam.sched_priority = 60;
 	pthread_attr_setschedparam( &SchedAttr, &SchedParam );
 	pthread_attr_setschedpolicy( &SchedAttr, SCHED_RR );
 	if ( ( ret = pthread_create( &ntid, &SchedAttr, video_thread_entry, NULL) ) != 0 ) {
 		pthread_attr_destroy(&SchedAttr);
 		printf( "unable to create a thread for read data ret = %d!\n", ret );
-		return -1;	
+		return -1;
 	}
 
 	pthread_attr_destroy(&SchedAttr);
-	
 	return 0;
 
 }
@@ -861,7 +855,7 @@ void video_process_SetViewFlag(int nFlag)
 	{
 		if(nFlag == 0)
 		{
-			video_process_clear_buf(1);	
+			video_process_clear_buf(1);
 		}
 	}
 	else if(lastflag == 3)
@@ -875,13 +869,13 @@ void video_process_SetViewFlag(int nFlag)
 			video_process_clear_buf(0);
 		}
 	}
-	
-	ViewFlag = nFlag;	
+
+	ViewFlag = nFlag;
 	lastflag = nFlag;
 	UnLockViewFlag();
 }
 
 void video_process_SetRecordFlag(int nFlag)
 {
-	Recordflag = nFlag;	
+	Recordflag = nFlag;
 }

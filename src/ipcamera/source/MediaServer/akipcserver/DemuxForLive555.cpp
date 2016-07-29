@@ -25,7 +25,7 @@ static T_S32 libFread(T_S32 hFile, T_pVOID buf, T_S32 size)
 {
     IFileSource *dataSource = (IFileSource*)hFile;
     int rtt =dataSource->read(buf, size);
-    return rtt; 
+    return rtt;
 }
 
 /*
@@ -131,7 +131,7 @@ static int dmx_init(void** hMedia, IFileSource* source, T_MEDIALIB_DMX_INFO* med
     MediaLib_Dmx_GetInfo(*hMedia, mediainfo);
     // release the info memory
     MediaLib_Dmx_ReleaseInfoMem(*hMedia);
-	
+
     return 0;
 }
 
@@ -160,14 +160,14 @@ static void printMediaInfo(T_MEDIALIB_DMX_INFO* mediainfo)
 	printf("m_bSelfRecord:%u\n", (unsigned int)mediainfo->m_bSelfRecord);
 	printf("m_ulTotalTime_ms:%u\n", (unsigned int)mediainfo->m_ulTotalTime_ms);
 
-	printf("video\n"); 
+	printf("video\n");
 	printf("m_VideoDrvType:%u\n", (unsigned int)mediainfo->m_VideoDrvType);
 	printf("m_uWidth:%u\n", (unsigned int)mediainfo->m_uWidth);
 	printf("m_uHeight:%u\n", (unsigned int)mediainfo->m_uHeight);
 	printf("m_uFPS:%u\n", (unsigned int)mediainfo->m_uFPS);
 	printf("m_ulVideoBitrate:%u\n", (unsigned int)mediainfo->m_ulVideoBitrate);
 
-	printf("audio\n"); 
+	printf("audio\n");
 	printf("m_ulAudioBitRate:%u\n", (unsigned int)mediainfo->m_ulAudioBitRate);
 	printf("m_wFormatTag:%u\n", (unsigned int)mediainfo->m_wFormatTag);
 	printf("m_nChannels:%u\n", (unsigned int)mediainfo->m_nChannels);
@@ -237,33 +237,28 @@ void DemuxTest(const char* filename)
 {
 	void * hmedia = NULL;
 	T_MEDIALIB_DMX_INFO mediaInfo;
-	
-	
+
 	IFileSource * ifile = new CFileSource(filename);
   if(ifile == NULL)
   	return;
-  	
+
   dmx_init(&hmedia, ifile, &mediaInfo);
   printMediaInfo(&mediaInfo);
-    
+
   unsigned int buffLen = MediaLib_Dmx_GetFirstVideoSize(hmedia);
-  printf("first video size:%u\n", (unsigned int)buffLen);	
+  printf("first video size:%u\n", (unsigned int)buffLen);
   unsigned char* buff = new unsigned char[buffLen];
-  
   if(AK_FALSE == MediaLib_Dmx_GetFirstVideo(hmedia, buff, (T_U32*)&buffLen))
   {
-  	printf("MediaLib_Dmx_GetFirstVideo error\n");	
+  	printf("MediaLib_Dmx_GetFirstVideo error\n");
   }
- 
+
   delete buff;
   buff = NULL;
-  
   MediaLib_Dmx_Start(hmedia, 0);
- 
   #if 1
   dodemex2(hmedia);
   #endif
-  
   dmx_deinit(hmedia);
   delete ifile;
   ifile = NULL;
@@ -278,7 +273,6 @@ static void MiToDmi(T_MEDIALIB_DMX_INFO* mi, AKDemuxMediaInfo* dmi)
 		dmi->m_MediaType = AKDEMUX_MEDIA_MP4;
 	else
 		dmi->m_MediaType = AKDEMUX_MEDIA_UNKNOW;
-		
 	dmi->m_bHasVideo = mi->m_bHasVideo;
 	dmi->m_bHasAudio = mi->m_bHasAudio;
 	dmi->m_bAllowSeek = mi->m_bAllowSeek;
@@ -298,13 +292,11 @@ static void MiToDmi(T_MEDIALIB_DMX_INFO* mi, AKDemuxMediaInfo* dmi)
 	dmi->m_uHeight = mi->m_uHeight;
 	dmi->m_uFPS = mi->m_uFPS;
 	dmi->m_ulVideoBitrate = mi->m_ulVideoBitrate;
-	
 	//audio
 	if(_SD_MEDIA_TYPE_AAC == mi->m_AudioType)
 		dmi->m_AudioType = AKDEMUX_AUDIO_AAC;
 	else
 		dmi->m_AudioType = AKDEMUX_AV_UNKNOW;
-		
 	dmi->m_ulAudioBitRate = mi->m_ulAudioBitRate;
 	dmi->m_wFormatTag = mi->m_wFormatTag;
 	dmi->m_nChannels = mi->m_nChannels;
@@ -327,37 +319,35 @@ static int DemuxForLiveInit(void **hMedia, IFileSource* fs, AKDemuxMediaInfo* dm
 
 	//printf("dmi->fps=%u, mi-fps:%u\n", dmi->m_uFPS,mediaInfo.m_uFPS);
 	unsigned int buffLen = MediaLib_Dmx_GetFirstVideoSize(*hMedia);
-  //printf("first video size:%u\n", (unsigned int)buffLen);	
+  //printf("first video size:%u\n", (unsigned int)buffLen);
   unsigned char* buff = new unsigned char[buffLen];
-  
   if(AK_FALSE == MediaLib_Dmx_GetFirstVideo(*hMedia, buff, (T_U32*)&buffLen))
   {
-  	printf("MediaLib_Dmx_GetFirstVideo error\n");	
+  	printf("MediaLib_Dmx_GetFirstVideo error\n");
   }
- 	//printf("after first video size:%u\n", (unsigned int)buffLen);	
+ 	//printf("after first video size:%u\n", (unsigned int)buffLen);
   delete buff;
   buff = NULL;
-  
   MediaLib_Dmx_Start(*hMedia, 0);
-	return 0;	
+	return 0;
 }
 static int DemuxForLiveDeinit(void* hMedia)
 {
 	dmx_deinit(hMedia);
-	return 0;	
+	return 0;
 }
 static int DemuxForLiveGetVideoData(void* hMedia, void* buf, unsigned* size, int nNeedIFramecount)
 {
 	*size = MediaLib_Dmx_GetVideoFrameSize(hMedia);
-	
+
 	//demuxVideoData(*size, buf, hMedia);
-	return 0;	
+	return 0;
 }
 static int DemuxForLiveGetAudioData(void* hMedia, void* buf, unsigned* size, int nNeedIFramecount)
 {
 	*size = MediaLib_Dmx_GetAudioDataSize(hMedia);
 	//demuxAudioData(*size, buf, hMedia);
-	return 0;	
+	return 0;
 }
 
 static int DemuxForLiveGetAVData(void* hMedia, void* buf, unsigned* size, int nNeedIFramecount, int* ntype)
@@ -389,7 +379,6 @@ static int DemuxForLiveGetAVData(void* hMedia, void* buf, unsigned* size, int nN
 			{
 				MediaLib_Dmx_GetAudioData(hMedia, (T_U8*)buf, (T_U32)*size);
 			}
-			
 			//printf("0x%x audio size:%u\n", hMedia, *size);
 			if(*size == 4096)
 				*size = 0;
@@ -405,7 +394,7 @@ static int DemuxForLiveGetAVData(void* hMedia, void* buf, unsigned* size, int nN
 	{
 		printf("end or error\n");
 		return -2;
-	}	
+	}
   return 0;
 }
 void DemuxForLiveSetCallBack()
