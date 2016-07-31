@@ -67,4 +67,3 @@ clean:
 	@ls $(LIBFS)/ | xargs -I {} rm -fr {} \;
 
 .PHONY:all install image reinstall libfs selfs clean
-

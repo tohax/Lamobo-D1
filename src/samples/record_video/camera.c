@@ -712,9 +712,9 @@ int camera_open(demo_setting* Setting)
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	if (pthread_create(&ThredOsdID, &attr, thread_setOSD, NULL) != 0 ) 
-	{		
+	{
 		loge( "unable to create a thread for osd = %d!\n" );
-		//return -1;	
+		//return -1;
 	}
 	pthread_attr_destroy(&attr);
 	if (Setting->mode == 1)
@@ -737,7 +737,7 @@ int camera_open(demo_setting* Setting)
 	if (fmt.fmt.pix.bytesperline < min)
 		fmt.fmt.pix.bytesperline = min;
 	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
-	
+
 	if (fmt.fmt.pix.sizeimage < min)
 		fmt.fmt.pix.sizeimage = min;
 	fmt.fmt.pix.sizeimage += (Setting->width2*Setting->height2*3/2);
@@ -853,7 +853,7 @@ int camera_close(void)
 	{
 		g_camera.dma_free(g_camera.pframebuf);
 	}
-	
+
 	enum v4l2_buf_type type;
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	if (-1 == xioctl(fd, VIDIOC_STREAMOFF, &type))
@@ -870,7 +870,7 @@ int camera_close(void)
 	    errno_exit("close");
 
 	fd = -1;
-	
+
 	Mutex_Destroy(&g_fd_Mutex);
 	return 1;
 }

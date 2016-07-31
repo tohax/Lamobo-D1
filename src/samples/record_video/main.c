@@ -30,7 +30,7 @@ int g_exit = 0;
 int g_width = 0;
 int g_height = 0;
 
-const char* avi_fname_1 = "test.avi";
+//char* avi_fname_1;
 const char* avi_fname_2 = "test_2.avi";
 
 const char* mp4_fname_1 = "test.mp4";
@@ -178,11 +178,9 @@ static void video_proc(demo_setting* ext_gSettings)
 	unsigned long t1 = 0;
 	unsigned long num = 0;
 	unsigned long insert_num = 0;
-	
 	gettimeofday(&tv, NULL);
 	t0 = tv.tv_sec*1000 + tv.tv_usec/1000;
 	times = t0 + ext_gSettings->enc_time*1000;
-	
 	do{
 		void *pbuf;
 		void *pencbuf;
@@ -204,22 +202,20 @@ static void video_proc(demo_setting* ext_gSettings)
 			{
 				printf("get ts is %ld\n",ts);
 				camera_usebufok();
-
 				gettimeofday(&tv, NULL);
 				t0 = tv.tv_sec*1000 + tv.tv_usec/1000;
 				times = t0 + ext_gSettings->enc_time*1000;
-				
+
 				continue;
 			}
-			
+
 			time_flag = 1;
 		}
 
 		t1 = (tv.tv_sec*1000 + tv.tv_usec/1000);
 		unsigned long ts1 = t1-t0;
-		
 		if (ts1 > timestamp + 1000/DV_FPS)
-		{	
+		{
 			int diff_num;
 			if ((diff_num = (ts1 - timestamp)*DV_FPS/1000) > 2)
 				printf("t: %lu/%lu, %lu  +%d\n", timestamp, ts1, ts, diff_num);
@@ -232,11 +228,10 @@ static void video_proc(demo_setting* ext_gSettings)
 			// Discard Frame, When Video stamp faster than system stamp, 300ms.
 			printf("T: %lu/%lu, %lu\n", timestamp, ts1, ts);
 			camera_usebufok();
-			continue;			
-		}		
-		
+			continue;
+		}
 		long frameLenA;
-		int iframe;		
+		int iframe;
 		// Dual Channel Mode
 		if (ext_gSettings->mode == 2) {
 			long frameLenB;
@@ -250,7 +245,7 @@ static void video_proc(demo_setting* ext_gSettings)
 			encode_frame(&frameLenA, pbuf, &pencbuf, &iframe, NULL, NULL, NULL, NULL, ext_gSettings->vbr);
 			// 2nd Channel Encode
 			encode_frame(NULL, NULL, NULL, NULL, &frameLenB, pbuf+offset, &pencbuf2, &iframe2, ext_gSettings->vbr);
-#endif		
+#endif
 			// Write 2nd Channel Data
 			mux_addVideo(eCHAN_DUAL, pencbuf2, frameLenB, timestamp, iframe2);
 		}
@@ -258,14 +253,14 @@ static void video_proc(demo_setting* ext_gSettings)
 		else {
 			encode_frame(&frameLenA, pbuf, &pencbuf, &iframe, NULL, NULL, NULL, NULL, ext_gSettings->vbr);
 		}
-			
-		camera_usebufok();	
+
+		camera_usebufok();
 		// Write 1nd Channel Data
 		if (mux_addVideo(eCHAN_UNI, pencbuf, frameLenA, timestamp, iframe) < 0)	{
 			printf("mux_addVideo err \n");
 			break;
 		}
-		
+
 		if (!ext_gSettings->bhasAudio)
 		{
 			ts = timestamp;
@@ -275,10 +270,10 @@ static void video_proc(demo_setting* ext_gSettings)
 #else
 		timestamp = mux_getToltalTime(eCHAN_UNI) + 33;
 #endif
-		
+
 	}while(t1 <= times && !g_exit);
 	g_exit = 1;
-	printf("video thread eixt \n");
+	printf("video thread exit \n");
 	printf("insert frame: %lu/%lu\n", insert_num, num);
 }
 
@@ -304,17 +299,31 @@ void dump(int signo)
 
 /**
 * @brief  main
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] argc  arg count
 * @param[in] argv  arg array.
 * @return T_S32
-* @retval if return 0 success, otherwise failed 
+* @retval if return 0 success, otherwise failed
 */
 int main( int argc, char **argv )
 {
-	demo_setting * ext_gSettings = NULL;	
+//ya dobavil
+char avi_fname_1[10];
+char name[20];
+struct tm *t;
+        time_t ltime;
+        time(&ltime);
+        t = localtime(&ltime);
+        printf("Имя файла: %02d%02d%4d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+	//printf("Время: %02d:%02d:%02d\n", t-> tm_hour, t->tm_min, t->tm_sec);
+	memset(name, 0x00, 20);
+	sprintf( name, "/mnt/%4d%02d%02d/", 1900 + t->tm_year, t->tm_mon + 1,t->tm_mday);
+	CompleteCreateDirectory(name);
+	sprintf(avi_fname_1, "%02d%02d%4d_%02d%02d%02d\n", t-> tm_mday, t->tm_mon+1,1900 + t->tm_year,t->tm_hour, t->tm_min, t->tm_sec);
+
+demo_setting * ext_gSettings = NULL;
 	signal(SIGINT, sigprocess);
 	signal(SIGSEGV, dump);
 
@@ -443,36 +452,36 @@ int main( int argc, char **argv )
 	memset(&mux_input1, 0, sizeof(T_MUX_INPUT));
 	memset(&mux_input2, 0, sizeof(T_MUX_INPUT));	
 	memset(filename, 0, FILE_NAME_LEN);
-	
+
 	mux_initPara(&mux_input1, ext_gSettings, 0);
-	
+
 	if( ext_gSettings->filetype == 0)
 		memcpy(filename, avi_fname_1, strlen(avi_fname_1));
 	else
 		memcpy(filename, mp4_fname_1, strlen(mp4_fname_1));
-	
+
 	if(-1 == mux_open(eCHAN_UNI, &mux_input1, filename))
 	{
 		printf("mux_open eCHAN_UNI err\n");
 		return 0;
 	}
-	
+
 	if (ext_gSettings->mode == 2)
 	{
 		mux_initPara(&mux_input2, ext_gSettings, 1);
-		
+
 		if( ext_gSettings->filetype == 0)
 			memcpy(filename, avi_fname_2, strlen(avi_fname_2));
 		else
 			memcpy(filename, mp4_fname_2, strlen(mp4_fname_2));
-		
+
 		if(-1 == mux_open(eCHAN_DUAL, &mux_input2, filename))
 		{
 			printf("mux_open eCHAN_DUAL err\n");
 			return 0;
 		}
 	}
-	
+
 	if (ext_gSettings->rec_path != NULL)
 	{
 		free(ext_gSettings->rec_path);
