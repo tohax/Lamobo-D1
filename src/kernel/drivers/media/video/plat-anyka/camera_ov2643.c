@@ -451,7 +451,7 @@ static T_VOID cam_ov2643_set_hue(T_U32 value)
             camera_setup(HUE_6_TAB);
             break;
         default:
-            akprintf(C1, M_DRVSYS, "set hue parameter error!\n");
+            camera_setup(HUE_0_TAB);//akprintf(C1, M_DRVSYS, "set hue parameter error!\n");
             break;
     }
 }
@@ -467,7 +467,7 @@ static T_VOID cam_ov2643_set_hue_auto(T_U32 value)
             camera_setup(HUE_AUTO_1_TAB);
             break;
         default:
-            akprintf(C1, M_DRVSYS, "set hue auto parameter error!\n");
+            camera_setup(HUE_AUTO_0_TAB);//akprintf(C1, M_DRVSYS, "set hue auto parameter error!\n");
             break;
     }
 }

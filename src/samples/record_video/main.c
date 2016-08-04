@@ -30,7 +30,7 @@ int g_exit = 0;
 int g_width = 0;
 int g_height = 0;
 
-//char* avi_fname_1;
+const char* avi_fname_1 = "test.avi";
 const char* avi_fname_2 = "test_2.avi";
 
 const char* mp4_fname_1 = "test.mp4";
@@ -310,18 +310,18 @@ void dump(int signo)
 int main( int argc, char **argv )
 {
 //ya dobavil
-char avi_fname_1[10];
-char name[20];
-struct tm *t;
-        time_t ltime;
-        time(&ltime);
-        t = localtime(&ltime);
-        printf("Имя файла: %02d%02d%4d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+//char avi_fname_1[10];
+//char name[20];
+//struct tm *t;
+ //       time_t ltime;
+  //      time(&ltime);
+   //     t = localtime(&ltime);
+    //    printf("Имя файла: %02d%02d%4d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 	//printf("Время: %02d:%02d:%02d\n", t-> tm_hour, t->tm_min, t->tm_sec);
-	memset(name, 0x00, 20);
-	sprintf( name, "/mnt/%4d%02d%02d/", 1900 + t->tm_year, t->tm_mon + 1,t->tm_mday);
-	CompleteCreateDirectory(name);
-	sprintf(avi_fname_1, "%02d%02d%4d_%02d%02d%02d\n", t-> tm_mday, t->tm_mon+1,1900 + t->tm_year,t->tm_hour, t->tm_min, t->tm_sec);
+//	memset(name, 0x00, 20);
+//	sprintf( name, "/mnt/%4d%02d%02d/", 1900 + t->tm_year, t->tm_mon + 1,t->tm_mday);
+//	CompleteCreateDirectory(name);
+//	sprintf(avi_fname_1, "%02d%02d%4d_%02d%02d%02d\n", t-> tm_mday, t->tm_mon+1,1900 + t->tm_year,t->tm_hour, t->tm_min, t->tm_sec);
 
 demo_setting * ext_gSettings = NULL;
 	signal(SIGINT, sigprocess);

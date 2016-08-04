@@ -143,9 +143,7 @@ void setup_yuv_video_out(struct isp_struct *pcdev)
 	pcdev->isp_ctrltbl[29] = 0x00000000;
 	pcdev->isp_ctrltbl[30] = 0x00000000;
 	pcdev->isp_ctrltbl[31] = 0x00000000;
-
 	pcdev->img_ctrltbl1[15] = 0x00000000;
-
 	pcdev->osd_chktbl[0] = 0x00008080;
 	pcdev->osd_chktbl[1] = 0x00ff8080;
 	pcdev->osd_chktbl[2] = 0x00c08080;
