@@ -198,7 +198,7 @@ T_S32 audio_process_close()
 	{
 		if (gaudioproc.pcmData[i].pData != AK_NULL)
 		{
-			printf("free pData %p \n", gaudioproc.pcmData[i].pData);
+			//printf("free pData %p \n", gaudioproc.pcmData[i].pData);
 			free(gaudioproc.pcmData[i].pData);
 		}
 	}

@@ -23,7 +23,7 @@
 #include "SDcard.h"
 #include "Tool.h"
 
-#define FILE_NAME_LEN 12
+#define FILE_NAME_LEN 19
 #define MAX_WIDTH	1280
 #define MAX_HEIGHT	720
 int g_exit = 0;
@@ -45,54 +45,37 @@ const char* mp4_fname_2 = "test_2.mp4";
   } while( 0 )
 
 #define DV_FPS	30
-/*
- * 当宏定义DUAL_CHAN_PAR 为真时, 为双通道并行编码,
- * 否则, 为双通道串行编码.
- */
-#define DUAL_CHAN_PAR
-//#undef DUAL_CHAN_PAR
+//#define DUAL_CHAN_PAR
 
-//长操作命令的定义，-Help/-help
 #define LONG_OPTIONS()
 const struct option long_options[] =
 {
-//-Help 带参数（即-H *）,对应的短操作参数 -h
-{"Help",			required_argument, NULL, 'H'},	//printf the help document
-//-help 没有参数（即-H）, 对应的短操作参数 -H
-{"help",					  no_argument, NULL, 'H'},	//printf the help document
+{"Help", required_argument, NULL, 'H'},	//printf the help document
+{"help", no_argument, NULL, 'H'},	//printf the help document
 {0, 0, 0, 0}
 };
 
-//短操作命令的定义，-h/-H,带参数的操作命令后面跟':'符号
 const char short_options[] = "h:w:b:q:i:t:p:a:s:r:v:m:x:y:e:f:z:c:HM:V:l:r:P:";
-//即-H后面可以跟输入，-h后面不跟，带不带参数根据长操作命令定义中的required_argument/no_argument决定
 
-//init the demo setting struct
 static void Settings_Initialize( demo_setting *main );
 
-// parse settings from app's command line
-static void Settings_ParseCommandLine( int argc, char **argv, 
-												 demo_setting *mSettings );
+static void Settings_ParseCommandLine( int argc, char **argv, demo_setting *mSettings );
 
-// parse settings from app's command line
-static void Settings_Interpret( char option, const char *optarg, 
-								   demo_setting *mExtSettings );
+static void Settings_Interpret( char option, const char *optarg, demo_setting *mExtSettings );
 
 static void Settings_Destroy( demo_setting *mSettings );
-	
-//printf the help document
+
 static void help( char * strHelpArg );
 
 static void sigprocess( int inSigno )
 {
 	logi( "need to exit the Demo!\n" );
-	
 	g_exit = 1;
 }
 
 /**
 * @brief  init muxer input parameter
-* 
+*
 * @author xiewenzhong
 * @date 2013-09-12
 * @param[out] muxIn,  return muxer parameter
@@ -107,7 +90,7 @@ T_VOID mux_initPara(T_MUX_INPUT* muxIn, demo_setting* envSet, T_U8 dualChannel)
 	case ENC_TYPE_PCM:
 		muxIn->m_eAudioType = MEDIALIB_AUDIO_PCM;
 		break;
-	
+
 	case ENC_TYPE_AAC:
 		muxIn->m_eAudioType = MEDIALIB_AUDIO_AAC;
 		break;
@@ -173,7 +156,7 @@ static void video_proc(demo_setting* ext_gSettings)
 	unsigned long size;
 	unsigned long times;
 	struct timeval tv;
-	unsigned long timestamp = 0;	
+	unsigned long timestamp = 0;
 	unsigned long t0;
 	unsigned long t1 = 0;
 	unsigned long num = 0;
@@ -362,7 +345,7 @@ demo_setting * ext_gSettings = NULL;
 		return -1;
 	}
 #endif	
-	if (access("/dev/mmcblk0", R_OK) < 0)
+/*	if (access("/dev/mmcblk0", R_OK) < 0)
 	{
 	//no sd card
 		printf("no SDsard exit \n");
@@ -375,7 +358,7 @@ demo_setting * ext_gSettings = NULL;
 		mount_sd();
 		InitListenSD();		
 	}
-
+*/
 	signed long long Disksize = GetDiskFreeSize("/mnt/");
 
 	if (Disksize < (T_S64)30)
@@ -384,10 +367,9 @@ demo_setting * ext_gSettings = NULL;
 		free(ext_gSettings);
 		return -1;
 	}
-			
+
 	// init dma memory
 	akuio_pmem_init();
-	
 	g_width 	= ext_gSettings->width;
 	g_height 	= ext_gSettings->height;
 	// open camera device
@@ -416,7 +398,6 @@ demo_setting * ext_gSettings = NULL;
 	if (ext_gSettings->mode == 2)
 	{
 		pEncIn2 = (T_ENC_INPUT*)malloc(sizeof(T_ENC_INPUT));
-		
 		pEncIn2->width 		= ext_gSettings->width2;			//实际编码图像的宽度，能被4整除
 		pEncIn2->height 	= ext_gSettings->height2;			//实际编码图像的长度，能被2整除 
 		pEncIn2->qpHdr 		= ext_gSettings->qpHdr;			//初始的QP的值
@@ -427,7 +408,7 @@ demo_setting * ext_gSettings = NULL;
 		pEncIn2->qpMin 		= ext_gSettings->qpMin;
 		pEncIn2->profile	= ext_gSettings->profile;	// Profile Level
 	}
-	
+
 	// open encode lib
 	int ret = encode_open(pEncIn1, pEncIn2);
 
@@ -438,19 +419,19 @@ demo_setting * ext_gSettings = NULL;
 
 	if (0 != ret) {
 		camera_close();
+		encode_destroy();
 		akuio_pmem_fini();
-		encode_destroy();	
 		//CloseListenSD();
 
 		return -1;
 	}
-		
+
 	//mux_open
 	T_MUX_INPUT mux_input1;
 	T_MUX_INPUT mux_input2;
 	char filename[FILE_NAME_LEN];
 	memset(&mux_input1, 0, sizeof(T_MUX_INPUT));
-	memset(&mux_input2, 0, sizeof(T_MUX_INPUT));	
+	memset(&mux_input2, 0, sizeof(T_MUX_INPUT));
 	memset(filename, 0, FILE_NAME_LEN);
 
 	mux_initPara(&mux_input1, ext_gSettings, 0);
@@ -503,12 +484,12 @@ demo_setting * ext_gSettings = NULL;
 		audio_start();
 		printf("audio is ready\n");
 	}
-	
-	camera_start();	
-	
+
+	camera_start();
+
 	//handle video encode and mux
 	video_proc(ext_gSettings);
-	
+
 	if (ext_gSettings->bhasAudio)
 	{
 		printf("audio_close\n");
@@ -525,14 +506,12 @@ demo_setting * ext_gSettings = NULL;
 		encode_close(eCHAN_DUAL);
 		mux_close(eCHAN_DUAL);
 	}
-
 	encode_destroy();
 	akuio_pmem_fini();
 	//CloseListenSD();
-
 	printf("Recorder Process Exit\n");
 
-	return 0;	
+	return 0;
 }
 
 /**
@@ -543,42 +522,37 @@ demo_setting * ext_gSettings = NULL;
 * @param[out] main  setting struct pointer
 * @return NONE
 */
-static void Settings_Initialize( demo_setting *main ) 
+static void Settings_Initialize( demo_setting *main )
 {
 	// Everything defaults to zero or NULL with
     // this memset. Only need to set non-zero values
     // below.
     memset(main, 0, sizeof(demo_setting));
-	main->width			= 1280;			//实际编码图像的宽度，能被4整除
+	main->width		= 1280;			//实际编码图像的宽度，能被4整除
 	main->height		= 720;			//实际编码图像的长度，能被2整除 
-	main->qpHdr			= -1;			//初始的QP的值
+	main->qpHdr		= -1;			//初始的QP的值
 	main->iqpHdr		= 30;			//初始的iQP的值
-	main->qpMax			= 50;
-	main->qpMin			= 10;
+	main->qpMax		= 50;
+	main->qpMin		= 10;
 	main->bitPerSecond	= 1024*4000;	//目标bps
-	main->vbr			= 1;			// Default Support VBR
+	main->vbr		= 1;			// Default Support VBR
 	main->profile		= 0;			// profile level
 	main->enc_time		= 300;          //默认300秒
-	
 	main->bhasAudio 	= 1;
 	main->audioType		= ENC_TYPE_AAC; //默认AAC编码
 	main->aSamplerate	= 8000;
-	
-	main->mode			= 0;            //默认单通道编码
-	main->video_types   = 0;            //默认H264编码
+	main->mode		= 0;            //默认单通道编码
+	main->video_types	 = 0;            //默认H264编码
 	main->filetype 		= 0;
-
-    //通道2设置
 	main->video_types2	= 0;
 	main->width2  		= 320;
 	main->height2		= 240;
-	
-	main->times			= 0;
+	main->times		= 0;
 }
 
 /**
 * @brief  parse settings from app's command line
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] argc  		arg count
@@ -602,7 +576,7 @@ static void Settings_ParseCommandLine( int argc, char **argv, demo_setting *mSet
 
 /**
 * @brief  parse settings from app's command line
-* 
+*
 * @author hankejia
 * @date 2012-07-05
 * @param[in] option  			option [-s/-c/-a...]
@@ -610,36 +584,35 @@ static void Settings_ParseCommandLine( int argc, char **argv, demo_setting *mSet
 * @param[out] mExtSettings  	setting struct pointer.
 * @return NONE
 */
-static void Settings_Interpret(char option, const char *optarg, 
-								   demo_setting *mExtSettings )
+static void Settings_Interpret(char option, const char *optarg, demo_setting *mExtSettings )
 {
 	assert( mExtSettings );
-	
+
 	switch (option) {
-		
+
 	case 'H':	//printf the help document
 		help( NULL );
 		Settings_Destroy( mExtSettings );
 		exit(0);
 		break;
 
-	case 'h':	
+	case 'h':
 		mExtSettings->height = (T_U32)(atoi( optarg ));
 		break;
 
-	case 'w':	
+	case 'w':
 		mExtSettings->width = (T_U32)(atoi( optarg ));
 		break;
 
-	case 'b':	
+	case 'b':
 		mExtSettings->bitPerSecond = (T_U32)(atoi( optarg ));
 		break;
 
-	case 'q':	
+	case 'q':
 		mExtSettings->qpHdr = (T_U32)(atoi( optarg ));
 		break;
 
-	case 'i':	
+	case 'i':
 		mExtSettings->iqpHdr = (T_U32)(atoi( optarg ));
 		break;
 	case 'r':
@@ -648,11 +621,11 @@ static void Settings_Interpret(char option, const char *optarg,
 	case 'P':
 		mExtSettings->profile = (T_U8)(atoi(optarg));
 		break;
-	case 't':	
+	case 't':
 		mExtSettings->enc_time = (T_U32)(atoi( optarg ));
 		break;
 
-	case 'p':	
+	case 'p':
 		mExtSettings->rec_path = (T_pSTR)malloc((strlen(optarg)+2)*sizeof(char));
 		bzero(mExtSettings->rec_path, (strlen(optarg)+2)*sizeof(char));
 		strcpy( mExtSettings->rec_path, optarg );
@@ -668,15 +641,14 @@ static void Settings_Interpret(char option, const char *optarg,
 				mExtSettings->rec_path = NULL;
 			}
 		}
-				
 		break;
 
-	case 'a':	
+	case 'a':
 		mExtSettings->bhasAudio = 1;
 		mExtSettings->audioType = (T_U32)(atoi( optarg ));
 		break;
 
-	case 's':	
+	case 's':
 		mExtSettings->aSamplerate= (T_U32)(atoi( optarg ));
 		break;
 
@@ -740,12 +712,10 @@ static void help( char * strHelpArg )
 		-V --- set video qp Min \n");
 	printf( "\
 		-m --- set mode 0=NULL, 1=zoom, 2=2channel, 3=occ \n" );
-
 	printf( "\
 		-e --- set width of channel2 \n" );
 	printf( "\
 		-f --- set height of channel2 \n" );
-		
 	printf( "\
 		-z --- set zoom times in [1,3] \n" );
 	printf( "\
@@ -760,7 +730,6 @@ static void help( char * strHelpArg )
 		-c --- set channel2 video type: 0 is h264;1 is mjpeg,default is h264\n" );
 	printf( "\
 		-a --- open audio and set audio type: 0 is pcm;1 adpcm_ima; 2 is aac\n" );
-			
 	printf( "\
 		-s --- set audio samplerate,default is 8000 Hz\n" );
 	printf( "\

@@ -628,8 +628,8 @@ T_VOID ak_rec_cb_printf( T_pCSTR format, ... )
 	vsnprintf( buf, LOG_BUF_SIZE, format, ap );
 	va_end( ap );
 
-	fprintf( stderr, LOG_TAG );
-	fprintf( stderr, "::" );
+	//fprintf( stderr, LOG_TAG );
+	//fprintf( stderr, "::" );
 	fprintf( stderr, buf );
 	fprintf( stderr, "\n" );
 #endif
