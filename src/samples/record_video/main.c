@@ -183,7 +183,7 @@ static void video_proc(demo_setting* ext_gSettings)
 		{
 			if (ts > 1000)
 			{
-				printf("get ts is %ld\n",ts);
+				//printf("get ts is %ld\n",ts);
 				camera_usebufok();
 				gettimeofday(&tv, NULL);
 				t0 = tv.tv_sec*1000 + tv.tv_usec/1000;

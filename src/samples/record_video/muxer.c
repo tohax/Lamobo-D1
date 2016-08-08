@@ -24,7 +24,7 @@ T_VIDEO_MUXER muxMgr[eCHAN_NUM] = {{0}, {0}};
 pthread_mutex_t muxMutex;
 
 static void mux_setCB(T_MEDIALIB_CB* cbFunc)
-{	
+{
 	cbFunc->m_FunPrintf = (MEDIALIB_CALLBACK_FUN_PRINTF)printf;
 	cbFunc->m_FunMalloc = (MEDIALIB_CALLBACK_FUN_MALLOC)malloc;
 	cbFunc->m_FunFree	= (MEDIALIB_CALLBACK_FUN_FREE)free;
@@ -39,7 +39,7 @@ static void* mux_openLib(T_MUX_INPUT *mux_input, T_REC_CHAN chan)
 {
 	T_MEDIALIB_MUX_OPEN_INPUT open_input;
 	T_MEDIALIB_MUX_OPEN_OUTPUT open_output;
-	
+
 	memset(&open_input, 0, sizeof(T_MEDIALIB_MUX_OPEN_INPUT));
 	open_input.m_MediaRecType	= mux_input->m_MediaRecType;//MEDIALIB_REC_AVI_NORMAL;
 	open_input.m_hMediaDest		= (T_S32)muxMgr[chan].pfile1;
@@ -61,7 +61,7 @@ static void* mux_openLib(T_MUX_INPUT *mux_input, T_REC_CHAN chan)
 	open_input.m_nHeight		= mux_input->m_nHeight;//480;
 	open_input.m_nFPS			= 30;
 	open_input.m_nKeyframeInterval	= 24;
-	
+
 	// set audio open info
 	open_input.m_eAudioType		= mux_input->m_eAudioType;//MEDIALIB_AUDIO_PCM;
 	open_input.m_nSampleRate	= mux_input->m_nSampleRate;//8000;
@@ -90,7 +90,7 @@ static void* mux_openLib(T_MUX_INPUT *mux_input, T_REC_CHAN chan)
 		case 12000 :
 			open_input.m_ulAudioBitrate = 12000;
 			break;
-		
+
 		case 16000:
 			open_input.m_ulAudioBitrate = 16000;
 			break;
@@ -113,12 +113,11 @@ static void* mux_openLib(T_MUX_INPUT *mux_input, T_REC_CHAN chan)
 			open_input.m_ulAudioBitrate = 48000;
 			break;
 		}
-	
 		break;
 
 	case MEDIALIB_AUDIO_ADPCM:
 		open_input.m_wFormatTag = 0x11;
-		
+
 		switch(open_input.m_nSampleRate)
 		{
 			case 8000:
@@ -186,7 +185,7 @@ int mux_open(T_REC_CHAN chan, T_MUX_INPUT *mux_input, char *filename)
 		printf("filename is null \n");
 		return -1;
 	}
-	
+
 	bzero(strFile, sizeof(strFile));
 	sprintf(strFile, "%s%s", mux_input->rec_path, filename);
 
@@ -202,7 +201,7 @@ int mux_open(T_REC_CHAN chan, T_MUX_INPUT *mux_input, char *filename)
 		printf("Open File Failure\n");
 		goto err;
 	}
-	
+
 
 	if (AK_NULL != mux_input->rec_path)
 	{
