@@ -50,7 +50,7 @@
 int bNeedCheckFile = 1;//是否需要校验
 
 
-#define CAMERA			"/etc/jffs2/camera.ini"
+#define CAMERA			"/etc/camera.ini"
 
 #define SEM_PROJ_ID	0x23
 #define SEM_NUMS		6
@@ -93,7 +93,7 @@ void WarningInfo()
 	gets(input);
 	if(input[0] != 'O' || input[1] != 'K')
 		exit(1);
-	
+
 }
 
 /*****************************************************************

@@ -4,7 +4,7 @@ rm -rf /var/run/wpa_supplicant
 if pgrep dropbear; then killall -9 dropbear; fi
 
 if [[ "`pgrep camera.sh`" = "" ]]; then
-/etc/init.d/camera.sh fi
+/etc/init.d/camera.sh & fi
 echo 1 > /sys/class/leds/g_led/brightness
 /etc/init.d/wifi_led.sh r_led blink 1000 900
 fi

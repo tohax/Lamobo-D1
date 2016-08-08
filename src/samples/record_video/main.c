@@ -23,14 +23,14 @@
 #include "SDcard.h"
 #include "Tool.h"
 
-#define FILE_NAME_LEN 19
+#define FILE_NAME_LEN 23
 #define MAX_WIDTH	1280
 #define MAX_HEIGHT	720
 int g_exit = 0;
 int g_width = 0;
 int g_height = 0;
-
-const char* avi_fname_1 = "test.avi";
+const char* avi_1 = ".avi";
+char* avi_fname_1;
 const char* avi_fname_2 = "test_2.avi";
 
 const char* mp4_fname_1 = "test.mp4";
@@ -94,7 +94,7 @@ T_VOID mux_initPara(T_MUX_INPUT* muxIn, demo_setting* envSet, T_U8 dualChannel)
 	case ENC_TYPE_AAC:
 		muxIn->m_eAudioType = MEDIALIB_AUDIO_AAC;
 		break;
-		
+
 	case ENC_TYPE_ADPCM_IMA:
 		muxIn->m_eAudioType = MEDIALIB_AUDIO_ADPCM;
 		break;
@@ -114,8 +114,8 @@ T_VOID mux_initPara(T_MUX_INPUT* muxIn, demo_setting* envSet, T_U8 dualChannel)
 	{
 		muxIn->m_nWidth 	= envSet->width2;
 		muxIn->m_nHeight 	= envSet->height2;
-		muxIn->m_bCaptureAudio = 0;	
-		
+		muxIn->m_bCaptureAudio = 0;
+
 		//video
 		if (envSet->video_types2 == 0)
 		{
@@ -135,7 +135,7 @@ T_VOID mux_initPara(T_MUX_INPUT* muxIn, demo_setting* envSet, T_U8 dualChannel)
 		{
 			muxIn->m_bCaptureAudio = 1;
 		}
-		
+
 		//video
 		if (envSet->video_types == 0)
 		{
@@ -151,7 +151,7 @@ T_VOID mux_initPara(T_MUX_INPUT* muxIn, demo_setting* envSet, T_U8 dualChannel)
 
 static void video_proc(demo_setting* ext_gSettings)
 {
-	T_U8 time_flag = 0;	
+	T_U8 time_flag = 0;
 	T_U32 ts = 0;
 	unsigned long size;
 	unsigned long times;
@@ -293,18 +293,15 @@ void dump(int signo)
 int main( int argc, char **argv )
 {
 //ya dobavil
-//char avi_fname_1[10];
-//char name[20];
-//struct tm *t;
- //       time_t ltime;
-  //      time(&ltime);
-   //     t = localtime(&ltime);
-    //    printf("Имя файла: %02d%02d%4d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
-	//printf("Время: %02d:%02d:%02d\n", t-> tm_hour, t->tm_min, t->tm_sec);
-//	memset(name, 0x00, 20);
-//	sprintf( name, "/mnt/%4d%02d%02d/", 1900 + t->tm_year, t->tm_mon + 1,t->tm_mday);
-//	CompleteCreateDirectory(name);
-//	sprintf(avi_fname_1, "%02d%02d%4d_%02d%02d%02d\n", t-> tm_mday, t->tm_mon+1,1900 + t->tm_year,t->tm_hour, t->tm_min, t->tm_sec);
+char avi_fname_1[20];
+struct tm *t;
+        time_t ltime;
+        time(&ltime);
+        t = localtime(&ltime);
+//        printf("Data: %4d%02d%02d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+        sprintf(avi_fname_1, "%4d%02d%02d_%02d%02d%02d", 1900 + t->tm_year, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+        strncat(avi_fname_1, avi_1, 4);
+//ya zakonchil
 
 demo_setting * ext_gSettings = NULL;
 	signal(SIGINT, sigprocess);
@@ -328,23 +325,23 @@ demo_setting * ext_gSettings = NULL;
 		free(ext_gSettings);
 		return -1;
 	}
-#if 0	
+#if 0
 	// MJPEG
-	if (ext_gSettings->video_types == 1	
+	if (ext_gSettings->video_types == 1
 		&& (ext_gSettings->width > 720 || ext_gSettings->height > 480)){
 		printf("1st channel Unsuppose Format, MJPEG W: %lu, H: %lu\n", ext_gSettings->width, ext_gSettings->height);
 		free(ext_gSettings);
 		return -1;
 	}
-	
-	// MJPEG 	
-	if (ext_gSettings->video_types2 == 1	
+
+	// MJPEG
+	if (ext_gSettings->video_types2 == 1
 		&& (ext_gSettings->width2 > 640 || ext_gSettings->height2 > 480)){
 		printf("2nd channel Unsuppose Format, MJPEG W: %ld, H: %ld\n", ext_gSettings->width2, ext_gSettings->height2);
 		free(ext_gSettings);
 		return -1;
 	}
-#endif	
+#endif
 /*	if (access("/dev/mmcblk0", R_OK) < 0)
 	{
 	//no sd card
@@ -356,7 +353,7 @@ demo_setting * ext_gSettings = NULL;
 	{
 		printf("install sdcard \n");
 		mount_sd();
-		InitListenSD();		
+		InitListenSD();
 	}
 */
 	signed long long Disksize = GetDiskFreeSize("/mnt/");
@@ -374,7 +371,7 @@ demo_setting * ext_gSettings = NULL;
 	g_height 	= ext_gSettings->height;
 	// open camera device
 	camera_open(ext_gSettings);
-	printf("camera_open ok\n");		
+	printf("camera_open ok\n");
 
 	// init encode lib
 	encode_init();
