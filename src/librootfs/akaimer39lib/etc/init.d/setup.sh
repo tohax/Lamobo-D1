@@ -20,14 +20,14 @@ done; unset i
         if [[ "`cat /mnt/setup.txt | grep HOST | cut -d "=" -f 2`" != "" ]]; then
         echo `cat /mnt/setup.txt | grep HOST= | cut -d "=" -f 2` > /etc/sysconfig/HOSTNAME
         hostname -F /etc/sysconfig/HOSTNAME
-	mkdir /mnt/`hostname`
+	mkdir -p /mnt/`hostname`
 	chmod 755 /mnt/`hostname`
 	echo `hostname` > /etc/setup
 	fi
 
-mkdir /etc/.ssh
+mkdir -p /etc/.ssh
 chmod 755 /etc/.ssh
-mkdir /etc/dropbear
+mkdir -p /etc/dropbear
 chmod 755 /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
 echo 1 > /sys/class/leds/r_led/brightness
