@@ -14,8 +14,7 @@ LOCAL_SRC_CFILES := \
     audio_process.c \
     audio_enc.c \
     main.c \
-    SDcard.c
-
+    
 LOCAL_MODULE := record_video
 
 PREFIX := arm-none-linux-gnueabi-

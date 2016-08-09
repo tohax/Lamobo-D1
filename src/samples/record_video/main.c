@@ -20,7 +20,6 @@
 #include "headers.h"
 #include "audio.h"
 #include "log.h"
-#include "SDcard.h"
 #include "Tool.h"
 
 #define FILE_NAME_LEN 23
@@ -29,6 +28,7 @@
 int g_exit = 0;
 int g_width = 0;
 int g_height = 0;
+
 const char* avi_1 = ".avi";
 char* avi_fname_1;
 const char* avi_fname_2 = "test_2.avi";
@@ -298,7 +298,6 @@ struct tm *t;
         time_t ltime;
         time(&ltime);
         t = localtime(&ltime);
-//        printf("Data: %4d%02d%02d_%02d%02d%02d\n", 1900 + t->tm_year, t->tm_mon+1,t-> tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
         sprintf(avi_fname_1, "%4d%02d%02d_%02d%02d%02d", 1900 + t->tm_year, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
         strncat(avi_fname_1, avi_1, 4);
 //ya zakonchil
