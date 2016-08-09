@@ -3,14 +3,14 @@
 export HOME=/etc PWD=/etc
 echo 1 > /sys/class/leds/g_led/brightness
 # Adding usb devices to /dev at boot time
-for i in /sys/class/net/*/uevent; do printf 'add' > "$i"; done 2>/dev/null; unset i
-for i in /sys/bus/usb/devices/*; do
-                case "${i##*/}" in
-                [0-9]*-[0-9]*)
-        printf 'add' > "$i/uevent"
-        ;;
-esac
-done; unset i
+#for i in /sys/class/net/*/uevent; do printf 'add' > "$i"; done 2>/dev/null; unset i
+#for i in /sys/bus/usb/devices/*; do
+#                case "${i##*/}" in
+#                [0-9]*-[0-9]*)
+#        printf 'add' > "$i/uevent"
+#        ;;
+#esac
+#done; unset i
 
 # Mount sd card to /mnt folder
 mount /dev/mmcblk0 /mnt
@@ -27,3 +27,4 @@ if [ -f /mnt/setup.txt ]; then
 else
 	/etc/init.d/power_on.sh
 fi
+

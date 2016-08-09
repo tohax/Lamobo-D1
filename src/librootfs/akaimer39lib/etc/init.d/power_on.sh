@@ -1,15 +1,16 @@
 #!/bin/sh
-echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/rsync.txt
-echo 0 >/sys/class/leds/r_led/brightness
 AP=bus
 Server=10.10.10.2
+find /mnt/`hostname` -name "*index" -exec rm {} \;
+echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/rsync.txt
+/etc/init.d/wifi_led.sh r_led off
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	/etc/init.d/wifi
 	export HOME=/etc
 	Signal=$(iwconfig wlan0 | grep Link | cut -d "=" -f 2 | cut -d "/" -f 1)
-		if [ $Signal -ge 30 ] && ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server 'exit' > /dev/null; then
-			if pgrep camera.sh; then killall -9 camera.sh; killall -9 record_video; fi
+		if [ $Signal -ge 10 ] && ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server 'exit' > /dev/null; then
+			if pgrep ash; then kill -TERM `pgrep ash` && kill -2 `pgrep record_video`; fi
 			dropbear -B
 			ntpd -q -p time.windows.com
 			while [ `date +%Y` -le 2015 ]
@@ -18,16 +19,17 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			done
 			#здесь запуск rsync
 			echo heartbeat > /sys/class/leds/r_led/trigger
-			sleep 0.5
+			sleep 1
 			echo heartbeat > /sys/class/leds/g_led/trigger
-			rsync -avz --remove-source-files --log-file=/etc/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/ root@$Server:/mnt/hdd/oneday/
-			scp /etc/rsync.txt -i /etc/dropbear/dropbear_rsa_host_key root@10.10.10.2:/mnt/hdd/rsync/`hostname`/
-			rm -f /etc/rsync.txt
-			echo default-on > /sys/class/leds/r_led/trigger
-			echo 0 > /sys/class/leds/g_led/brightness
-			#конец rsync
+			rsync -avr --remove-source-files --log-file=/etc/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/`hostname`/ root@$Server:/mnt/hdd/oneday/
+			cd /etc
+			rsync -avR --remove-source-files -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" rsync.txt 10.10.10.2:/mnt/hdd/rsync/`hostname`/
+			rm -rf /mnt/`hostname`/*
+			/etc/init.d/wifi_led.sh r_led on
+			/etc/init.d/wifi_led.sh g_led off
+			# конец rsync
 		else
-			/etc/init.d/power_off.sh
+		/etc/init.d/power_off.sh
 		fi
 else
 	/etc/init.d/power_off.sh
