@@ -7,7 +7,5 @@ if pgrep dropbear; then killall -9 dropbear; fi
 
 if [ ! `pgrep record_video` ]; then 
 /etc/init.d/camera.sh &
-/etc/init.d/wifi_led.sh g_led on
-/etc/init.d/wifi_led.sh r_led blink 1000 900
 fi
 
