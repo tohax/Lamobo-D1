@@ -22,8 +22,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			sleep 1
 			echo heartbeat > /sys/class/leds/g_led/trigger
 			rsync -avr --remove-source-files --log-file=/etc/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/`hostname`/ root@$Server:/mnt/hdd/oneday/
-			cd /etc
-			rsync -avR --remove-source-files -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" rsync.txt 10.10.10.2:/mnt/hdd/rsync/`hostname`/
+			rsync -avR --remove-source-files -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /etc/rsync.txt root@$Server:/mnt/hdd/rsync/`hostname`/
 			rm -rf /mnt/`hostname`/*
 			/etc/init.d/wifi_led.sh r_led on
 			/etc/init.d/wifi_led.sh g_led off
