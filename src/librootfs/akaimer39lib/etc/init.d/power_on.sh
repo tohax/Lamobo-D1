@@ -3,13 +3,13 @@ AP=bus
 Server=10.10.10.2
 find /mnt/`hostname` -name "*index" -exec rm {} \;
 echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/rsync.txt
-/etc/init.d/wifi_led.sh r_led off
+#/etc/init.d/wifi_led.sh r_led off
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	/etc/init.d/wifi
 	export HOME=/etc
 	Signal=$(iwconfig wlan0 | grep Link | cut -d "=" -f 2 | cut -d "/" -f 1)
-		if [ $Signal -ge 10 ] && ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server 'exit' > /dev/null; then
+		if [ $Signal -ge 50 ] && ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server 'exit' > /dev/null; then
 			if pgrep ash; then kill -TERM `pgrep ash` && kill -2 `pgrep record_video`; fi
 			dropbear -B
 			ntpd -q -p time.windows.com
@@ -29,8 +29,10 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			/etc/init.d/wifi_led.sh g_led off
 			# конец rsync
 		else
+		/etc/init.d/wifi_led.sh g_led on
 		/etc/init.d/power_off.sh
 		fi
 else
-	/etc/init.d/power_off.sh
+		/etc/init.d/wifi_led.sh g_led on
+		/etc/init.d/power_off.sh
 fi
