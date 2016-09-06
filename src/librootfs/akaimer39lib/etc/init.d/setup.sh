@@ -22,7 +22,6 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         hostname -F /etc/sysconfig/HOSTNAME
 	mkdir -p /mnt/`hostname`
 	chmod 755 /mnt/`hostname`
-	touch /mnt/`hostname`/1.txt
 	echo `hostname` > /etc/setup
 	fi
 
