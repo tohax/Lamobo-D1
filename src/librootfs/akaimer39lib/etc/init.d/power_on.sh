@@ -9,7 +9,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	/etc/init.d/wifi
 	export HOME=/etc
 	Signal=$(iwconfig wlan0 | grep Link | cut -d "=" -f 2 | cut -d "/" -f 1)
-		if [ $Signal -ge 50 ] > /dev/null; then
+		if [ $Signal -ge 40 ] > /dev/null; then
 			if pgrep ash; then kill -TERM `pgrep ash` && kill -2 `pgrep record_video`; fi
 			dropbear -B
 			ntpd -q -p time.windows.com
