@@ -6,4 +6,3 @@ if pgrep dropbear; then killall -9 dropbear; fi
 if [ ! `pgrep record_video` ]; then
 /etc/init.d/camera.sh &
 fi
-
