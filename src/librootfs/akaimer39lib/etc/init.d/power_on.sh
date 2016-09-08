@@ -32,7 +32,6 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			# конец rsync
 		else
 		/etc/init.d/wifi_led.sh g_led on
-		ifdown wlan0
 		if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
 		rm -rf /var/run/wpa_supplicant
 		if pgrep dropbear; then killall -9 dropbear; fi
@@ -42,7 +41,6 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 		fi
 else
 		/etc/init.d/wifi_led.sh g_led on
-		ifdown wlan0
 		if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
 		rm -rf /var/run/wpa_supplicant
 		if pgrep dropbear; then killall -9 dropbear; fi
