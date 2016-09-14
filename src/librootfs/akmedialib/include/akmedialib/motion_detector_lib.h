@@ -3,7 +3,7 @@
  * @brief This file provides motion detection detecting functions
  *
  * Copyright (C) 2011 Anyka (Guangzhou) Microelectronics Technology Co., Ltd.
- * @author Hu Jing 
+ * @author Hu Jing
  * @date 2010-5-12
  * @update date 2011-1-18
  * @version 0.1.0
@@ -26,7 +26,7 @@ T_VOID main(int argc, char* argv[])
 
 	memset(&detector_open_para, sizeof(T_MOTION_DETECTOR_OPEN_PARA));
 	memset(&ratio, sizeof(T_MOTION_DETECTOR_RATIO));
-	
+
 	detector_open_para.m_uWidth = 352;
 	detector_open_para.m_uHeight = 288;
 	detector_open_para.m_uThreshold = 35;
@@ -70,14 +70,14 @@ T_VOID main(int argc, char* argv[])
 		}
 
 		pData2 = get_y_data();
-		
+
 		bMotionIsDetected = Motion_Detector_Handle(hMdetector, pData1, pData2);
 		if (bMotionIsDetected)
 		{
 			start_record();//motion is detected, do something
 			break;
 		}
-	
+
 	}
 
 	Motion_Detector_Close(hMdetector);

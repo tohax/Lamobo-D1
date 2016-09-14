@@ -17,6 +17,7 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			do
 			sleep 3
 			done
+			hwclock --systohc
 			#здесь запуск rsync
 			echo heartbeat > /sys/class/leds/r_led/trigger
 			sleep 1
