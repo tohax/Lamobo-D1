@@ -2,7 +2,7 @@
 AP=bus
 Server=10.10.10.2
 find /mnt/`hostname` -name "*index" -exec rm {} \;
-echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/rsync.txt
+echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/`hostname`.txt
 #/etc/init.d/wifi_led.sh g_led on
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
@@ -22,9 +22,11 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 			echo heartbeat > /sys/class/leds/r_led/trigger
 			sleep 1
 			echo heartbeat > /sys/class/leds/g_led/trigger
-		rsync -avm --no-o --no-g --remove-source-files --log-file=/etc/rsync.txt --password-file=/etc/.rsync /mnt/`hostname`/ root@10.10.10.2::video/oneday/
+			echo `hwclock` > /etc/on_`hostname`.txt
+			rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/on_`hostname`.txt root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/
+			rsync -avm --no-o --no-g --remove-source-files --log-file=/etc/`hostname`.txt --password-file=/etc/.rsync /mnt/`hostname`/ root@10.10.10.2::video/oneday/
 			#rsync -avrc --remove-source-files --log-file=/etc/rsync.txt -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /mnt/`hostname`/ root@$Server:/mnt/hdd/oneday/
-		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/rsync.txt root@10.10.10.2::video/rsync/`hostname`/
+		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/`hostname`.txt root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/
 			#rsync -avR --remove-source-files -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" /etc/rsync.txt root@$Server:/mnt/hdd/rsync/`hostname`/
 			find /mnt/`hostname`/[1-9]* -type d -delete
 			#rm -rf /mnt/`hostname`/*

@@ -48,8 +48,6 @@ echo root > /etc/.rsync
 chmod 600 /etc/.rsync
 echo "Setup finished" >> /etc/setup
 cd /etc
-rsync -av --no-o --no-g --password-file=/etc/.rsync setup root@10.10.10.2::video/setup/`hostname`/
-#rsync -avR --remove-source-files -e "ssh -y -i /etc/dropbear/dropbear_rsa_host_key" setup 10.10.10.2:/mnt/hdd/setup/`hostname`/
+rsync -av --no-o --no-g --password-file=/etc/.rsync setup root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/`hostname`/
 rm -f /mnt/setup.txt
-#rm -f /etc/setup
 reboot
