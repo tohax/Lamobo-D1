@@ -3,7 +3,7 @@
 export HOME=/etc PWD=/etc
 
 # Mount sd card to /mnt folder
-mount /dev/mmcblk0 /mnt
+mount /dev/mmcblk0p1 /mnt
 
 # Adding Hwclock to the system
 echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
@@ -11,9 +11,9 @@ hwclock --hctosys
 
 ifconfig lo up
 
-if [ -f /mnt/setup.txt ]; then
-	sed -i 's/\r$//g' /mnt/setup.txt
-	/etc/init.d/setup.sh
-else
-	/etc/init.d/power_on.sh &
-fi
+#if [ -f /mnt/setup.txt ]; then
+#	sed -i 's/\r$//g' /mnt/setup.txt
+#	/etc/init.d/setup.sh
+#else
+#	/etc/init.d/power_on.sh &
+#fi
