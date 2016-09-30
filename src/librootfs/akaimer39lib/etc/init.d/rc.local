@@ -11,9 +11,9 @@ hwclock --hctosys
 
 ifconfig lo up
 
-#if [ -f /mnt/setup.txt ]; then
-#	sed -i 's/\r$//g' /mnt/setup.txt
-#	/etc/init.d/setup.sh
-#else
-#	/etc/init.d/power_on.sh &
-#fi
+if [ -f /mnt/setup.txt ]; then
+	sed -i 's/\r$//g' /mnt/setup.txt
+	/etc/init.d/setup.sh
+else
+	/etc/init.d/power_on.sh &
+fi
