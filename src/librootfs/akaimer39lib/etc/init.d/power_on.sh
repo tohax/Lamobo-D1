@@ -8,7 +8,7 @@ wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	/etc/init.d/wifi
 	export HOME=/etc
-	Signal=$(iwconfig wlan0 | grep Link | cut -d "=" -f 2 | cut -d "/" -f 1)
+	Signal=$(iwconfig wlan0 | grep Signal | cut -d "/" -f 2 |cut -d "=" -f 2)
 		if [ $Signal -ge 30 ] > /dev/null; then
 			if pgrep ash; then kill -TERM `pgrep ash` && kill -2 `pgrep record_video`; fi
 			dropbear -B

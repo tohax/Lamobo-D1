@@ -47,10 +47,10 @@ build_kernel()
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules_prepare
 
-#    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188eu
-#    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel modules
-#    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel strip
-#    $CP 8188eu.ko $DEV_ROOT/src/librootfs/akwifilib/root
+    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8192cu
+    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel modules
+    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel strip
+    $CP 8192cu.ko $DEV_ROOT/src/librootfs/akwifilib/etc
 }
 
 clean_kernel()
@@ -74,8 +74,8 @@ config_busybox()
         ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- \
         lamobo_d1_defconfig
 
-#    $MAKE O=$DEV_ROOT/output/busybox \
-#        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
+    $MAKE O=$DEV_ROOT/output/busybox \
+        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
 }
 
 build_busybox()
@@ -275,7 +275,7 @@ build_all()
     config_busybox
     build_busybox
     build_rootfs
-    build_samples
+#    build_samples
 #    build_node
 #    build_updater
     pack_basic
@@ -288,7 +288,7 @@ clean_all()
     clean_kernel
     clean_busybox
     clean_rootfs
-    clean_samples
+#    clean_samples
 #    clean_node
 #    clean_updater
     cd $DEV_ROOT
