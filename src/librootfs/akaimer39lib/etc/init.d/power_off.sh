@@ -1,4 +1,5 @@
 #!/bin/sh
+echo -e  "\n---------------------------\n PowerOff `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/`hostname`.txt
 /etc/init.d/wifi_led.sh r_led off
 /etc/init.d/wifi_led.sh g_led off
 if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi

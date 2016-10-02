@@ -33,7 +33,8 @@ echo root > /etc/.rsync
 chmod 600 /etc/.rsync
 echo "Setup finished" >> /etc/setup
 cd /etc
-rsync -av --no-o --no-g --password-file=/etc/.rsync setup root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/`hostname`/
+rsync -avm --no-o --no-g --password-file=/etc/.rsync setup root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/`hostname`/
 rm -f /mnt/setup.txt
+rm -f /etc/setup
 rmmod 8192cu
 reboot

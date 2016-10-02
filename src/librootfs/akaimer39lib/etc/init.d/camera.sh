@@ -1,4 +1,3 @@
-
 #!/bin/sh
 #/etc/init.d/wifi_led.sh g_led on
 #/etc/init.d/wifi_led.sh r_led blink 1000 900
@@ -9,5 +8,5 @@ chmod 755 $RECORD_PATH
 fi
 while true
 do
-/etc/init.d/record_video -t 300 -p $RECORD_PATH -P 2 -w 640 -h 480 -r 1 -l 0 -v 0 -q 40 -m 0 -b 100000 -a 2 2>/dev/null
+/etc/init.d/record_video -t 300 -p $RECORD_PATH -P 2 -w 640 -h 480 -r 1 -l 0 -v 0 -q 40 -m 0 -b 1000000 -a 2 2>/dev/null
 done
