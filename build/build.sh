@@ -33,7 +33,7 @@ config_kernel()
     cd $DEV_ROOT/src/kernel
     $MKDIR $DEV_ROOT/output/kernel
     $MAKE O=$DEV_ROOT/output/kernel aimer39_ak3918_D1_defconfig
-    $MAKE O=$DEV_ROOT/output/kernel menuconfig
+#    $MAKE O=$DEV_ROOT/output/kernel menuconfig
 }
 
 build_kernel()
@@ -47,10 +47,10 @@ build_kernel()
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules
     $MAKE O=$DEV_ROOT/output/kernel LOCALVERSION= -j$NCPU modules_prepare
 
-    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8192cu
-    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel modules
-    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel strip
-    $CP 8192cu.ko $DEV_ROOT/src/librootfs/akwifilib/etc
+#    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8192cu
+#    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel modules
+#    $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel strip
+#    $CP 8192cu.ko $DEV_ROOT/src/librootfs/akwifilib/etc
 }
 
 clean_kernel()
