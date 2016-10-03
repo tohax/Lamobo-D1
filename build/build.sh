@@ -277,7 +277,7 @@ build_all()
     build_rootfs
 #    build_samples
 #    build_node
-#    build_updater
+    build_updater
     pack_basic
 #    pack_extra
 }
@@ -290,7 +290,7 @@ clean_all()
     clean_rootfs
 #    clean_samples
 #    clean_node
-#    clean_updater
+    clean_updater
     cd $DEV_ROOT
     $RM $DEV_ROOT/output
     git status -s --ignored
