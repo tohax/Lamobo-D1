@@ -9,7 +9,8 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	export HOME=/etc
 	Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 		if [ $Signal -le 80 ] > /dev/null; then
-			if pgrep ash; then kill -TERM `pgrep ash` && kill -2 `pgrep record_video`; fi
+			killall -9 camera.sh
+			kill -2 `pgrep record_video`
 			# network restart
 			sleep 2
 			if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
