@@ -9,18 +9,18 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 	export HOME=/etc
 	Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 		if [ $Signal -le 80 ] > /dev/null; then
-			killall -9 camera.sh
-			kill -2 `pgrep record_video`
+			killall -9 camera.sh record_video
+			#kill -2 `pgrep record_video`
 			# network restart
-			sleep 2
-			if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
-			rm -rf /var/run/wpa_supplicant
-			if pgrep dropbear; then killall -9 dropbear; fi
-			rmmod 8192cu
-			sleep 1
-			insmod /etc/8192cu.ko
-			wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
-			/etc/init.d/wifi
+			#sleep 2
+			#if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
+			#rm -rf /var/run/wpa_supplicant
+			#if pgrep dropbear; then killall -9 dropbear; fi
+			#rmmod 8192cu
+			#sleep 1
+			#insmod /etc/8192cu.ko
+			#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
+			#/etc/init.d/wifi
 			#end network restart
 			dropbear -B
 			ntpd -q -p time.windows.com
