@@ -33,7 +33,7 @@ config_kernel()
     cd $DEV_ROOT/src/kernel
     $MKDIR $DEV_ROOT/output/kernel
     $MAKE O=$DEV_ROOT/output/kernel aimer39_ak3918_D1_defconfig
-#    $MAKE O=$DEV_ROOT/output/kernel menuconfig
+    $MAKE O=$DEV_ROOT/output/kernel menuconfig
 }
 
 build_kernel()
@@ -74,8 +74,8 @@ config_busybox()
         ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- \
         lamobo_d1_defconfig
 
-#    $MAKE O=$DEV_ROOT/output/busybox \
-#        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
+    $MAKE O=$DEV_ROOT/output/busybox \
+        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
 }
 
 build_busybox()
@@ -277,7 +277,7 @@ build_all()
     build_rootfs
 #    build_samples
 #    build_node
-    build_updater
+#    build_updater
     pack_basic
 #    pack_extra
 }
@@ -290,7 +290,7 @@ clean_all()
     clean_rootfs
 #    clean_samples
 #    clean_node
-    clean_updater
+#    clean_updater
     cd $DEV_ROOT
     $RM $DEV_ROOT/output
     git status -s --ignored
