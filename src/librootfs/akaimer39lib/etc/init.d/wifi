@@ -1,6 +1,6 @@
 #!/bin/sh
-AP=bus
-PASS=acurarsx
+AP=Avtobus
+PASS=Acurarsx123
 IP=10.10.10.15
 GW=10.10.10.1
 
