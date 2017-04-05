@@ -284,8 +284,8 @@ build_all()
 
 clean_all()
 {
-#    clean_tools
-#    clean_kernel
+    clean_tools
+    clean_kernel
     clean_busybox
     clean_rootfs
 #    clean_samples
