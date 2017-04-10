@@ -1,4 +1,5 @@
 #!/bin/sh
+Server=10.10.10.1
 echo heartbeat > /sys/class/leds/g_led/trigger
 #IP
         if [[ "`cat /mnt/setup.txt | grep IP  | cut -d "=" -f 2`" != "" ]]; then
@@ -10,8 +11,8 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         if [[ "`cat /mnt/setup.txt | grep HOST | cut -d "=" -f 2`" != "" ]]; then
         echo `cat /mnt/setup.txt | grep HOST= | cut -d "=" -f 2` > /etc/sysconfig/HOSTNAME
         hostname -F /etc/sysconfig/HOSTNAME
-	mkdir -p /mnt/`hostname`
-	chmod 755 /mnt/`hostname`
+	#mkdir -p /mnt/`hostname`
+	#chmod 755 /mnt/`hostname`
 	echo `hostname` > /etc/setup
 	fi
 mkdir -p /etc/dropbear
@@ -33,7 +34,7 @@ echo root > /etc/.rsync
 chmod 600 /etc/.rsync
 echo "Setup finished" >> /etc/setup
 cd /etc
-rsync -avm --no-o --no-g --password-file=/etc/.rsync setup root@10.10.10.2::video/Avtobus/`date +%Y%m%d`/`hostname`/
+rsync -avm --no-o --no-g --password-file=/etc/.rsync setup root@$Server::video/Avtobus/`date +%Y%m%d`/`hostname`/
 rm -f /mnt/setup.txt
 rm -f /etc/setup
 rmmod 8192cu
