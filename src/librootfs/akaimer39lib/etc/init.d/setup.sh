@@ -11,8 +11,6 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         if [[ "`cat /mnt/setup.txt | grep HOST | cut -d "=" -f 2`" != "" ]]; then
         echo `cat /mnt/setup.txt | grep HOST= | cut -d "=" -f 2` > /etc/sysconfig/HOSTNAME
         hostname -F /etc/sysconfig/HOSTNAME
-	#mkdir -p /mnt/`hostname`
-	#chmod 755 /mnt/`hostname`
 	echo `hostname` > /etc/setup
 	fi
 mkdir -p /etc/dropbear
@@ -36,6 +34,7 @@ echo "Setup finished" >> /etc/setup
 cd /etc
 rsync -avm --no-o --no-g --password-file=/etc/.rsync setup root@$Server::video/Avtobus/`date +%Y%m%d`/`hostname`/
 rm -f /mnt/setup.txt
+/usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
 rm -f /etc/setup
 rmmod 8192cu
 reboot

@@ -25,12 +25,12 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 		# copy on.txt
 		time=`date +%Y%m%d`
 		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/on_`hostname`.txt root@$Server::video/Avtobus/$time/
-		ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server "bash -c '/root/dropbox_uploader.sh upload /mnt/hdd/Avtobus/$time/on_`hostname`.txt  /Avtobus/$time/`hostname`/on_`hostname`.txt'"
+		#ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server "bash -c '/root/dropbox_uploader.sh upload /mnt/hdd/Avtobus/$time/on_`hostname`.txt  /Avtobus/$time/`hostname`/on_`hostname`.txt'"
 		# copy main files
 		rsync -av --no-o --no-g --remove-source-files --log-file=/etc/`hostname`.txt --password-file=/etc/.rsync /mnt/ root@$Server::video/oneday/
 		# copy log file
 		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/`hostname`.txt root@$Server::video/Avtobus/$time/
-		ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server "bash -c '/root/dropbox_uploader.sh upload /mnt/hdd/Avtobus/$time/`hostname`.txt  /Avtobus/$time/`hostname`/`hostname`.txt'"
+		#ssh -i /etc/dropbear/dropbear_rsa_host_key root@$Server "bash -c '/root/dropbox_uploader.sh upload /mnt/hdd/Avtobus/$time/`hostname`.txt  /Avtobus/$time/`hostname`/`hostname`.txt'"
 		find /mnt/[2-9]* -type d -delete
 		if [ -d /mnt/[2-9]* ]; then
 		sync
