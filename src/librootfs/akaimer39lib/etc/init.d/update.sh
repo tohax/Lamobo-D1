@@ -1,17 +1,4 @@
 #!/bin/sh
-### BEGIN UPDATA KERNEL
-# File:				updata.sh	
-# Provides:         control wifi status led
-# Required-Start:   $
-# Required-Stop:
-# Default-Start:     
-# Default-Stop:
-# Short-Description:updata kernel zImage
-# Author:			li_qing
-# Email: 			li_qing@anyka.oa
-# Date:				2013-06-21
-### END UPDATA KERNEL
-
 VAR1="/mnt/zImage"
 VAR2="/mnt/root.sqsh4"
 VAR3="/mnt/root.jffs2"
@@ -26,41 +13,40 @@ usage()
 update_kernel()
 {
 		echo "update zImage..., please wait a moment. And don't remove card or power-off"
-		
 		#led blink
-		/etc/init.d/wifi_led.sh wps_led blink 500 500
+		/etc/init.d/wifi_led.sh r_led blink 500 500
 
 		/usr/bin/updater local K=${VAR1}
 
 		#led on after updater finished
-		/etc/init.d/wifi_led.sh wps_led off
-		/etc/init.d/wifi_led.sh wps_led on
+		/etc/init.d/wifi_led.sh r_led off
+		/etc/init.d/wifi_led.sh r_led on
 }
 
 update_squash()
-{		
+{
 		echo "update root.sqsh4..."
 		#led blink
-		/etc/init.d/wifi_led.sh wps_led blink 500 500
+		/etc/init.d/wifi_led.sh r_led blink 500 500
 
 		/usr/bin/updater local MTD1=${VAR2}
 
 		#led on after updater finished
-		/etc/init.d/wifi_led.sh wps_led off
-		/etc/init.d/wifi_led.sh wps_led on
+		/etc/init.d/wifi_led.sh r_led off
+		/etc/init.d/wifi_led.sh r_led on
 }
 
 update_jffs2()
 {
 		echo "update root.jffs2..."
 		#led blink
-		/etc/init.d/wifi_led.sh wps_led blink 500 500
+		/etc/init.d/wifi_led.sh r_led blink 500 500
 
 		/usr/bin/updater local MTD2=${VAR3}
 
 		#led on after updater finished
-		/etc/init.d/wifi_led.sh wps_led off
-		/etc/init.d/wifi_led.sh wps_led on
+		/etc/init.d/wifi_led.sh r_led off
+		/etc/init.d/wifi_led.sh r_led on
 }
 
 
@@ -102,4 +88,3 @@ done
 
 
 #updater local K=/mnt/zImage B=/mnt/sd/spiboot.bin
-

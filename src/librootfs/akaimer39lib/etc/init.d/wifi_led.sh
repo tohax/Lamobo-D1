@@ -49,7 +49,7 @@ blink_led()
 	then
 		light_on_led 1
 	fi
-	
+
 	echo "timer" > ${led}/trigger
 	echo $delay_off > ${led}/delay_off
 	echo $delay_on > ${led}/delay_on
