@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#apt-get install make gcc libncurses-dev ncurses-dev
 build_tools()
 {
     echo Updating package list...
@@ -10,7 +10,7 @@ build_tools()
 
     if [ `uname -m` == 'x86_64' ]; then
         echo Installing 32bit libraries...
-        $APT_GET install --force-yes make gcc libncurses-dev ncurses-dev ia32-libs ia32-libs-multiarch liblzo2-2:i386 liblzma5:i386
+        $APT_GET install --force-yes ia32-libs ia32-libs-multiarch liblzo2-2:i386 liblzma5:i386
     fi
 
     if [ ! -d $DEV_ROOT/compiler/arm-2009q3 ]; then
