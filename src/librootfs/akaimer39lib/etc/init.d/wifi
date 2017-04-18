@@ -7,7 +7,7 @@ GW=10.10.10.1
 SSID=\"$AP\"
 PSK=\"$PASS\"
 
-#wpa_cli -iwlan0 remove_network 0
+if wpa_cli -iwlan0 list_networks | grep 0; then wpa_cli -iwlan0 remove_network 0; fi
 wpa_cli -iwlan0 add_network
 wpa_cli -iwlan0 set_network 0 ssid $SSID
 wpa_cli -iwlan0 set_network 0 key_mgmt WPA-PSK

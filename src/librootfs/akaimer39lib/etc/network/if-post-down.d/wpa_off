@@ -1,0 +1,5 @@
+#!/bin/bash
+wpa=`pgrep wpa_supplicant`
+kill $wpa
+exit 0
+
