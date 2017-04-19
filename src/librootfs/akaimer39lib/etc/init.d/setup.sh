@@ -16,13 +16,13 @@ echo heartbeat > /sys/class/leds/g_led/trigger
 mkdir -p /etc/dropbear
 chmod 755 /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-#insmod /etc/8192cu.ko
+insmod /etc/8192cu.ko
 echo 1 > /sys/class/leds/r_led/brightness
-#while [ ! -d /sys/class/net/wlan0 ]
-#do
-#echo "Connect power adapter"
-#sleep 5
-#done
+while [ ! -d /sys/class/net/wlan0 ]
+do
+echo "Connect power adapter"
+sleep 5
+done
 echo 0 > /sys/class/leds/r_led/brightness
 #wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 #/etc/init.d/wifi
@@ -36,5 +36,5 @@ cd /etc
 rm -f /mnt/setup.txt
 #/usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
 rm -f /etc/setup
-#rmmod 8192cu
+rmmod 8192cu
 reboot

@@ -5,13 +5,12 @@ echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------
 insmod /etc/8192cu.ko
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
- /etc/init.d/wifi
+/etc/init.d/wifi
  export HOME=/etc
  Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 	if [ $Signal -le 85 ] > /dev/null; then
-		killall -9 camera.sh record_video
-		if pgrep dropbear; then killall -9 dropbear; fi
-		sleep 3
+		kill `pgrep  camera.sh` `pgrep record_video`
+		if pgrep dropbear; then kill `pgrep dropbear`; fi
 		dropbear -B
 		hwclock --systohc
 		#здесь запуск rsync
@@ -41,22 +40,18 @@ if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 		# конец rsync
 	else
 		/etc/init.d/wifi_led.sh r_led on
-		if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
-		rm -rf /var/run/wpa_supplicant
-		if pgrep dropbear; then killall -9 dropbear; fi
+		if pgrep wpa_supplicant; then kill `pgrep  wpa_supplicant`; fi
+		#rm -rf /var/run/wpa_supplicant
+		if pgrep dropbear; then kill `pgrep dropbear`; fi
 		rmmod 8192cu
-		if [ ! `pgrep record_video` ]; then
-		/etc/init.d/camera.sh &
-		fi
-		fi
+		if [ ! `pgrep record_video` ]; then /etc/init.d/camera.sh &; fi
+	fi
 else
 		/etc/init.d/wifi_led.sh r_led on
-		if pgrep wpa_supplicant; then killall -9 wpa_supplicant; fi
-		rm -rf /var/run/wpa_supplicant
-		if pgrep dropbear; then killall -9 dropbear; fi
+		if pgrep wpa_supplicant; then kill `pgrep  wpa_supplicant`; fi
+		#rm -rf /var/run/wpa_supplicant
+		if pgrep dropbear; then kill `pgrep dropbear`; fi
 		rmmod 8192cu
-		if [ ! `pgrep record_video` ]; then
-		/etc/init.d/camera.sh &
-		fi
+		if [ ! `pgrep record_video` ]; then /etc/init.d/camera.sh &; fi
 
 fi
