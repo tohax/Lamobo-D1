@@ -24,17 +24,22 @@ echo "Connect power adapter"
 sleep 5
 done
 echo 0 > /sys/class/leds/r_led/brightness
-#wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
-#/etc/init.d/wifi
-echo "1-1     0:6     0660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
-echo '$SUBSYSTEM=usb 0:6 0660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
+echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
+echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 echo root > /etc/.rsync
 chmod 600 /etc/.rsync
-echo "Setup finished" >> /etc/setup
-cd /etc
-#rsync -avm --no-o --no-g --password-file=/etc/.rsync setup root@$Server::video/Avtobus/`date +%Y%m%d`/`hostname`/
-rm -f /mnt/setup.txt
-#/usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
-rm -f /etc/setup
+echo "Setup finished" >> /etc/`hostname`_setup
+wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
+/etc/init.d/wifi
+ntpd -q -p time.windows.com
+sleep 10
+hwclock --systohc
+rsync -avm --no-o --no-g --password-file=/etc/.rsync /etc/`hostname`_setup root@$Server::video/Avtobus/`date +%Y%m%d`/
+rm -f /mnt/setup.txt /etc/`hostname`_setup
+if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
 rmmod 8192cu
+umount -l /mnt
+yes | /usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
+mount /dev/mmcblk0p1 /mnt
+rm -rf /mnt/l*
 reboot

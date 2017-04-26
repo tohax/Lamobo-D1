@@ -6,4 +6,6 @@ if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
 #rm -rf /var/run/wpa_supplicant
 if pgrep dropbear; then kill `pgrep dropbear`; fi
 rmmod 8192cu
-if [ ! `pgrep record_video` ]; then /etc/init.d/camera.sh &;fi
+if [ ! `pgrep record_video` ]; then
+/etc/init.d/camera.sh &
+fi
