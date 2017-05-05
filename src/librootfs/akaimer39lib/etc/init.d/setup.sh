@@ -14,7 +14,7 @@ echo heartbeat > /sys/class/leds/g_led/trigger
 	echo `hostname` > /etc/setup
 	fi
 mkdir -p /etc/dropbear
-chmod 755 /etc/dropbear
+chmod 700 /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
 insmod /etc/8192cu.ko
 echo 1 > /sys/class/leds/r_led/brightness
