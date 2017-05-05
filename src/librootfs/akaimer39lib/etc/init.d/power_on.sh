@@ -13,7 +13,7 @@ sleep 3
 		if pidof camera.sh; then kill -2 `pidof camera.sh`; fi
                 if pgrep record_video; then kill -2 `pgrep record_video`;fi
 		if pgrep dropbear; then kill -2 `pgrep dropbear`; fi
-		dropbear -B
+		dropbear -r rsa -B
 		ntpd -q -p time.windows.com
 		sleep 10
 		hwclock --systohc
