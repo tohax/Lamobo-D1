@@ -1,6 +1,4 @@
 #!/bin/sh
-#/etc/init.d/wifi_led.sh g_led on
-#/etc/init.d/wifi_led.sh r_led blink 1000 900
 RECORD_PATH=/mnt/`date +%Y%m%d`/`hostname`
 if [ ! -d $RECORD_PATH ]; then
 mkdir -p $RECORD_PATH
