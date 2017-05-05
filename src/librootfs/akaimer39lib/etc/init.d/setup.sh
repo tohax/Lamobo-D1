@@ -25,14 +25,13 @@ echo "Connect power adapter"
 sleep 5
 done
 echo 0 > /sys/class/leds/r_led/brightness
-sed -i '/power/d' /etc/mdev.conf 2>/dev/null
-echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
-echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 echo root > /etc/.rsync
 chmod 600 /etc/.rsync
 echo "Setup finished" >> /etc/`hostname`_setup
+if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
+#if [ -d /var/run/wpa_supplicant ]; then rm -rf /var/run/wpa_supplicant; fi
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
-/etc/init.d/wifi
+etc/init.d/wifi
 dropbear -R -B
 ntpd -q -p time.windows.com
 sleep 10
@@ -43,6 +42,9 @@ umount -l /mnt
 yes | /usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
 mount /dev/mmcblk0p1 /mnt
 rm -rf /mnt/l*
-if pgrep wpa_supplicant; then kill -2 `pgrep wpa_supplicant`; fi
+if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
+sed -i '/power/d' /etc/mdev.conf
+echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
+echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 rmmod 8192cu
 reboot

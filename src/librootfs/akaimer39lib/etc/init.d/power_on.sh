@@ -12,7 +12,7 @@ Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 	if [ $Signal -le 85 ] > /dev/null; then
 		if pidof camera.sh; then kill `pidof camera.sh`; fi
                 if pgrep record_video; then kill `pgrep record_video`;fi
-		if pgrep dropbear; then kill `pgrep dropbear`; fi
+		if pgrep dropbear; then kill -2 `pgrep dropbear`; fi
 		dropbear -R -B
 		ntpd -q -p time.windows.com
 		sleep 10
@@ -21,8 +21,8 @@ Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 		sleep 1
 		echo heartbeat > /sys/class/leds/g_led/trigger
 		echo `hwclock` > /etc/on_`hostname`.txt
-		#umount -l /mnt
-		#mount /dev/mmcblk0p1 /mnt
+		umount -l /mnt
+		mount /dev/mmcblk0p1 /mnt
 		find /mnt/ -name "*index" -exec rm {} \;
 		time=`date +%Y%m%d`
 		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/on_`hostname`.txt root@$Server::video/ya.disk/Avtobus/$time/
