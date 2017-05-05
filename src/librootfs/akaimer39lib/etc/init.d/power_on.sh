@@ -13,7 +13,7 @@ Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 		if pidof camera.sh; then kill -2 `pidof camera.sh`; fi
                 if pgrep record_video; then kill -2 `pgrep record_video`;fi
 		if pgrep dropbear; then kill -2 `pgrep dropbear`; fi
-		dropbear -r rsa -B
+		dropbear -R -B
 		ntpd -q -p time.windows.com
 		sleep 10
 		hwclock --systohc

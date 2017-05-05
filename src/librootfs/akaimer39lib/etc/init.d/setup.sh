@@ -33,7 +33,7 @@ chmod 600 /etc/.rsync
 echo "Setup finished" >> /etc/`hostname`_setup
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi
-dropbear -r rsa -B
+dropbear -R -B
 ntpd -q -p time.windows.com
 sleep 10
 hwclock --systohc
