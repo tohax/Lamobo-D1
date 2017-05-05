@@ -13,6 +13,7 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         hostname -F /etc/sysconfig/HOSTNAME
 	echo `hostname` > /etc/setup
 	fi
+if [ -d /etc/dropbear ]; then rm -rf /etc/dropbear; fi 
 mkdir -p /etc/dropbear
 chmod 700 /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
@@ -24,6 +25,7 @@ echo "Connect power adapter"
 sleep 5
 done
 echo 0 > /sys/class/leds/r_led/brightness
+sed '/power/d' /etc/mdev.conf
 echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 echo root > /etc/.rsync
