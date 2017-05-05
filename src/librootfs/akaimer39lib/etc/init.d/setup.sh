@@ -25,7 +25,7 @@ echo "Connect power adapter"
 sleep 5
 done
 echo 0 > /sys/class/leds/r_led/brightness
-sed '/power/d' /etc/mdev.conf
+sed '/power/d' /etc/mdev.conf 2>/dev/null
 echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
 echo root > /etc/.rsync
