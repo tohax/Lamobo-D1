@@ -11,7 +11,6 @@ export runlevel prevlevel
 echo "starting mdev..."
 /bin/echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
-ln -s /proc/mounts /etc/mtab
  
 mkdir /var/cache
 mkdir /var/run

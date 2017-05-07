@@ -11,8 +11,8 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         if [[ "`cat /mnt/setup.txt | grep HOST | cut -d "=" -f 2`" != "" ]]; then
         echo `cat /mnt/setup.txt | grep HOST= | cut -d "=" -f 2` > /etc/sysconfig/HOSTNAME
         hostname -F /etc/sysconfig/HOSTNAME
-	echo `hostname` > /etc/setup
 	fi
+rm -f /mnt/setup.txt
 if [ -d /etc/dropbear ]; then rm -rf /etc/dropbear; fi
 mkdir -p /etc/dropbear
 chmod 700 /etc/dropbear
@@ -27,24 +27,24 @@ done
 echo 0 > /sys/class/leds/r_led/brightness
 echo root > /etc/.rsync
 chmod 600 /etc/.rsync
-echo "Setup finished" >> /etc/`hostname`_setup
 if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
-#if [ -d /var/run/wpa_supplicant ]; then rm -rf /var/run/wpa_supplicant; fi
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
-etc/init.d/wifi
-dropbear -R -B
+/etc/init.d/wifi
 ntpd -q -p time.windows.com
 sleep 10
+dropbear -R -B
 hwclock --systohc
-rsync -avm --no-o --no-g --password-file=/etc/.rsync /etc/`hostname`_setup root@$Server::video/ya.disk/Avtobus/`date +%Y%m%d`/
-rm -f /mnt/setup.txt /etc/`hostname`_setup
+if [ ! -f /etc/mtab ]; then ln -s /proc/mounts /etc/mtab; fi
 umount -l /mnt
 yes | /usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
 mount /dev/mmcblk0p1 /mnt
-rm -rf /mnt/l*
-if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
+rm -rf /mnt/*
 sed -i '/power/d' /etc/mdev.conf
 echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
 echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
+echo "Setup finished" >> /etc/`hostname`_setup
+rsync -avm --no-o --no-g --password-file=/etc/.rsync /etc/`hostname`_setup root@$Server::video/ya.disk/Avtobus/`date +%Y%m%d`/
+rm -f /etc/`hostname`_setup
+if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
 rmmod 8192cu
 reboot
