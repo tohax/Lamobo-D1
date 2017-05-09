@@ -2,7 +2,7 @@
 AP=Avtobus
 Server=10.10.10.1
 echo -e  "\n---------------------------\n PowerOn `date +"%x"" ""%X"`\n---------------------------\n" >> /etc/`hostname`.txt
-insmod /etc/8192cu.ko
+modprobe 8192cu
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 if iwlist wlan0 scan | grep -i $AP 1>/dev/null ; then
 /etc/init.d/wifi
@@ -21,8 +21,6 @@ Signal=$(iwconfig wlan0 | grep Signal | cut -d "-" -f 2 | cut -d " " -f 1)
 		sleep 1
 		echo heartbeat > /sys/class/leds/g_led/trigger
 		echo `hwclock` > /etc/on_`hostname`.txt
-		#umount -l /mnt
-		#mount /dev/mmcblk0p1 /mnt
 		find /mnt/ -name "*index" -exec rm {} \;
 		time=`date +%Y%m%d`
 		rsync -av --no-o --no-g --remove-source-files --password-file=/etc/.rsync /etc/on_`hostname`.txt root@$Server::video/ya.disk/Avtobus/$time/

@@ -5,7 +5,7 @@
  * @author zhangshenglin
  * @date 2012-12-07
  * @version 1.0
- * @ref 
+ * @ref
  */
 /*how to use*/
 /*
@@ -50,7 +50,7 @@
 int bNeedCheckFile = 1;//是否需要校验
 
 
-#define CAMERA			"/etc/camera.ini"
+#define CAMERA			"/etc/init.d/wifi"
 
 #define SEM_PROJ_ID	0x23
 #define SEM_NUMS		6
@@ -143,7 +143,7 @@ static int UpdateMTD(const char* filename, int partition)
 static void print_help(void)
 {
 	printf( "\nUsage:\n"
-		"updata [option] [type]=[value]\n\n"
+		"updater [option] [type]=[value]\n\n"
 		"option:\n"
 		"local	-- the file is on local\n"
 		"http	-- the file is on http server\n"
@@ -160,8 +160,8 @@ static void print_help(void)
 		"C	-- server password\n"
 		"X	-- need check file, 1 - yes, 0 - no\n\n"
 		"example:\n"
-		"update local K=/mnt/zImage\n"
-		"update ftp K=/path/file1 A=a.b.c.d P=port U=aaa C=xxx\n");
+		"updater local K=/mnt/zImage\n"
+		"updater ftp K=/path/file1 A=a.b.c.d P=port U=aaa C=xxx\n");
 }
 
 /**

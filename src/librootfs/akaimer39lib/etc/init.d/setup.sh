@@ -17,7 +17,7 @@ if [ -d /etc/dropbear ]; then rm -rf /etc/dropbear; fi
 mkdir -p /etc/dropbear
 chmod 700 /etc/dropbear
 dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
-insmod /etc/8192cu.ko
+modprobe 8192cu
 echo 1 > /sys/class/leds/r_led/brightness
 while [ ! -d /sys/class/net/wlan0 ]
 do
