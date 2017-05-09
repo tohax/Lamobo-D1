@@ -166,7 +166,7 @@ static void print_help(void)
 
 /**
  * *  @brief       init the system V semaphore
- * *  @author      
+ * *  @author
  * *  @date        2013-5-9
  * *  @param[in]   none
  * *  @return	   	none
@@ -175,26 +175,26 @@ static int init_systemv_sem()
 {
 	union semun seminfo;
 	unsigned short array[SEM_NUMS] = {1, 0, 1, 1, 0, 1};
-	
+
 	sem_key = ftok(CAMERA, SEM_PROJ_ID); //use camera.ini to generate the key
 	if (sem_key < 0) {
 		printf("%s->%s:ftok fail!", __FILE__, __func__);
 		return -1;
 	}
-	
+
 	if ((sem_id = semget(sem_key, 0, 0)) < 0) {
 		if ((sem_id = semget(sem_key, SEM_NUMS, IPC_CREAT | 0666)) < 0) {
 			printf("%s->%s:semget fail, error %d!", __FILE__, __func__, errno);
 			return -1;
 		}
-		
+
 		seminfo.array = array;
 		if (semctl(sem_id, 0, SETALL, seminfo) < 0) {
 			printf("%s->%s:semctl fail, error %d!", __FILE__, __func__, errno);
 			return -1;
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -207,12 +207,10 @@ int main(int argc, char* argv[])
 	char DLinkPath[PATH_LEN];
 	char DownloadFile[PATH_LEN];
 	char MLinkPath[PATH_LEN];
-	
 	char FtpSrvAddr[32];
 	unsigned short FtpSrvPort = 21;
 	char FtpUsername[32];
 	char FtpPassword[32];
-
 	int partition;
 	int i = 0;
 
@@ -222,7 +220,6 @@ int main(int argc, char* argv[])
 	memset(DLinkPath, 0, PATH_LEN);
 	memset(DownloadFile, 0, PATH_LEN);
 	memset(MLinkPath, 0, PATH_LEN);
-
 	memset(FtpSrvAddr, 0, 32);
 	strcpy(FtpUsername, "anonymous");
 	strcpy(FtpPassword, "anonymous");
@@ -292,7 +289,7 @@ int main(int argc, char* argv[])
 	printf("kernel path:%s\n", KLinkPath);
 	printf("boot   path:%s\n", BLinkPath);
 	printf("logo   path:%s\n", LLinkPath);
-	
+
 	//WarningInfo();
 //step 1:download if need
 	if(strcmp(argv[1], "local") == 0)
@@ -368,7 +365,7 @@ int main(int argc, char* argv[])
 			{
 				printf("download Boot file fail\n");
 			}
-			
+
 		}
 
 		if(KLinkPath[0] != 0)
@@ -412,8 +409,8 @@ int main(int argc, char* argv[])
 
 //step 2:update
 
-	if (!init_systemv_sem()) g_bIsSem = 1; 
-	
+	if (!init_systemv_sem()) g_bIsSem = 1;
+
 	if(fha_interface_init() == 0)
 	{
 		printf("fha_interface_init success\n");
@@ -437,7 +434,7 @@ int main(int argc, char* argv[])
 			printf("update KERNEL bin failure\n");
 		}
 	}
-	
+
 	if(LLinkPath[0] != 0)
 	{
 		if(UpdateLogo(LLinkPath) == 0)
