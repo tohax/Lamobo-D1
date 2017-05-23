@@ -33,15 +33,15 @@ wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 ntpd -q -p time.windows.com
 sleep 10
 dropbear -R -B
-hwclock --systohc
+#hwclock --systohc
 if [ ! -f /etc/mtab ]; then ln -s /proc/mounts /etc/mtab; fi
 umount -l /mnt
 yes | /usr/bin/mke2fs -t ext3 /dev/mmcblk0p1
 mount /dev/mmcblk0p1 /mnt
 rm -rf /mnt/*
 sed -i '/power/d' /etc/mdev.conf
-echo "1-1     root:root     660    @/etc/init.d/power_on.sh" >> /etc/mdev.conf
-echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power_off.sh' >> /etc/mdev.conf
+echo "1-1     root:root     660    @/etc/init.d/power.sh" >> /etc/mdev.conf
+echo '$SUBSYSTEM=usb root:root 660 $/etc/init.d/power.sh' >> /etc/mdev.conf
 echo "Setup finished" >> /etc/`hostname`_setup
 rsync -avm --no-o --no-g --password-file=/etc/.rsync /etc/`hostname`_setup root@$Server::video/ya.disk/Avtobus/`date +%Y%m%d`/
 rm -f /etc/`hostname`_setup

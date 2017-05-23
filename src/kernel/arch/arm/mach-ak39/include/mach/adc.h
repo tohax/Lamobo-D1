@@ -34,7 +34,7 @@
 int adc1_init(void);
 unsigned long adc1_read_channel(int channel);
 
-#define adc1_read_bat()		adc1_read_channel(AK_ADC1_AD0) 
-#define adc1_read_ad5()		adc1_read_channel(AK_ADC1_AD1)	/* is it right ? */ 
+#define adc1_read_bat()		adc1_read_channel(AK_ADC1_AD0)
+#define adc1_read_ad5()		adc1_read_channel(AK_ADC1_AD1)	/* is it right ? */
 
 #endif

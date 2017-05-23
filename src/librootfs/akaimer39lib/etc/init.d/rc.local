@@ -14,5 +14,5 @@ if [ -f /mnt/setup.txt ]; then
 	sed -i 's/\r$//g' /mnt/setup.txt
 	/etc/init.d/setup.sh
 else
-	/etc/init.d/power_on.sh &
+	/etc/init.d/power.sh
 fi

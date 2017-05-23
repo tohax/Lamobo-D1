@@ -57,8 +57,8 @@ int main(int argc, char *argv[]){
 
     struct gpio_info gpio;
 
-    //int gpios[]={1, 2, 4, 5, 6, 7, 27, 28, 29, 30, 37, 38, 56, 53};
-    int gpios[]={53};
+    int gpios[]={1, 2, 4, 5, 6, 7, 27, 28, 29, 30, 37, 38, 56, 53};
+    //int gpios[]={53};
     int gpiosize = sizeof(gpios)/sizeof(int);
 
     int i = 0;
