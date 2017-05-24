@@ -14,7 +14,7 @@ export HOME=/etc
 		echo 3 > /proc/sys/vm/drop_caches
 		if pgrep dropbear; then kill `pgrep dropbear`; fi
 		dropbear -R -B
-		ntpd -q -p time.windows.com
+		ntpd -q -p pool.ntp.org #time.windows.com
 		sleep 10
 		echo heartbeat > /sys/class/leds/r_led/trigger
 		sleep 1
