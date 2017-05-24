@@ -10,7 +10,7 @@ sleep 3
 export HOME=/etc
 	if ping -c4 $Server > /dev/null; then
 		if pidof camera.sh; then kill `pidof camera.sh`; fi
-                if pidof record_video; then kill `pidof record_video`;fi
+                if pidof record_video; then kill -SIGINT `pidof record_video`; fi
 		echo 3 > /proc/sys/vm/drop_caches
 		if pgrep dropbear; then kill `pgrep dropbear`; fi
 		dropbear -R -B
