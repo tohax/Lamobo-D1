@@ -9,6 +9,7 @@ umask 022
 export runlevel prevlevel
 
 echo "starting mdev..."
+/bin/echo >/dev/mdev.seq
 /bin/echo /sbin/mdev > /proc/sys/kernel/hotplug
 mdev -s
 
