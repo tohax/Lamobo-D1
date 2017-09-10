@@ -1,5 +1,5 @@
 #!/bin/sh
-IP=10.10.10.10
+IP=10.10.10.111
 GW=10.10.10.2
 AP=Avtobus
 PASS=Acurarsx123

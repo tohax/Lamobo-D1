@@ -4,15 +4,18 @@
 mount /dev/mmcblk0p1 /mnt
 
 # Adding Hwclock to the system
-#echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
-#hwclock --hctosys
+echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-0/new_device
+hwclock --hctosys
 
 ifconfig lo up
-
+# Dropbear
+/usr/sbin/dropbear -R -B
+# Cron
 /usr/sbin/crond
+
 if [ -f /mnt/setup.txt ]; then
 	sed -i 's/\r$//g' /mnt/setup.txt
 	/etc/init.d/setup.sh
 else
-	/etc/init.d/power.sh
+	/etc/init.d/on.sh
 fi
