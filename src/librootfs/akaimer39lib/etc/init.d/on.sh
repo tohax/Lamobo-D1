@@ -7,7 +7,9 @@ modprobe 8192cu
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi.sh
 sleep 1
+dropbear -R -B
 rdate -s $Server
+hwclock --systohc
 echo heartbeat > /sys/class/leds/r_led/trigger
 sleep 1
 echo heartbeat > /sys/class/leds/g_led/trigger
