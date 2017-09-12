@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 Server=10.10.10.1
 echo heartbeat > /sys/class/leds/g_led/trigger
 #IP

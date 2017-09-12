@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 IP=10.10.10.111
 GW=10.10.10.2
 AP=Avtobus

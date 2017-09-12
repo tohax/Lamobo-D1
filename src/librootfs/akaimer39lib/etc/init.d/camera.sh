@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 export HOME=/etc
 RECORD_PATH=/mnt/`date +%Y%m%d`/`hostname`
 if [ ! -d $RECORD_PATH ]; then mkdir -p $RECORD_PATH; fi
