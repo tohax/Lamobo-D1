@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 Server=10.10.10.1
 echo heartbeat > /sys/class/leds/g_led/trigger
 #IP
@@ -12,7 +12,6 @@ echo heartbeat > /sys/class/leds/g_led/trigger
         echo `cat /mnt/setup.txt | grep HOST= | cut -d "=" -f 2` > /etc/sysconfig/HOSTNAME
         hostname -F /etc/sysconfig/HOSTNAME
 	fi
-rm -f /mnt/setup.txt
 if [ -d /etc/dropbear ]; then rm -rf /etc/dropbear; fi
 mkdir -p /etc/dropbear
 chmod 700 /etc/dropbear
@@ -30,9 +29,10 @@ echo 0 > /sys/class/leds/r_led/brightness
 if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi.sh
-sleep 1
+sleep 3
 echo "Updating time"
 rdate -s $Server
+hwclock --systohc
 echo `date`
 dropbear -R -B
 if [ ! -f /etc/mtab ]; then ln -s /proc/mounts /etc/mtab; fi

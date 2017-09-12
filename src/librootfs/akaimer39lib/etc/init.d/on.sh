@@ -4,9 +4,9 @@ if pidof record_video; then kill -SIGINT `pidof record_video`; fi
 if pgrep wpa_supplicant; then kill `pgrep wpa_supplicant`; fi
 Server=10.10.10.1
 modprobe 8192cu
+if [ ! -d /sys/class/net/wlan0 ]; then /etc/init.d/off.sh; exit; fi
 wpa_supplicant -B -iwlan0 -Dwext -c /etc/wpa_supplicant.conf
 /etc/init.d/wifi.sh
-sleep 1
 dropbear -R -B
 rdate -s $Server
 hwclock --systohc
