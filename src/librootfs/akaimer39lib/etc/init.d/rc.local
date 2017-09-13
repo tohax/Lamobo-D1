@@ -12,6 +12,9 @@ ifconfig lo up
 # Cron
 /usr/sbin/crond
 
+# Dmesg monitor
+/etc/init.d/mon.sh &
+
 if [ -f /mnt/setup.txt ]; then
 	sed -i 's/\r$//g' /mnt/setup.txt
 	/etc/init.d/setup.sh
