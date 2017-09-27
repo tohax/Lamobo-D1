@@ -63,3 +63,4 @@
     1. [D1] Unplug power cable
     2. [D1] Plug power cable to power on
     3. [D1] Now D1 started with the new firmware
+# Lamobo-wifi
