@@ -381,7 +381,6 @@ struct ak39_codec_platform_data ak39_codec_pdata =
 		.dir		= AK_GPIO_DIR_OUTPUT,
 		.pullup		= -1,
 		.pulldown	= -1,
-		
 		.value      = AK_GPIO_OUT_LOW,
 		.int_pol	= -1,
 	},
@@ -489,6 +488,18 @@ static struct ak_led_data leds[] = {
 		.int_pol	= -1,
 		}
 	},
+{
+        .name           = "reset",
+        .def_trigger    = "default-on",
+        .gpio           = {
+                .pin            = AK_GPIO_29,
+                .pulldown       = -1,
+                .pullup         = -1, //AK_PULLUP_DISABLE,
+                .value          = AK_GPIO_OUT_LOW,
+                .dir            = AK_GPIO_DIR_OUTPUT,
+                .int_pol        = -1,
+                }
+        },
 };
 
 static struct ak_led_pdata led_pdata = {

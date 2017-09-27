@@ -9,6 +9,8 @@ hwclock --hctosys
 
 ifconfig lo up
 
+modprobe 8192cu
+
 # Cron
 /usr/sbin/crond
 
@@ -19,5 +21,6 @@ if [ -f /mnt/setup.txt ]; then
 	sed -i 's/\r$//g' /mnt/setup.txt
 	/etc/init.d/setup.sh
 else
-	/etc/init.d/on.sh &
+echo OK
+#	/etc/init.d/on.sh &
 fi

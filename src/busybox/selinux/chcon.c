@@ -7,6 +7,21 @@
  *
  * Licensed under GPLv2, see file LICENSE in this source tree.
  */
+//config:config CHCON
+//config:	bool "chcon"
+//config:	default n
+//config:	depends on SELINUX
+//config:	help
+//config:	  Enable support to change the security context of file.
+//config:
+//config:config FEATURE_CHCON_LONG_OPTIONS
+//config:	bool "Enable long options"
+//config:	default y
+//config:	depends on CHCON && LONG_OPTS
+
+//applet:IF_CHCON(APPLET(chcon, BB_DIR_USR_BIN, BB_SUID_DROP))
+
+//kbuild:lib-$(CONFIG_CHCON) += chcon.o
 
 //usage:#define chcon_trivial_usage
 //usage:       "[OPTIONS] CONTEXT FILE..."
@@ -21,11 +36,11 @@
 //usage:     "\n	-c,--changes		Report changes made"
 //usage:     "\n	-h,--no-dereference	Affect symlinks instead of their targets"
 //usage:     "\n	-f,--silent,--quiet	Suppress most error messages"
-//usage:     "\n	--reference=RFILE	Use RFILE's group instead of using a CONTEXT value"
-//usage:     "\n	-u,--user=USER		Set user/role/type/range in the target"
-//usage:     "\n	-r,--role=ROLE		security context"
-//usage:     "\n	-t,--type=TYPE"
-//usage:     "\n	-l,--range=RANGE"
+//usage:     "\n	--reference RFILE	Use RFILE's group instead of using a CONTEXT value"
+//usage:     "\n	-u,--user USER		Set user/role/type/range in the target"
+//usage:     "\n	-r,--role ROLE		security context"
+//usage:     "\n	-t,--type TYPE"
+//usage:     "\n	-l,--range RANGE"
 //usage:     "\n	-R,--recursive		Recurse"
 //usage:	)
 //usage:	IF_NOT_FEATURE_CHCON_LONG_OPTIONS(
@@ -92,7 +107,7 @@ static int FAST_FUNC change_filedir_context(
 
 	if (specified_context == NULL) {
 		context = set_security_context_component(file_context,
-							 user, role, type, range);
+							user, role, type, range);
 		if (!context) {
 			bb_error_msg("can't compute security context from %s", file_context);
 			goto skip;
@@ -121,15 +136,15 @@ static int FAST_FUNC change_filedir_context(
 		}
 		if ((option_mask32 & OPT_VERBOSE) || ((option_mask32 & OPT_CHANHES) && !fail)) {
 			printf(!fail
-			       ? "context of %s changed to %s\n"
-			       : "can't change context of %s to %s\n",
-			       fname, context_string);
+				? "context of %s changed to %s\n"
+				: "can't change context of %s to %s\n",
+				fname, context_string);
 		}
 		if (!fail) {
 			rc = TRUE;
 		} else if ((option_mask32 & OPT_QUIET) == 0) {
 			bb_error_msg("can't change context of %s to %s",
-				     fname, context_string);
+					fname, context_string);
 		}
 	} else if (option_mask32 & OPT_VERBOSE) {
 		printf("context of %s retained as %s\n", fname, context_string);
@@ -181,7 +196,7 @@ int chcon_main(int argc UNUSED_PARAM, char **argv)
 #if ENABLE_FEATURE_CHCON_LONG_OPTIONS
 	if (option_mask32 & OPT_REFERENCE) {
 		/* FIXME: lgetfilecon() should be used when '-h' is specified.
-		   But current implementation follows the original one. */
+		 * But current implementation follows the original one. */
 		if (getfilecon(reference_file, &specified_context) < 0)
 			bb_perror_msg_and_die("getfilecon('%s') failed", reference_file);
 	} else
@@ -201,10 +216,10 @@ int chcon_main(int argc UNUSED_PARAM, char **argv)
 		fname[fname_len] = '\0';
 
 		if (recursive_action(fname,
-				     1<<option_mask32 & OPT_RECURSIVE,
-				     change_filedir_context,
-				     change_filedir_context,
-				     NULL, 0) != TRUE)
+					1<<option_mask32 & OPT_RECURSIVE,
+					change_filedir_context,
+					change_filedir_context,
+					NULL, 0) != TRUE)
 			errors = 1;
 	}
 	return errors;

@@ -35,9 +35,20 @@ int FAST_FUNC bb_make_directory(char *path, long mode, int flags)
 	char c;
 	struct stat st;
 
-	/* Happens on bb_make_directory(dirname("no_slashes"),...) */
-	if (LONE_CHAR(path, '.'))
+	/* "path" can be a result of dirname().
+	 * dirname("no_slashes") returns ".", possibly read-only.
+	 * musl dirname() can return read-only "/" too.
+	 * We need writable string. And for "/", "." (and ".."?)
+	 * nothing needs to be created anyway.
+	 */
+	if (LONE_CHAR(path, '/'))
 		return 0;
+	if (path[0] == '.') {
+		if (path[1] == '\0')
+			return 0; /* "." */
+//		if (path[1] == '.' && path[2] == '\0')
+//			return 0; /* ".." */
+	}
 
 	org_mask = cur_mask = (mode_t)-1L;
 	s = path;
@@ -99,6 +110,10 @@ int FAST_FUNC bb_make_directory(char *path, long mode, int flags)
 			if (!c) {
 				goto ret0;
 			}
+		} else {
+			if (flags & FILEUTILS_VERBOSE) {
+				printf("created directory: '%s'\n", path);
+			}
 		}
 
 		if (!c) {
@@ -107,6 +122,10 @@ int FAST_FUNC bb_make_directory(char *path, long mode, int flags)
 			 * an error. */
 			if ((mode != -1) && (chmod(path, mode) < 0)) {
 				fail_msg = "set permissions of";
+				if (flags & FILEUTILS_IGNORE_CHMOD_ERR) {
+					flags = 0;
+					goto print_err;
+				}
 				break;
 			}
 			goto ret0;
@@ -116,8 +135,9 @@ int FAST_FUNC bb_make_directory(char *path, long mode, int flags)
 		*s = c;
 	} /* while (1) */
 
-	bb_perror_msg("can't %s directory '%s'", fail_msg, path);
 	flags = -1;
+ print_err:
+	bb_perror_msg("can't %s directory '%s'", fail_msg, path);
 	goto ret;
  ret0:
 	flags = 0;

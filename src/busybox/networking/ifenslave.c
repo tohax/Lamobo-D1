@@ -55,7 +55,7 @@
  *
  *    - 2003/03/18 - Tsippy Mendelson <tsippy.mendelson at intel dot com> and
  *                   Shmulik Hen <shmulik.hen at intel dot com>
- *       - Moved setting the slave's mac address and openning it, from
+ *       - Moved setting the slave's mac address and opening it, from
  *         the application to the driver. This enables support of modes
  *         that need to use the unique mac address of each slave.
  *         The driver also takes care of closing the slave and restoring its
@@ -97,6 +97,17 @@
  *       - Code cleanup and style changes
  *         set version to 1.1.0
  */
+//config:config IFENSLAVE
+//config:	bool "ifenslave"
+//config:	default y
+//config:	select PLATFORM_LINUX
+//config:	help
+//config:	  Userspace application to bind several interfaces
+//config:	  to a logical interface (use with kernel bonding driver).
+
+//applet:IF_IFENSLAVE(APPLET(ifenslave, BB_DIR_SBIN, BB_SUID_DROP))
+
+//kbuild:lib-$(CONFIG_IFENSLAVE) += ifenslave.o interface.o
 
 //usage:#define ifenslave_trivial_usage
 //usage:       "[-cdf] MASTER_IFACE SLAVE_IFACE..."
@@ -270,7 +281,7 @@ static int set_if_addr(char *master_ifname, char *slave_ifname)
 		if (res < 0) {
 			ifr.ifr_addr.sa_family = AF_INET;
 			memset(ifr.ifr_addr.sa_data, 0,
-			       sizeof(ifr.ifr_addr.sa_data));
+				sizeof(ifr.ifr_addr.sa_data));
 		}
 
 		res = set_ifrname_and_do_ioctl(ifra[i].s_ioctl, &ifr, slave_ifname);
@@ -546,7 +557,7 @@ int ifenslave_main(int argc UNUSED_PARAM, char **argv)
 #ifdef WHY_BOTHER
 	/* Neither -c[hange] nor -d[etach] -> it's "enslave" then;
 	 * and -f[orce] is not there too. Check that it's ethernet. */
-	if (!(opt & (OPT_d|OPT_c|OPT_f)) {
+	if (!(opt & (OPT_d|OPT_c|OPT_f))) {
 		/* The family '1' is ARPHRD_ETHER for ethernet. */
 		if (master.hwaddr.ifr_hwaddr.sa_family != 1) {
 			bb_error_msg_and_die(
@@ -577,8 +588,8 @@ int ifenslave_main(int argc UNUSED_PARAM, char **argv)
 				/* Can't work with this slave, */
 				/* remember the error and skip it */
 				bb_perror_msg(
-					"skipping %s: can't get flags",
-					slave_ifname);
+					"skipping %s: can't get %s",
+					slave_ifname, "flags");
 				res = rv;
 				continue;
 			}
@@ -595,8 +606,8 @@ int ifenslave_main(int argc UNUSED_PARAM, char **argv)
 				/* Can't work with this slave, */
 				/* remember the error and skip it */
 				bb_perror_msg(
-					"skipping %s: can't get settings",
-					slave_ifname);
+					"skipping %s: can't get %s",
+					slave_ifname, "settings");
 				res = rv;
 				continue;
 			}

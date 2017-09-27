@@ -7,6 +7,17 @@
  *
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
+//config:config IPCRM
+//config:	bool "ipcrm"
+//config:	default y
+//config:	help
+//config:	  The ipcrm utility allows the removal of System V interprocess
+//config:	  communication (IPC) objects and the associated data structures
+//config:	  from the system.
+
+//applet:IF_IPCRM(APPLET(ipcrm, BB_DIR_USR_BIN, BB_SUID_DROP))
+
+//kbuild:lib-$(CONFIG_IPCRM) += ipcrm.o
 
 //usage:#define ipcrm_trivial_usage
 //usage:       "[-MQS key] [-mqs id]"
@@ -119,7 +130,7 @@ int ipcrm_main(int argc, char **argv)
 
 			if (remove_ids(what, &argv[2]))
 				fflush_stdout_and_exit(EXIT_FAILURE);
-			printf("resource(s) deleted\n");
+			puts("resource(s) deleted");
 			return 0;
 		}
 	}
@@ -160,7 +171,7 @@ int ipcrm_main(int argc, char **argv)
 
 			/* convert key to id */
 			id = ((c == 'q') ? msgget(key, 0) :
-				  (c == 'm') ? shmget(key, 0, 0) : semget(key, 0, 0));
+				(c == 'm') ? shmget(key, 0, 0) : semget(key, 0, 0));
 
 			if (id < 0) {
 				const char *errmsg;
@@ -189,8 +200,8 @@ int ipcrm_main(int argc, char **argv)
 		}
 
 		result = ((c == 'q') ? msgctl(id, IPC_RMID, NULL) :
-				  (c == 'm') ? shmctl(id, IPC_RMID, NULL) :
-				  semctl(id, 0, IPC_RMID, arg));
+				(c == 'm') ? shmctl(id, IPC_RMID, NULL) :
+				semctl(id, 0, IPC_RMID, arg));
 
 		if (result) {
 			const char *errmsg;

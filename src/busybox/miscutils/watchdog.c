@@ -8,6 +8,21 @@
  *
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
+//config:config WATCHDOG
+//config:	bool "watchdog"
+//config:	default y
+//config:	select PLATFORM_LINUX
+//config:	help
+//config:	  The watchdog utility is used with hardware or software watchdog
+//config:	  device drivers. It opens the specified watchdog device special file
+//config:	  and periodically writes a magic character to the device. If the
+//config:	  watchdog applet ever fails to write the magic character within a
+//config:	  certain amount of time, the watchdog device assumes the system has
+//config:	  hung, and will cause the hardware to reboot.
+
+//applet:IF_WATCHDOG(APPLET(watchdog, BB_DIR_SBIN, BB_SUID_DROP))
+
+//kbuild:lib-$(CONFIG_WATCHDOG) += watchdog.o
 
 //usage:#define watchdog_trivial_usage
 //usage:       "[-t N[ms]] [-T N[ms]] [-F] DEV"
@@ -31,6 +46,7 @@ static void watchdog_shutdown(int sig UNUSED_PARAM)
 {
 	static const char V = 'V';
 
+	remove_pidfile(CONFIG_PID_FILE_PATH "/watchdog.pid");
 	write(3, &V, 1);  /* Magic, see watchdog-api.txt in kernel */
 	if (ENABLE_FEATURE_CLEAN_UP)
 		close(3);
@@ -94,6 +110,8 @@ int watchdog_main(int argc, char **argv)
 	printf("watchdog: SW timer is %dms, HW timer is %ds\n",
 		stimer_duration, htimer_duration * 1000);
 #endif
+
+	write_pidfile(CONFIG_PID_FILE_PATH "/watchdog.pid");
 
 	while (1) {
 		/*

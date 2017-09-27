@@ -18,6 +18,8 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+//kbuild:lib-$(CONFIG_VOLUMEID) += volume_id.o util.o
+
 #include "volume_id_internal.h"
 
 
@@ -93,11 +95,20 @@ static const probe_fptr fs1[] = {
 #if ENABLE_FEATURE_VOLUMEID_FAT
 	volume_id_probe_vfat,
 #endif
+#if ENABLE_FEATURE_VOLUMEID_EXFAT
+	volume_id_probe_exfat,
+#endif
 #if ENABLE_FEATURE_VOLUMEID_MAC
 	volume_id_probe_mac_partition_map,
 #endif
+#if ENABLE_FEATURE_VOLUMEID_SQUASHFS
+	volume_id_probe_squashfs,
+#endif
 #if ENABLE_FEATURE_VOLUMEID_XFS
 	volume_id_probe_xfs,
+#endif
+#if ENABLE_FEATURE_VOLUMEID_BCACHE
+	volume_id_probe_bcache,
 #endif
 };
 
@@ -130,6 +141,12 @@ static const probe_fptr fs2[] = {
 #if ENABLE_FEATURE_VOLUMEID_UFS
 	volume_id_probe_ufs,
 #endif
+#if ENABLE_FEATURE_VOLUMEID_F2FS
+	volume_id_probe_f2fs,
+#endif
+#if ENABLE_FEATURE_VOLUMEID_NILFS
+	volume_id_probe_nilfs,
+#endif
 #if ENABLE_FEATURE_VOLUMEID_NTFS
 	volume_id_probe_ntfs,
 #endif
@@ -150,6 +167,9 @@ static const probe_fptr fs2[] = {
 #endif
 #if ENABLE_FEATURE_VOLUMEID_OCFS2
 	volume_id_probe_ocfs2,
+#endif
+#if ENABLE_FEATURE_VOLUMEID_UBIFS
+	volume_id_probe_ubifs,
 #endif
 };
 

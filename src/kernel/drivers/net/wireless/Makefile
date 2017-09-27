@@ -64,4 +64,4 @@ obj-$(CONFIG_BCMDHD)	+= bcmdhd/
 obj-$(CONFIG_BRCMFMAC)	+= brcm80211/
 obj-$(CONFIG_BRCMSMAC)	+= brcm80211/
 obj-$(CONFIG_RTL8188EU)  += rtl8188eu/
-#obj-$(CONFIG_RTLWIFI)  +=rtlwifi/
+obj-$(CONFIG_RTL8192CU)		+= rtlwifi/

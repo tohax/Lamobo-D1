@@ -1,8 +1,8 @@
 #!/bin/sh
-IP=10.10.10.111
-GW=10.10.10.2
-AP=Avtobus
-PASS=Acurarsx123
+IP=192.168.1.123
+GW=192.168.1.1
+AP=TP
+PASS=acurarsx
 
 SSID=\"$AP\"
 PSK=\"$PASS\"

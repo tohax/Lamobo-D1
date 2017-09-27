@@ -28,6 +28,21 @@
  *
  * Licensed under GPLv2, see file LICENSE in this source tree.
  */
+//config:config RUNCON
+//config:	bool "runcon"
+//config:	default n
+//config:	depends on SELINUX
+//config:	help
+//config:	  Enable support to run command in specified security context.
+//config:
+//config:config FEATURE_RUNCON_LONG_OPTIONS
+//config:	bool "Enable long options"
+//config:	default y
+//config:	depends on RUNCON && LONG_OPTS
+
+//applet:IF_RUNCON(APPLET(runcon, BB_DIR_USR_BIN, BB_SUID_DROP))
+
+//kbuild:lib-$(CONFIG_RUNCON) += runcon.o
 
 //usage:#define runcon_trivial_usage
 //usage:       "[-c] [-u USER] [-r ROLE] [-t TYPE] [-l RANGE] PROG ARGS\n"
@@ -37,10 +52,10 @@
 //usage:     "\n	CONTEXT		Complete security context\n"
 //usage:	IF_FEATURE_RUNCON_LONG_OPTIONS(
 //usage:     "\n	-c,--compute	Compute process transition context before modifying"
-//usage:     "\n	-t,--type=TYPE	Type (for same role as parent)"
-//usage:     "\n	-u,--user=USER	User identity"
-//usage:     "\n	-r,--role=ROLE	Role"
-//usage:     "\n	-l,--range=RNG	Levelrange"
+//usage:     "\n	-t,--type TYPE	Type (for same role as parent)"
+//usage:     "\n	-u,--user USER	User identity"
+//usage:     "\n	-r,--role ROLE	Role"
+//usage:     "\n	-l,--range RNG	Levelrange"
 //usage:	)
 //usage:	IF_NOT_FEATURE_RUNCON_LONG_OPTIONS(
 //usage:     "\n	-c	Compute process transition context before modifying"
@@ -51,12 +66,14 @@
 //usage:	)
 
 #include <selinux/context.h>
-#include <selinux/flask.h>
+/* from deprecated <selinux/flask.h>: */
+#undef  SECCLASS_PROCESS
+#define SECCLASS_PROCESS 2
 
 #include "libbb.h"
 
 static context_t runcon_compute_new_context(char *user, char *role, char *type, char *range,
-					    char *command, int compute_trans)
+			char *command, int compute_trans)
 {
 	context_t con;
 	security_context_t cur_context;
@@ -69,9 +86,9 @@ static context_t runcon_compute_new_context(char *user, char *role, char *type, 
 
 		if (getfilecon(command, &file_context) < 0)
 			bb_error_msg_and_die("can't retrieve attributes of '%s'",
-					     command);
+					command);
 		if (security_compute_create(cur_context, file_context,
-					    SECCLASS_PROCESS, &new_context))
+					SECCLASS_PROCESS, &new_context))
 			bb_error_msg_and_die("unable to compute a new context");
 		cur_context = new_context;
 	}
@@ -147,11 +164,11 @@ int runcon_main(int argc UNUSED_PARAM, char **argv)
 
 	if (security_check_context(context_str(con)))
 		bb_error_msg_and_die("'%s' is not a valid context",
-				     context_str(con));
+				context_str(con));
 
 	if (setexeccon(context_str(con)))
 		bb_error_msg_and_die("can't set up security context '%s'",
-				     context_str(con));
+				context_str(con));
 
 	BB_EXECVP_or_die(argv);
 }

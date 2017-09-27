@@ -32,7 +32,7 @@ config_kernel()
     cd $DEV_ROOT/src/kernel
     $MKDIR $DEV_ROOT/output/kernel
     $MAKE O=$DEV_ROOT/output/kernel aimer39_ak3918_D1_defconfig
-#    $MAKE O=$DEV_ROOT/output/kernel menuconfig
+    $MAKE O=$DEV_ROOT/output/kernel menuconfig
 }
 
 build_kernel()
@@ -60,7 +60,7 @@ clean_kernel()
    # restore kernel/lib/libakaec.a and kernel/lib/libfha.a
     git checkout lib
 
-    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtl8188eu
+    cd $DEV_ROOT/src/kernel/drivers/net/wireless/rtlwifi
     $MAKE -j$NCPU KSRC=$DEV_ROOT/output/kernel clean
 }
 
@@ -73,8 +73,8 @@ config_busybox()
         ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- \
         lamobo_d1_defconfig
 
-#    $MAKE O=$DEV_ROOT/output/busybox \
-#        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
+    $MAKE O=$DEV_ROOT/output/busybox \
+        ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- menuconfig
 }
 
 build_busybox()
@@ -318,6 +318,7 @@ REV_ID=${REV_ID:0:7}
 NCPU=$((`grep '^processor' /proc/cpuinfo | wc -l` * 2))
 
 export PATH=$DEV_ROOT/compiler/arm-2009q3/bin:$PATH
+#export PATH=/root/arm-201311/bin:$PATH
 #export PATH=/root/arm-2014.05/bin:$PATH
 
 #

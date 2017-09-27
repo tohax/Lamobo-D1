@@ -18,6 +18,13 @@
  *	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+//kbuild:lib-$(CONFIG_FEATURE_VOLUMEID_UDF) += udf.o
+
+//config:config FEATURE_VOLUMEID_UDF
+//config:	bool "udf filesystem"
+//config:	default y
+//config:	depends on VOLUMEID
+
 #include "volume_id_internal.h"
 
 struct volume_descriptor {
@@ -109,7 +116,7 @@ nsr:
 			return -1;
 
 		dbg("vsd: %c%c%c%c%c",
-		    vsd->id[0], vsd->id[1], vsd->id[2], vsd->id[3], vsd->id[4]);
+			vsd->id[0], vsd->id[1], vsd->id[2], vsd->id[3], vsd->id[4]);
 
 		if (vsd->id[0] == '\0')
 			return -1;
@@ -130,7 +137,7 @@ anchor:
 	if (type != 2) /* TAG_ID_AVDP */
 		goto found;
 
-	/* get desriptor list address and block count */
+	/* get descriptor list address and block count */
 	count = le32_to_cpu(vd->type.anchor.length) / bs;
 	loc = le32_to_cpu(vd->type.anchor.location);
 	dbg("0x%x descriptors starting at logical secor 0x%x", count, loc);
